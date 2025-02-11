@@ -3,7 +3,7 @@
 $host = '127.0.0.1';       // Database host
 $username = 'root';        // Database username
 $password = '';            // Database password
-$dbname = 'u509581816_landmappp';  // Database name
+$dbname = 'landmap';  // Database name
 
 // Create a connection using MySQLi
 $conn = new mysqli($host, $username, $password, $dbname);

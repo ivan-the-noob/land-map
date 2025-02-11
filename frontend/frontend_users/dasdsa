@@ -1,0 +1,73 @@
+Major functions
+3000 -Messaging realtime -
+1800 (kasama na user/agents) -mapping - in mapping see mark modal (land type, location , price , sqm) - 
+700-dynamic edit system - cms
+
+
+
+Landing page
+500-search bar -can show all properties
+400-sign up as user - signup as agent -
+
+
+User page
+(kasama na sa landing page price)-Search Filters- use_properties.php
+300-price/rental not function
+300-Lease term not function
+300-Land features
+300-land condition -sale
+300-Additional info
+400-user inquires - inquiry pending - if yes inquire approved
+(included)-cancel inquiry - destroy
+-message agent/ admin
+400-notification - message of agent, newlands, updates lands
+400 kasama na yung warning at ban -reports agent/ report property
+300-my profile - image, name/ account setting - password
+
+Agent page
+300-Agent crm (username, land type, status)
+-message clients/ admin
+(included)-notification - message of agent, newlands, updates lands
+(300)-my profile - image, name , position as agent(position type ) ,PRC id number, DSHP, id number/ account setting - password
+
+agent_listing
+300-For sale 
+300-land condition - not function - not visible
+300-for lease
+300-lease term - not function - not visible
+400-dropdown / input names of developers 
+
+
+agent_agents.php
+400-brokers if click agent profile can seee list of thier post lands
+
+agent_profile.php
+400-view details, messsage agent
+
+300-agent_listing
+400-update button not function
+30-archive button not function
+300-submit change to active or in active
+(included)-in mapping - Cavite only
+(inclidee) -1 pin with modal - land type, location, price
+(included)-search button for mapping
+
+400-agent inquires
+(included)-if client not kasundo - the message can auto delete
+(included)-if agent curent inquiry not entertain users client
+(inclided)-not multiple accept inquire 
+
+300-Filters sale type , land type
+300-agent accept inquire or cancel inquire
+
+Admin page
+(Frontend lang)300-my profile - image, name/ account setting - password
+300-message agent/ user
+(included)-notification - message of users, newlands, updates lands
+(included)-Warning user (agent, user)
+(included)-Admin crm (agent name, username, land type, status(success, cancel)
+300-Can see brokers
+(major)-CMS - System can edit
+(included)-View Land types, Reports
+400-Can manage agent, users
+400-can agent, admin register

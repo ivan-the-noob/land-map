@@ -45,6 +45,7 @@ if (!isset($_SESSION['role_type'])) {
     <link href="../../assets/lib/ionicons/css/ionicons.min.css" rel="stylesheet"> <!-- Ionicons -->
     <link href="../../assets/lib/typicons.font/typicons.css" rel="stylesheet"> <!-- Typicons -->
     <link href="../../assets/lib/flag-icon-css/css/flag-icon.min.css" rel="stylesheet"> <!-- Flag Icons -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmgygVeipMUsrtGeZPZ9UzXRmcVdheIqw&libraries=places"></script>
 
     <!-- Mapping Links -->
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.umd.js"></script> <!-- Maptiler SDK -->
@@ -273,6 +274,16 @@ if (!isset($_SESSION['role_type'])) {
             padding: 5px 10px; /* Padding */
             border-radius: 15px; /* Rounded corners */
             font-size: 0.9em; /* Font size */
+        }
+
+        #map {
+        height: 500px;
+        width: 100%;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -799,6 +810,13 @@ if (!isset($_SESSION['role_type'])) {
         flex-direction: column; /* Column layout */
     }
 }
+
+.card{
+    border: none;
+    padding: 20px;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
 </style>
 
 <script>
@@ -841,16 +859,16 @@ function contactAgent(userId) {
                     </button>
 
                     <!-- Add the map panel -->
-                    <div id="mapPanel" class="map-panel">
-                        <div class="map-controls">
-                            <button class="map-control-btn" onclick="toggleFullscreen()">
-                                <i class="fas fa-expand"></i> <!-- Fullscreen button icon -->
-                            </button>
+                    <div id="mapPanel" class="map-panel" style="margin-top: 65px;">
+                        <div class="map-controls" style="margin-top: 50px;">
+                        <button class="map-control-btn" onclick="toggleFullscreen()">
+                            <i class="fas fa-expand"></i> 
+                            
                             <button class="map-control-btn" onclick="toggleMap()">
                                 <i class="fas fa-times"></i> <!-- Close map button icon -->
                             </button>
                         </div>
-                        <div id="agentPropertyMap" style="width: 100%; height: 100%;"></div> <!-- Map container -->
+                        <div id="agentPropertyMaps" style="height: 100vh;"></div> <!-- Map container -->
                     </div>
 
                     <style>
@@ -937,190 +955,211 @@ function contactAgent(userId) {
 
                         /* Add animation for fullscreen icon */
                         .fa-expand, .fa-compress {
-                            transition: transform 0.3s ease; /* Transition effect for icons */
+                            transition: transform 0.3s ease;
                         }
 
                         .fullscreen .fa-expand {
-                            transform: rotate(180deg); /* Rotate icon */
+                            transform: rotate(180deg); 
                         }
 
-                        /* Add animation for property list */
                         .property-list {
-                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transition effect */
-                            width: 100%; /* Full width */
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            width: 100%; 
                         }
 
                         .property-list.map-active {
-                            width: 50%; /* Width when map is active */
+                            width: 50%; 
                         }
 
                         .property-list.fullscreen-active {
-                            opacity: 0; /* Fade out */
-                            transform: scale(0.95); /* Scale down */
-                            display: none; /* Hide */
-                            transition: opacity 0.3s ease, transform 0.3s ease; /* Transition effect */
+                            opacity: 0; 
+                            transform: scale(0.95);
+                            display: none; 
+                            transition: opacity 0.3s ease, transform 0.3s ease;
                         }
 
                         @media (max-width: 768px) {
                             .map-panel {
-                                width: 100%; /* Full width on small screens */
-                                right: -100%; /* Off-screen initially */
+                                width: 100%;
+                                right: -100%; 
                             }
 
                             .property-list.map-active {
-                                width: 0; /* Hide property list */
-                                overflow: hidden; /* Hide overflow */
+                                width: 0; 
+                                overflow: hidden; 
                             }
                         }
                     </style>
 
+
                     <script>
-                        document.addEventListener('DOMContentLoaded', function() {
-                            // Initialize map
-                            maptilersdk.config.apiKey = 'gLXa6ihZF9HF7keYdTHC'; // Set API key
+                window.map = null;
+window.allowedBounds = null;
+let infoWindows = []; // Store all InfoWindows
+let showInfo = true; // Track InfoWindow visibility
 
-                            const agentPropertyMap = new maptilersdk.Map({
-                                container: 'agentPropertyMap', // Map container
-                                style: maptilersdk.MapStyle.HYBRID, // Map style
-                                geolocate: maptilersdk.GeolocationType.POINT, // Geolocation type
-                                zoom: 10, // Initial zoom level
-                                maxZoom: 16.2 // Max zoom level
-                            });
+function initMap() {
+    const caviteCenter = { lat: 14.2794, lng: 120.8786 };
 
-                            // Fetch coordinates from the API
-                            fetch('../../backend/coordinates.php')
-                                .then(response => response.json()) // Parse JSON response
-                                .then(coordinates => {
-                                    // Check if the response is an array
-                                    if (!Array.isArray(coordinates)) {
-                                        console.error('Fetched data is not an array:', coordinates); // Log error
-                                        return; // Exit function
-                                    }
+    window.allowedBounds = new google.maps.LatLngBounds(
+        { lat: 14.1325, lng: 120.6750 },
+        { lat: 14.5050, lng: 121.0000 }
+    );
 
-                                    // Add each coordinate as a marker
-                                    coordinates.forEach(function(coord) {
-                                        // Ensure that each coordinate array has exactly 2 values (longitude, latitude)
-                                        if (coord.length !== 2) {
-                                            console.error(`Invalid coordinate format: [${coord}]`); // Log error
-                                            return; // Exit function
-                                        }
+    window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
+        center: caviteCenter,
+        zoom: 12,
+        restriction: {
+            latLngBounds: window.allowedBounds,
+            strictBounds: true
+        },
+        mapTypeControl: true // Enable map/satellite toggle
+    });
 
-                                        const [longitude, latitude] = coord; // Destructure coordinates
+    fetch('../../backend/get_properties.php')
+        .then(response => response.json())
+        .then(properties => {
+            if (!Array.isArray(properties)) {
+                console.error("Invalid data format:", properties);
+                return;
+            }
 
-                                        // Check if the coordinate values are valid numbers
-                                        if (isNaN(longitude) || isNaN(latitude)) {
-                                            console.error(`Invalid coordinate: [${longitude}, ${latitude}]`); // Log error
-                                        } else {
-                                            new maptilersdk.Marker() // Create new marker
-                                                .setLngLat([longitude, latitude]) // Set coordinates
-                                                .addTo(agentPropertyMap); // Add marker to map
-                                        }
-                                    });
-                                })
-                                .catch(error => {
-                                    console.error('Error fetching coordinates:', error); // Log error
-                                });
+            properties.forEach(property => {
+                const { latitude, longitude, property_name, property_type, sale_price, sale_or_lease } = property;
 
-                            window.toggleMap = function() {
-                                const mapPanel = document.getElementById('mapPanel'); // Get map panel
-                                const propertyList = document.querySelector('.property-list'); // Get property list
+                if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+                    console.warn(`Skipping property: ${property_name} (Invalid coordinates)`);
+                    return;
+                }
 
-                                if (mapPanel && propertyList) {
-                                    mapPanel.classList.toggle('active'); // Toggle map panel visibility
-                                    propertyList.classList.toggle('map-active'); // Toggle property list visibility
+                const propertyLocation = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
 
-                                    // If exiting fullscreen mode when closing
-                                    if (mapPanel.classList.contains('fullscreen')) {
-                                        mapPanel.classList.remove('fullscreen'); // Remove fullscreen class
-                                        propertyList.classList.remove('fullscreen-active'); // Remove fullscreen class from property list
-                                    }
+                if (!window.allowedBounds.contains(propertyLocation)) {
+                    console.warn(`Skipping property: ${property_name} (Out of Cavite bounds)`);
+                    return;
+                }
 
-                                    // Trigger a resize event to ensure the map renders correctly
-                                    if (agentPropertyMap) {
-                                        setTimeout(() => {
-                                            agentPropertyMap.resize(); // Resize map
-                                        }, 300);
-                                    }
-                                }
-                            };
+                // Determine the correct status (For Sale / For Lease)
+                let statusText = "N/A";
+                if (sale_or_lease) {
+                    statusText = sale_or_lease.toLowerCase() === 'lease' ? 'For Lease' :
+                                 sale_or_lease.toLowerCase() === 'sale' ? 'For Sale' : 'N/A';
+                }
 
-                            window.toggleFullscreen = function() {
-                                const mapPanel = document.getElementById('mapPanel'); // Get map panel
-                                const propertyList = document.querySelector('.property-list'); // Get property list
-                                const fullscreenIcon = document.querySelector('.map-control-btn i.fa-expand, .map-control-btn i.fa-compress'); // Get fullscreen icon
+                // Create a marker
+                const marker = new google.maps.Marker({
+                    position: propertyLocation,
+                    map: window.map,
+                    title: property_name
+                });
 
-                                if (mapPanel && propertyList) {
-                                    mapPanel.classList.toggle('fullscreen'); // Toggle fullscreen class
-                                    propertyList.classList.toggle('fullscreen-active'); // Toggle fullscreen class for property list
+                // Create an InfoWindow without a close button
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<div style="white-space: nowrap;">
+                                <strong>${property_name}</strong><br>
+                                <b>Type:</b> ${property_type || 'N/A'}<br>
+                                <b>Status:</b> ${statusText}<br>
+                                <b>Price:</b> ₱${sale_price ? parseInt(sale_price).toLocaleString("en-PH") : 'N/A'}
+                            </div>`,
+                    disableAutoPan: true // Prevents auto-panning when opened
+                });
 
-                                    // Toggle fullscreen icon
-                                    if (fullscreenIcon) {
-                                        if (mapPanel.classList.contains('fullscreen')) {
-                                            fullscreenIcon.classList.remove('fa-expand'); // Remove expand icon
-                                            fullscreenIcon.classList.add('fa-compress'); // Add compress icon
-                                        } else {
-                                            fullscreenIcon.classList.remove('fa-compress'); // Remove compress icon
-                                            fullscreenIcon.classList.add('fa-expand'); // Add expand icon
-                                        }
-                                    }
+                // Override styles to remove the "X" button
+                google.maps.event.addListener(infoWindow, 'domready', function () {
+                    const closeButton = document.querySelector('.gm-ui-hover-effect');
+                    if (closeButton) {
+                        closeButton.style.display = 'none';
+                    }
+                });
 
-                                    // Trigger a resize event to ensure the map renders correctly
-                                    if (agentPropertyMap) {
-                                        setTimeout(() => {
-                                            agentPropertyMap.resize(); // Resize map
-                                        }, 300);
-                                    }
-                                }
-                            };
+                // Store InfoWindow for toggling
+                infoWindows.push({ marker, infoWindow });
 
-                            // Enable the map button after map style has loaded
-                            agentPropertyMap.on('load', function() {
-                                const mapButton = document.getElementById('mapButton'); // Get map button
-                                if (mapButton) {
-                                    mapButton.disabled = false; // Enable the button when the map is ready
-                                }
-                            });
+                // Open InfoWindow only if "Show Info" is enabled
+                if (showInfo) {
+                    infoWindow.open(window.map, marker);
+                }
 
-                        });
+                // Open InfoWindow when marker is clicked
+                marker.addListener("click", () => {
+                    infoWindow.open(window.map, marker);
+                });
+            });
+        })
+        .catch(error => console.error("Error fetching properties:", error));
 
+    // Add "Show Info" toggle button next to Maps/Satellite toggle
+    const showInfoControl = document.createElement("button");
+    showInfoControl.textContent = "Show Info";
+    showInfoControl.classList.add("show-info-btn");
 
-                        document.addEventListener("DOMContentLoaded", function () {
-                            const propertyType = document.getElementById("propertyType");
-                            const sqmInput = document.getElementById("landArea");
+    // Apply styles
+    showInfoControl.style.fontSize = "14px"; // Bigger text
+    showInfoControl.style.fontWeight = "bold";
+    showInfoControl.style.margin = "8px"; // Adjust spacing
+    showInfoControl.style.padding = "12px 20px"; // Bigger button
+    showInfoControl.style.background = "#fff"; // White background
+    showInfoControl.style.border = "1px solid #ccc"; // Border
+    showInfoControl.style.cursor = "pointer";
+    showInfoControl.style.borderRadius = "5px"; // Rounded corners
+    showInfoControl.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)"; // Add slight shadow
 
-                            // Define limits for each land type
-                            const sqmLimits = {
-                                "House and Lot": 500,
-                                "Agricultural Farm": 10000, 
-                                "Commercial Lot": 2000,
-                                "Raw Land": 5000,
-                                "Residential Land": 1000,
-                                "Residential Farm": 3000,
-                                "Memorial Lot": 50
-                            };
+    showInfoControl.addEventListener("click", () => {
+        showInfo = !showInfo; // Toggle state
+        infoWindows.forEach(({ marker, infoWindow }) => {
+            if (showInfo) {
+                infoWindow.open(window.map, marker);
+            } else {
+                infoWindow.close();
+            }
+        });
+    });
 
-                            propertyType.addEventListener("change", function () {
-                                const selectedType = propertyType.value;
-                                const maxSqm = sqmLimits[selectedType] || null;
+    // Add the button to the map, positioning it on the left near Map/Satellite toggle
+    window.map.controls[google.maps.ControlPosition.TOP_LEFT].push(showInfoControl);
+}
 
-                                if (maxSqm) {
-                                    sqmInput.setAttribute("max", maxSqm);
-                                    sqmInput.placeholder = `Max: ${maxSqm} sqm`;
-                                } else {
-                                    sqmInput.removeAttribute("max");
-                                    sqmInput.placeholder = "Enter sqm";
-                                }
-                            });
+// ✅ Ensures `initMap()` runs correctly
+google.maps.event.addDomListener(window, 'load', initMap);
 
-                            sqmInput.addEventListener("input", function () {
-                                const selectedType = propertyType.value;
-                                const maxSqm = sqmLimits[selectedType];
-                                if (maxSqm && sqmInput.value > maxSqm) {
-                                    alert(`Maximum allowed sqm for ${selectedType} is ${maxSqm} sqm.`);
-                                    sqmInput.value = maxSqm;
-                                }
-                            });
-                        });
+window.toggleMap = function() {
+    const mapPanel = document.getElementById('mapPanel');
+    if (mapPanel) {
+        mapPanel.classList.toggle('active'); 
+    }
+
+    if (window.map) {
+        setTimeout(() => {
+            google.maps.event.trigger(window.map, 'resize');
+        }, 300);
+    }
+};
+
+window.toggleFullscreen = function() {
+    const mapPanel = document.getElementById('mapPanel');
+    const fullscreenIcon = document.querySelector('.map-control-btn i.fa-expand, .map-control-btn i.fa-compress');
+
+    if (mapPanel) {
+        mapPanel.classList.toggle('fullscreen'); 
+
+        if (fullscreenIcon) {
+            if (mapPanel.classList.contains('fullscreen')) {
+                fullscreenIcon.classList.remove('fa-expand');
+                fullscreenIcon.classList.add('fa-compress');
+            } else {
+                fullscreenIcon.classList.remove('fa-compress');
+                fullscreenIcon.classList.add('fa-expand');
+            }
+        }
+
+        if (window.map) {
+            setTimeout(() => {
+                google.maps.event.trigger(window.map, 'resize');
+            }, 300);
+        }
+    }
+};
+
 
 
                     </script>
@@ -1136,24 +1175,135 @@ function contactAgent(userId) {
                         </div>
                         <form id="propertyForm" method="POST" enctype="multipart/form-data"> <!-- Property form -->
                             <div class="row">
-                                <div class="col-md-6 order-md-2">
-                                    <div id="map" class="mb-3 position-relative">
-                                        <label for="mapstyles" class="form-label">Select Map Style</label> <!-- Map style label -->
-                                        <select name="mapstyles" id="mapstyles" class="form-select mapstyles-select"> <!-- Map styles dropdown -->
-                                            <optgroup label="Map Styles">
-                                                <option value="STREETS">Streets</option> <!-- Streets option -->
-                                                <option value="STREETS.DARK">Streets Dark</option> <!-- Streets Dark option -->
-                                                <option value="HYBRID" selected>Satellite</option> <!-- Satellite option -->
-                                            </optgroup>
-                                        </select>
+                                <div class="col-md-6 order-md-2 card">
+                                
+                                <div id="search-container" class="mb-3">
+                                    <input id="searchBox" type="text" class="form-control" placeholder="Search location">
+                                </div>                              
+                                <div id="map"></div>
 
-                                        <div class="custom-button-container d-flex justify-content-center">
-                                            <button id="undo-last" class="custom-btn custom-btn-secondary mx-2">Undo
-                                                Last</button> <!-- Undo button -->
-                                            <button id="clear-all" class="custom-btn custom-btn-danger mx-2">Clear
-                                                All</button> <!-- Clear all button -->
-                                        </div>
-                                    </div>
+                                <!-- Hidden Inputs for Lat & Lng -->
+                                <input type="hidden" id="latitude" name="latitude">
+                                <input type="hidden" id="longitude" name="longitude">
+
+                                <script>
+                                    let map;
+                                    let marker;
+                                    let allowedBounds;
+
+                                    function initMap() {
+                                        const caviteCenter = { lat: 14.2794, lng: 120.8786 }; // Center of Cavite
+
+                                        // Define boundaries for Cavite
+                                        allowedBounds = new google.maps.LatLngBounds(
+                                            { lat: 14.1325, lng: 120.6750 }, // Southwest (Ternate)
+                                            { lat: 14.5050, lng: 121.0000 }  // Northeast (Bacoor)
+                                        );
+
+                                        // Initialize the map
+                                        map = new google.maps.Map(document.getElementById("map"), {
+                                            center: caviteCenter,
+                                            zoom: 12,
+                                            restriction: {
+                                                latLngBounds: allowedBounds,
+                                                strictBounds: true
+                                            }
+                                        });
+
+                                        // Initialize marker
+                                        marker = new google.maps.Marker({
+                                            position: caviteCenter,
+                                            map: map,
+                                            draggable: true
+                                        });
+
+                                        function updateLatLng(lat, lng) {
+                                            document.getElementById("latitude").value = lat;
+                                            document.getElementById("longitude").value = lng;
+                                        }
+
+                                        // Restrict marker movement within Cavite
+                                        marker.addListener("dragend", () => {
+                                            let newPos = marker.getPosition();
+                                            if (allowedBounds.contains(newPos)) {
+                                                updateLatLng(newPos.lat(), newPos.lng());
+                                            } else {
+                                                marker.setPosition(caviteCenter); // Reset marker if out of bounds
+                                            }
+                                        });
+
+                                        // Click event to place marker (inside bounds only)
+                                        map.addListener("click", (event) => {
+                                            let clickedLocation = event.latLng;
+                                            if (allowedBounds.contains(clickedLocation)) {
+                                                marker.setPosition(clickedLocation);
+                                                updateLatLng(clickedLocation.lat(), clickedLocation.lng());
+                                            }
+                                        });
+
+                                        // Search Box with Restriction to Cavite
+                                        const searchBox = new google.maps.places.Autocomplete(document.getElementById("searchBox"), {
+                                            componentRestrictions: { country: "PH" }, // Restrict to the Philippines
+                                            bounds: allowedBounds, // Bias results to Cavite
+                                            strictBounds: true // Force results inside Cavite
+                                        });
+
+                                        searchBox.addListener("place_changed", function () {
+                                            let place = searchBox.getPlace();
+                                            if (!place.geometry) return;
+
+                                            // Ensure the selected place is inside Cavite
+                                            let placeAddress = place.formatted_address || "";
+                                            if (!placeAddress.includes("Cavite")) {
+                                                document.getElementById("searchBox").value = ""; // Clear input if outside Cavite
+                                                return;
+                                            }
+
+                                            // Move map and marker to the searched location
+                                            map.setCenter(place.geometry.location);
+                                            map.setZoom(14);
+                                            marker.setPosition(place.geometry.location);
+                                            updateLatLng(place.geometry.location.lat(), place.geometry.location.lng());
+                                        });
+
+                                        // Get and update user's live location
+                                        if (navigator.geolocation) {
+                                            navigator.geolocation.watchPosition(
+                                                (position) => {
+                                                    let userLocation = new google.maps.LatLng(
+                                                        position.coords.latitude,
+                                                        position.coords.longitude
+                                                    );
+
+                                                    if (allowedBounds.contains(userLocation)) {
+                                                        // Move marker to user location
+                                                        marker.setPosition(userLocation);
+                                                        updateLatLng(userLocation.lat(), userLocation.lng());
+                                                        map.setCenter(userLocation);
+                                                    }
+                                                },
+                                                (error) => console.warn("Error in getting location: ", error),
+                                                {
+                                                    enableHighAccuracy: true,
+                                                    maximumAge: 0
+                                                }
+                                            );
+                                        } else {
+                                            console.warn("Geolocation is not supported by this browser.");
+                                        }
+
+                                        // Prevent users from panning outside Cavite
+                                        google.maps.event.addListener(map, 'dragend', function () {
+                                            if (!allowedBounds.contains(map.getCenter())) {
+                                                map.setCenter(caviteCenter);
+                                            }
+                                        });
+                                    }
+
+                                    window.onload = initMap;
+                                </script>
+
+
                                 </div>
 
                                 <div class="col-md-6 order-md-1">
@@ -2236,30 +2386,7 @@ function contactAgent(userId) {
         setInterval(updateTime, 1000);
     </script>
 
-    <!--Di ko alam kay palacio-->
-    <script>
-        // Initialize maps
-        const map1 = new maptilersdk.Map({
-            container: 'map1',
-            style: maptilersdk.MapStyle.STREETS,
-            center: [121.0537, 14.5489], // Manila coordinates
-            zoom: 13
-        });
-
-        const map2 = new maptilersdk.Map({
-            container: 'map2',
-            style: maptilersdk.MapStyle.STREETS,
-            center: [121.0537, 14.5489],
-            zoom: 13
-        });
-
-        const mapInput = new maptilersdk.Map({
-            container: 'mapInput',
-            style: maptilersdk.MapStyle.STREETS,
-            center: [121.0537, 14.5489],
-            zoom: 13
-        });
-    </script>
+  
 
     <!--create property form part-->
     <script>
@@ -2307,60 +2434,76 @@ function contactAgent(userId) {
 
     <!-- modal if data is sent and modal appear -->
     <script>
-        document.getElementById('propertyForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+       document.getElementById('propertyForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
 
-            const submitBtn = document.getElementById('submitBtn');
-            const btnText = document.getElementById('btnText');
-            const loadingSpinner = document.getElementById('loadingSpinner');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
 
-            submitBtn.disabled = true;
-            btnText.textContent = "Submitting...";
-            loadingSpinner.classList.remove("d-none");
+    submitBtn.disabled = true;
+    btnText.textContent = "Submitting...";
+    loadingSpinner.classList.remove("d-none");
 
-            const formData = new FormData(this);
-            
-            // Add lease duration and land condition to formData
-            const saleOrLease = document.getElementById('saleOrLease').value;
-            if (saleOrLease === 'lease') {
-                const leaseDuration = document.getElementById('leaseDuration').value;
-                formData.append('leaseDuration', leaseDuration);
-            } else if (saleOrLease === 'sale') {
-                const landCondition = document.getElementById('landCondition').value;
-                formData.append('landCondition', landCondition);
-            }
+    const formData = new FormData(this);
 
-            try {
-                const response = await fetch('../../backend/add_property.php', {
-                    method: 'POST',
-                    body: formData
-                });
+    // Ensure latitude & longitude are included
+    const latitude = document.getElementById('latitude').value;
+    const longitude = document.getElementById('longitude').value;
 
-                const result = await response.json();
+    if (!latitude || !longitude) {
+        alert("Please select a location on the map.");
+        submitBtn.disabled = false;
+        btnText.textContent = "Submit";
+        loadingSpinner.classList.add("d-none");
+        return;
+    }
 
-                if (result.status === "success") {
-                    const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
-                        backdrop: 'static',
-                        keyboard: false
-                    });
-                    successModal.show();
-                } else {
-                    alert("Error: " + result.message);
-                }
-            } catch (error) {
-                console.error("Submission error:", error);
-                alert("Something went wrong!");
-            } finally {
-                submitBtn.disabled = false;
-                btnText.textContent = "Submit";
-                loadingSpinner.classList.add("d-none");
-            }
+    formData.append('latitude', latitude);
+    formData.append('longitude', longitude);
+
+    // Add lease duration and land condition to formData
+    const saleOrLease = document.getElementById('saleOrLease').value;
+    if (saleOrLease === 'lease') {
+        const leaseDuration = document.getElementById('leaseDuration').value;
+        formData.append('leaseDuration', leaseDuration);
+    } else if (saleOrLease === 'sale') {
+        const landCondition = document.getElementById('landCondition').value;
+        formData.append('landCondition', landCondition);
+    }
+
+    try {
+        const response = await fetch('../../backend/add_property.php', {
+            method: 'POST',
+            body: formData
         });
 
-        // Redirect button
-        document.getElementById('closeModalBtn').addEventListener('click', function() {
-            window.location.href = "agent_listing.php"; // Change this to your actual landing page
-        });
+        const result = await response.json();
+
+        if (result.status === "success") {
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+            successModal.show();
+        } else {
+            alert("Error: " + result.message);
+        }
+    } catch (error) {
+        console.error("Submission error:", error);
+        alert("Something went wrong!");
+    } finally {
+        submitBtn.disabled = false;
+        btnText.textContent = "Submit";
+        loadingSpinner.classList.add("d-none");
+    }
+});
+
+// Redirect button
+document.getElementById('closeModalBtn').addEventListener('click', function() {
+    window.location.href = "agent_listing.php"; // Change this to your actual landing page
+});
+
     </script>
 
 </body>

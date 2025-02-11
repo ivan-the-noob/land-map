@@ -8,113 +8,53 @@ const map = new maptilersdk.Map({
   maxZoom: 16.2,
 });
 
-let points = [];
-let markers = [];
-let polygonLayerId = "polygon-fill";
+let currentMarker = null; // Store a single marker
 
 map.on("click", (event) => {
-  points.push([event.lngLat.lng, event.lngLat.lat]);
+  const lngLat = event.lngLat;
 
-  // DRAGGABLE MARKER CODE
-  const marker = new maptilersdk.Marker({ draggable: true })
-    .setLngLat(event.lngLat)
-    .addTo(map);
-
-  // EVENT LISTENER TO UPDATE WHERE THE USER POINT THE MARKER
-  marker.on("dragend", () => {
-    const lngLat = marker.getLngLat();
-    points[markers.indexOf(marker)] = [lngLat.lng, lngLat.lat]; // UPDATES THE CORRESPONDING POINTS
-    updatePolygon(); // THIS UPDATE THE POLYGON
-  });
-
-  markers.push(marker); // Store the marker
-  drawPolygon(); // Draw or update the polygon with the new point
-
-  // Show the button container when the first point is created
-  document.querySelector("#undo-last").style.display = "flex";
-  document.querySelector("#clear-all").style.display = "flex";
-});
-
-function drawPolygon() {
-  const polygon = {
-    type: "Feature",
-    geometry: {
-      type: "Polygon",
-      coordinates: [[...points, points[0]]], // Close the polygon
-    },
-  };
-
-  // Add polygon source only once
-  if (!map.getSource("custom-polygon")) {
-    map.addSource("custom-polygon", {
-      type: "geojson",
-      data: polygon,
-    });
-
-    map.addLayer({
-      id: polygonLayerId,
-      type: "fill",
-      source: "custom-polygon",
-      layout: {},
-      paint: {
-        "fill-color": "#dc3545", // Change to desired color
-        "fill-opacity": 0.6,
-      },
-    });
+  // If a marker already exists, just update its position
+  if (currentMarker) {
+    currentMarker.setLngLat(lngLat);
   } else {
-    // Update the existing polygon data
-    map.getSource("custom-polygon").setData(polygon);
+    // Create a draggable marker
+    currentMarker = new maptilersdk.Marker({ draggable: true })
+      .setLngLat(lngLat)
+      .addTo(map);
+
+    // Update position when dragged
+    currentMarker.on("dragend", () => {
+      const newLngLat = currentMarker.getLngLat();
+      updateHiddenInput(newLngLat);
+    });
+
+    // Show the buttons
+    document.querySelector("#clear-marker").style.display = "flex";
   }
-}
 
-function updatePolygon() {
-  const polygon = {
-    type: "Feature",
-    geometry: {
-      type: "Polygon",
-      coordinates: [[...points, points[0]]], // Close the polygon
-    },
-  };
-
-  map.getSource("custom-polygon").setData(polygon); // Update the polygon data
-}
-
-// Undo last point
-document.getElementById("undo-last").addEventListener("click", () => {
-  if (points.length > 0) {
-    points.pop(); // Remove the last point
-    const lastMarker = markers.pop(); // Remove the last marker
-    lastMarker.remove(); // Remove the marker from the map
-    updatePolygon(); // Update the polygon
-
-    // Hide the button container if no points are left
-    if (points.length === 0) {
-      document.querySelector("#undo-last").style.display = "none";
-      document.querySelector("#clear-all").style.display = "none";
-    }
-  }
+  updateHiddenInput(lngLat);
 });
 
-// Clear all points
-document.getElementById("clear-all").addEventListener("click", () => {
-  points = [];
-  markers.forEach((marker) => marker.remove()); // Remove all markers
-  markers = []; // Clear the markers array
-  if (map.getSource("custom-polygon")) {
-    map.removeLayer(polygonLayerId); // Remove the fill layer
-    map.removeSource("custom-polygon"); // Remove the polygon source
+// Clear the marker
+document.getElementById("clear-marker").addEventListener("click", () => {
+  if (currentMarker) {
+    currentMarker.remove();
+    currentMarker = null;
   }
 
-  // Hide the button container
-  document.querySelector("#undo-last").style.display = "none";
-  document.querySelector("#clear-all").style.display = "none";
+  // Hide the button
+  document.querySelector("#clear-marker").style.display = "none";
+
+  // Clear hidden input
+  document.getElementById("coordinates").value = "";
 });
 
 // Update hidden input before form submission
-document.querySelector("form").addEventListener("submit", function () {
-  document.getElementById("coordinates").value = JSON.stringify(points);
-});
+function updateHiddenInput(lngLat) {
+  document.getElementById("coordinates").value = JSON.stringify([lngLat.lng, lngLat.lat]);
+}
 
+// Change map style
 document.getElementById("mapstyles").addEventListener("change", (e) => {
   const style_code = e.target.value.split(".");
   style_code.length === 2

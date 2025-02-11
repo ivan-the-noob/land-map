@@ -1,13 +1,23 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
+    require '../../db.php';
+    $query = "SELECT * FROM cms LIMIT 1";
+    $result = $conn->query($query);
+    $cms = $result->fetch_assoc();
 ?>
+
+
+
+                     
 <div class="container">
 
     <!--Logo Head-->
 
     <div class="az-header-left">
+        <img src="../../assets/images/cms/<?= htmlspecialchars($cms['logo'] ?? '') ?>" alt="Logo" style="width: 60px; height: 60px;">
         <a href="../frontend/frontend_users/user_page.php" class="az-logo">Land<span class="text-primary">Map</span></a>
         <a href="" id="azMenuShow" class="az-header-menu-icon d-lg-none"><span></span></a>
     </div>

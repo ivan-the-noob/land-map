@@ -326,71 +326,141 @@
                                             </div>
                                         </form>
                                     </div>
+                 
+                  
+                                      
 
                     <div class="main-box" id="website-design" style="display:none;">
+                    <div class="button-container d-flex justify-content-end">
+                        <!-- Reload Page button -->
+                        <button id="reload-page-button" class="btn btn-primary">Reload Page</button>
+                    </div>
                         <div class="iframe-container" style="overflow: hidden;">
                             <!-- Iframe to display the webpage -->
-                            <iframe id="website-viewer" src="http://localhost:3000/" width="100%" height="500px" frameborder="0"></iframe>
+                            <iframe id="website-viewer" src="../../index.php" width="100%" height="800px" frameborder="0"></iframe>
                         </div>
-
-                        <!-- Reload button to reload the iframe -->
-                        <div class="button-container">
-                            <!-- Reload Page button -->
-                            <button id="reload-page-button" class="btn btn-primary">Reload Page</button>
-                        </div>
-
                         <!-- Customization Form -->
+                        <?php
+                            $query = "SELECT * FROM cms LIMIT 1";
+                            $result = $conn->query($query);
+                            $cms = $result->fetch_assoc();
+                        ?>
+                     
                         <div class="appearance-settings-container">
-                            <h2>Homepage</h2>
-                            <form id="appearance-form">
-                                <!-- Section: Colors -->
-                                <div class="form-section">
-                                    <h4>Colors</h4>
-                                    <label for="background-color">Background Color:</label>
-                                    <input type="color" id="background-color" name="background-color" value="#ffffff" class="input-field" />
+                            <h2>EDIT CMS</h2>
+                            <div class="card p-4 shadow col-md-12">
+                                <form id="cmsForm" enctype="multipart/form-data">
+                                    <div class="row">
+                                    <div class="col-md-12 mb-3">
+                                            <label class="form-label">Font Preview:</label>
+                                            <div id="fontPreview" class="p-3 border rounded" style="font-family: <?= $cms['font_family'] ?? 'Arial'; ?>; font-size: <?= $cms['font_size'] ?? '16px'; ?>; font-style: <?= $cms['font_style'] ?? 'normal'; ?>;">
+                                                This is a live preview of your font selection.
+                                            </div>
+                                        </div>
 
-                                    <label for="primary-color">Primary Color:</label>
-                                    <input type="color" id="primary-color" name="primary-color" value="#007bff" class="input-field" />
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Font Family:</label>
+                                            <select name="font_family" id="fontFamily" class="form-control">
+                                                <option value="Arial" <?= ($cms['font_family'] ?? '') == "Arial" ? "selected" : ""; ?>>Arial</option>
+                                                <option value="Verdana" <?= ($cms['font_family'] ?? '') == "Verdana" ? "selected" : ""; ?>>Verdana</option>
+                                                <option value="Times New Roman" <?= ($cms['font_family'] ?? '') == "Times New Roman" ? "selected" : ""; ?>>Times New Roman</option>
+                                                <option value="Courier New" <?= ($cms['font_family'] ?? '') == "Courier New" ? "selected" : ""; ?>>Courier New</option>
+                                                <option value="Georgia" <?= ($cms['font_family'] ?? '') == "Georgia" ? "selected" : ""; ?>>Georgia</option>
+                                            </select>
+                                        </div>
 
-                                    <label for="secondary-color">Secondary Color:</label>
-                                    <input type="color" id="secondary-color" name="secondary-color" value="#6c757d" class="input-field" />
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Font Style:</label>
+                                            <select name="font_style" id="fontStyle" class="form-control">
+                                                <option value="normal" <?= ($cms['font_style'] ?? '') == "normal" ? "selected" : ""; ?>>Normal</option>
+                                                <option value="italic" <?= ($cms['font_style'] ?? '') == "italic" ? "selected" : ""; ?>>Italic</option>
+                                                <option value="bold" <?= ($cms['font_style'] ?? '') == "bold" ? "selected" : ""; ?>>Bold</option>
+                                                <option value="bold italic" <?= ($cms['font_style'] ?? '') == "bold italic" ? "selected" : ""; ?>>Bold Italic</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Font Size: <span id="fontSizeValue"><?= $cms['font_size'] ?? '16px'; ?></span></label>
+                                            <input type="range" name="font_size" id="fontSize" class="form-range" min="12" max="100" step="1" value="<?= intval($cms['font_size'] ?? 16); ?>">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Logo:</label>
+                                            <input type="file" name="logo" class="form-control">
+                                            <?php if (!empty($cms['logo'])): ?>
+                                                <img src="../../assets/images/cms/<?= htmlspecialchars($cms['logo']); ?>" class="mt-2 img-thumbnail" width="100">
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Image:</label>
+                                            <input type="file" name="img" class="form-control">
+                                            <?php if (!empty($cms['img'])): ?>
+                                                <img src="../../assets/images/cms/<?= htmlspecialchars($cms['img']); ?>" class="mt-2 img-thumbnail" width="100">
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Text:</label>
+                                            <input type="text" name="text" class="form-control" value="<?= htmlspecialchars($cms['text'] ?? ''); ?>">
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Animation Text:</label>
+                                            <input type="text" name="animation_text" class="form-control" value="<?= htmlspecialchars($cms['animation_text'] ?? ''); ?>">
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Background Color:</label>
+                                            <div class="input-group">
+                                                <input type="text" id="background_color" name="background_color" class="form-control" value="<?= htmlspecialchars($cms['background_color'] ?? '#808080'); ?>">
+                                                <input type="color" id="colorPicker" class="form-control form-control-color" value="<?= htmlspecialchars($cms['background_color'] ?? '#808080'); ?>" style="width: 50px; border: none; cursor: pointer;">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Land Services:</label>
+                                            <textarea name="land_services" class="form-control" rows="3"><?= htmlspecialchars($cms['land_services'] ?? ''); ?></textarea>
+                                        </div>
+                                        <div class="col-md-12">                                                       
+                                            <div id="responseMessage" class="w-25 fw-bold"></div>
+                                        </div>
+                                       
+
+                                        <hr>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">About Page:</label>
+                                            <textarea name="about_page" class="form-control" rows="3" ><?= htmlspecialchars($cms['about_page'] ?? ''); ?></textarea>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Contact Email:</label>
+                                            <input type="email" name="contact_email" class="form-control" value="<?= htmlspecialchars($cms['contact_email'] ?? ''); ?>" >
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Contact Number:</label>
+                                            <input type="text" name="contact_number" class="form-control" value="<?= htmlspecialchars($cms['contact_number'] ?? ''); ?>" >
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Contact Location:</label>
+                                            <input type="text" name="contact_location" class="form-control" value="<?= htmlspecialchars($cms['contact_location'] ?? ''); ?>" >
+                                        </div>
+
+                                        <div class="col-md-12 d-flex justify-content-center mx-auto">
+                                               <div id="responseMessage"></div>
+                                            <button type="submit" class="btn btn-primary w-50">Update</button>
+                                        </div>
+                                    </div>
+                                </form>
+
                                 </div>
-
-                                <!-- Section: Fonts -->
-                                <div class="form-section">
-                                    <h4>Fonts</h4>
-                                    <label for="font-family">Font Family:</label>
-                                    <select id="font-family" name="font-family" class="input-field">
-                                        <option value="Arial, sans-serif">Arial</option>
-                                        <option value="Roboto, sans-serif">Roboto</option>
-                                        <option value="Open Sans, sans-serif">Open Sans</option>
-                                        <option value="Georgia, serif">Georgia</option>
-                                    </select>
-
-                                    <label for="font-size">Font Size:</label>
-                                    <input type="range" id="font-size" name="font-size" min="10" max="36" value="16" class="input-field" />
-                                    <span id="font-size-value">16px</span>
-                                </div>
-
-                                <!-- Section: Layout -->
-                                <div class="form-section">
-                                    <h4>Layout</h4>
-                                    <label for="layout-width">Layout Width:</label>
-                                    <input type="range" id="layout-width" name="layout-width" min="800" max="1600" value="1200" class="input-field" />
-                                    <span id="layout-width-value">1200px</span>
-
-                                    <label for="spacing">Spacing:</label>
-                                    <input type="range" id="spacing" name="spacing" min="0" max="50" value="10" class="input-field" />
-                                    <span id="spacing-value">10px</span>
-                                </div>
-
-                                <!-- Apply Changes Button -->
-                                <div class="form-section">
-                                    <button type="submit" class="btn btn-primary">Apply Changes</button>
-                                </div>
-                            </form>
+                                                </div>
+                            </div>
                         </div>
                     </div>
+                                            </div>
 
                     <div class="main-box" id="navigation-management" style="display:none;">
                         <h3>Navigation Management</h3>
@@ -1007,6 +1077,108 @@
             });
         });
     </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+    $(document).ready(function() {
+        $("#cmsForm").on("submit", function(e) {
+            e.preventDefault(); 
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: "../../backend/process_cms.php", 
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                beforeSend: function() {
+                    $("#responseMessage").html('<div class="alert alert-info">Updating...</div>').fadeIn();
+                },
+                success: function(response) {
+                    console.log("Server Response: ", response);
+                    $("#responseMessage").html('<div class="alert alert-success">' + response + '</div>').fadeIn().delay(3000).fadeOut();
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error: ", xhr.responseText);
+                    $("#responseMessage").html('<div class="alert alert-danger">An error occurred: ' + error + '</div>').fadeIn().delay(3000).fadeOut();
+                }
+            });
+        });
+    });
+    </script>
+    <script>
+        document.getElementById("website-viewer").onload = function() {
+            let iframeDoc = document.getElementById("website-viewer").contentWindow.document;
+
+            let buttons = iframeDoc.querySelectorAll("button");
+            buttons.forEach(button => {
+                button.disabled = true;
+                button.style.pointerEvents = "none"; 
+                button.style.opacity = "0.5";
+            });
+
+            let links = iframeDoc.querySelectorAll("a");
+            links.forEach(link => {
+                link.removeAttribute("href");
+                link.style.pointerEvents = "none";
+                link.style.color = "gray";
+                link.style.textDecoration = "none"; 
+            });
+        };
+    </script>
+
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let textInput = document.getElementById("background_color");
+        let colorPicker = document.getElementById("colorPicker");
+
+        colorPicker.addEventListener("input", function() {
+            textInput.value = this.value;
+        });
+    });
+    </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let fontFamily = document.getElementById("fontFamily");
+        let fontStyle = document.getElementById("fontStyle");
+        let fontSize = document.getElementById("fontSize");
+        let fontSizeValue = document.getElementById("fontSizeValue");
+        let fontPreview = document.getElementById("fontPreview");
+
+        function updatePreview() {
+            fontPreview.style.fontFamily = fontFamily.value;
+            fontPreview.style.fontSize = fontSize.value + "px";
+            fontSizeValue.textContent = fontSize.value + "px";
+
+            let selectedStyle = fontStyle.value;
+            if (selectedStyle === "bold") {
+                fontPreview.style.fontWeight = "bold";
+                fontPreview.style.fontStyle = "normal";
+            } else if (selectedStyle === "italic") {
+                fontPreview.style.fontWeight = "normal";
+                fontPreview.style.fontStyle = "italic";
+            } else if (selectedStyle === "bold italic") {
+                fontPreview.style.fontWeight = "bold";
+                fontPreview.style.fontStyle = "italic";
+            } else {
+                fontPreview.style.fontWeight = "normal";
+                fontPreview.style.fontStyle = "normal";
+            }
+        }
+
+        fontFamily.addEventListener("change", updatePreview);
+        fontStyle.addEventListener("change", updatePreview);
+        fontSize.addEventListener("input", updatePreview);
+
+        updatePreview();
+    });
+    </script>
+
+
 
 </body>
 

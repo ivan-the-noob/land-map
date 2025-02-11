@@ -119,24 +119,46 @@ elseif ($_SESSION['role_type'] !== 'user') {
                             <h3 class="mb-1 mr-5">My Post Land Properties</h3>
                             <div class="property-list">
                                 
-    <?php
-    require '../../db.php';
+            <?php
+                require '../../db.php';
 
-    $sql = "SELECT p.*, 
-            u.fname, u.lname,
-            ui.image_name as user_image,
-            (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
-            FROM properties p 
-            LEFT JOIN users u ON p.user_id = u.user_id
-            LEFT JOIN user_img ui ON u.user_id = ui.user_id";
+                $user_id = $_SESSION['user_id']; 
 
-    $result = $conn->query($sql);
+                $sql = "SELECT p.*, 
+                u.fname, u.lname,
+                ui.image_name AS user_image,
+                iq.status AS inquiry_status,
+                p.user_id AS agent_id, 
+                (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
+                FROM properties p
+                LEFT JOIN users u ON p.user_id = u.user_id
+                LEFT JOIN user_img ui ON u.user_id = ui.user_id
+                LEFT JOIN inquire iq ON p.property_id = iq.property_id AND iq.user_id = ?
+                WHERE iq.property_id IS NOT NULL";
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
-            $agentName = $row['fname'] . ' ' . $row['lname'];
-    ?>
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
+                        $agentImage = $row['user_image'] ? "../../assets/profile_images/" . $row['user_image'] : "../../assets/profile_images/profile.jpg";
+                        $agentName = '<img src="' . $agentImage . '" alt="Agent Image" class="agent-profile-img"> ' . $row['fname'] . ' ' . $row['lname'];
+                        $agent = $row['fname'] . ' ' . $row['lname'];
+                        $inquiryStatus = $row['inquiry_status']; 
+                        if ($inquiryStatus === 'pending') {
+                            $buttonClass = 'btn-update';
+                            $buttonText = 'Inquiry Pending';
+                        } elseif ($inquiryStatus === 'accepted') {
+                            $buttonClass = 'btn-success';
+                            $buttonText = 'Inquiry Accepted';
+                        } else { 
+                            $buttonClass = 'btn-danger';
+                            $buttonText = 'Inquiry Declined';
+                        }
+                ?>
             <div class="property-card">
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
@@ -188,23 +210,83 @@ elseif ($_SESSION['role_type'] !== 'user') {
                     <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View Details
                         </button>
-                        <button class="btn-update" onclick="updateProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-clock"></i> Inquiry Pending
+                        <button class="<?= $buttonClass ?>">
+                            <i class="fas fa-clock"></i> <?= $buttonText ?>
                         </button>
                         <button class="btn-delete" onclick="deleteProperty(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-trash"></i> Cancel Inquiry
                         </button>
                     </div>
 
-                    <div class="agent-info">
-                        <?php if ($row['user_image']) { ?>
-                            <img src="../../assets/images/profile/<?php echo $row['user_image']; ?>" alt="Agent">
-                        <?php } ?>
-                        <span><i class="fas fa-user"> Agent Name:</i> <?php echo htmlspecialchars($agentName); ?></span>
-                        <button class="btn-contact" onclick="contactAgent(<?php echo $row['user_id']; ?>)">
-                            <i class="fas fa-user"></i> Message Agent
-                        </button>
+                    <?php if ($row['inquiry_status'] == 'accepted'): ?>
+                        <div class="agent-info">
+                           
+                            <span><i class="fas fa-user"> Agent Name:</i> <?php echo ($agentName); ?></span>
+                            <button class="btn-contact" 
+                                onclick="openChatModal(
+                                    <?= $row['property_id']; ?>, 
+                                    <?= $row['agent_id']; ?>, 
+                                    '<?= htmlspecialchars($row['property_name'], ENT_QUOTES); ?>', 
+                                    '<?= htmlspecialchars($row['property_type'], ENT_QUOTES); ?>', 
+                                    '<?= htmlspecialchars($row['property_location'], ENT_QUOTES); ?>', 
+                                    '<?= htmlspecialchars($row['sale_or_lease'], ENT_QUOTES); ?>', 
+                                    <?= $row['land_area']; ?>, 
+                                    <?= $row['sale_price']; ?>
+                                )">
+                                <i class="fas fa-user"></i> Message Agent
+                            </button>
+
+                        </div>
+                    <?php endif; ?>
+                    <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="chatModalLabel">Chat with <?php echo ($agent); ?></h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <!-- Chat Header -->
+                                    <div class="header-chat p-2 rounded mb-2" style=" position: absolute; padding: 15px; border: 1px solid #ddd; border-radius: 5px; margin: 5px;">
+                                        <button class="close-btn" onclick="hideHeaderChat()">×</button>
+                                        <p class="mb-1"><strong>Property Name:</strong> <span id="chatPropertyName"></span></p>
+                                        <p class="mb-1"><strong>Property Type:</strong> <span id="chatPropertyType"></span></p>
+                                        <p class="mb-1"><strong>Location:</strong> <span id="chatPropertyLocation"></span></p>
+                                        <p class="mb-1"><strong>Sale/Lease:</strong> <span id="chatSaleOrLease"></span></p>
+                                        <p class="mb-1"><strong>Land Area:</strong> <span id="chatLandArea"></span> sqm</p>
+                                        <p class="mb-1"><strong>Price:</strong> ₱<span id="chatSalePrice"></span></p>
+                                         <button class="btn btn-primary mt-2" onclick="viewPropertyImages()">View Images</button>
+                                    </div>
+                                    <!-- Chat Messages -->
+                                    <div id="chatMessages" class="chat-box"></div>
+
+                                    <!-- Chat Input -->
+                                    <div class="input-group mt-3 d-flex gap-2">
+                                        <input type="text" id="chatInput" class="form-control" placeholder="Type your message...">
+                                        <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="imageModalLabel">Property Images</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body text-center">
+                                    <div id="propertyImagesContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                 </div>
             </div>
     <?php
@@ -415,61 +497,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
         flex-direction: column;
     }
 }
-</style>
 
-<script>
-function submitProperty(propertyId) {
-    if(confirm('Are you sure you want to submit this property?')) {
-        // Add your submit logic here
-        console.log('Submitting property:', propertyId);
-    }
-}
-
-function updateProperty(propertyId) {
-    window.location.href = 'edit_property.php?id=' + propertyId;
-}
-
-function deleteProperty(propertyId) {
-    if(confirm('Are you sure you want to delete this property?')) {
-        // Add your delete logic here
-        console.log('Deleting property:', propertyId);
-    }
-}
-
-function viewDetails(propertyId) {
-    // Add your view details logic here
-    console.log('Viewing details for property:', propertyId);
-}
-
-function contactAgent(userId) {
-    // Add your contact agent logic here
-    console.log('Contacting agent:', userId);
-}
-</script>
-                        </div>
-                    </div>
-
-                    <!-- PROPERTY CARD -->
-
-                    <!-- Add the floating button -->
-<button id="mapButton" class="floating-map-btn" onclick="toggleMap()">
-    <i class="fas fa-map-marker-alt"></i>
-</button>
-
-<!-- Add the map panel -->
-<div id="mapPanel" class="map-panel">
-    <div class="map-controls">
-        <button class="map-control-btn" onclick="toggleFullscreen()">
-            <i class="fas fa-expand"></i>
-        </button>
-        <button class="map-control-btn" onclick="toggleMap()">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div id="agentPropertyMap" style="width: 100%; height: 100%;"></div>
-</div>
-
-<style>
 .floating-map-btn {
     position: fixed;
     bottom: 30px;
@@ -588,7 +616,212 @@ function contactAgent(userId) {
         overflow: hidden;
     }
 }
+
+.chat-message {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.user-message {
+    justify-content: flex-end; 
+}
+
+.agent-message {
+    justify-content: flex-start; 
+}
+
+.message-box {
+    padding: 10px;
+    border-radius: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
+}
+
+.user-message .message-box {
+    background-color: #007bff;
+    color: white;
+    text-align: right;
+}
+
+.agent-message .message-box {
+    background-color: #f1f1f1;
+    color: black;
+    text-align: left;
+}
+
+.chat-box {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd; 
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+}
+
+.header-chat{
+    background-color:#02C39A;
+    padding: 20px;
+    border-radius: 5px;
+    color: #fff;
+    font-weight: 500;
+    width: 50%;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #888;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
 </style>
+
+<script>
+
+let propertyId, agentId;
+
+function openChatModal(propId, agtId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice) {
+    console.log("Opening chat for:", { propId, agtId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice });
+
+    propertyId = propId;
+    agentId = agtId;
+
+    // Update chat header details
+    document.getElementById("chatPropertyName").innerText = propertyName;
+    document.getElementById("chatPropertyType").innerText = propertyType;
+    document.getElementById("chatPropertyLocation").innerText = propertyLocation;
+    document.getElementById("chatSaleOrLease").innerText = saleOrLease;
+    document.getElementById("chatLandArea").innerText = landArea;
+    document.getElementById("chatSalePrice").innerText = new Intl.NumberFormat().format(salePrice);
+
+    // Open the modal
+    $('#chatModal').modal('show');
+
+    // Load previous messages
+    loadMessages();
+}
+
+// Auto-refresh messages every 3 seconds
+setInterval(loadMessages, 3000);
+
+function hideHeaderChat() {
+    let headerChat = document.querySelector(".header-chat");
+    headerChat.style.transition = "opacity 0.3s ease";
+    headerChat.style.opacity = "0";
+
+    setTimeout(() => {
+        headerChat.style.display = "none";
+        headerChat.style.opacity = "1";
+    }, 300);
+}
+
+function loadMessages() {
+    if (!propertyId || !agentId) return;  
+
+    $.ajax({
+        url: "../../backend/load_messages.php",
+        type: "POST",
+        data: { property_id: propertyId, agent_id: agentId },
+        success: function(response) {
+            $('#chatMessages').html(response);
+            $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight); 
+        }
+    });
+}
+
+
+function sendMessage() {
+    let message = $('#chatInput').val().trim();
+    if (message === '') return;
+
+    $.ajax({
+        url: "../../backend/send_message.php",
+        type: "POST",
+        data: { property_id: propertyId, agent_id: agentId, message: message },
+        success: function(response) {
+            $('#chatInput').val('');
+            loadMessages(); 
+        }
+    });
+}
+
+function viewPropertyImages() {
+    console.log("Fetching images for Property ID:", propertyId);
+
+    $.ajax({
+        url: "../../backend/load_property_images.php", // PHP script to fetch images
+        type: "POST",
+        data: { property_id: propertyId },
+        success: function(response) {
+            console.log("Images loaded:", response);
+            $('#propertyImagesContainer').html(response);
+            $('#imageModal').modal('show'); // Show modal after loading images
+        },
+        error: function(xhr, status, error) {
+            console.log("Error loading images:", status, error);
+        }
+    });
+}
+
+
+
+function submitProperty(propertyId) {
+    if(confirm('Are you sure you want to submit this property?')) {
+        console.log('Submitting property:', propertyId);
+    }
+}
+
+function updateProperty(propertyId) {
+    window.location.href = 'edit_property.php?id=' + propertyId;
+}
+
+function deleteProperty(propertyId) {
+    if(confirm('Are you sure you want to delete this property?')) {
+        console.log('Deleting property:', propertyId);
+    }
+}
+
+function viewDetails(propertyId) {
+    console.log('Viewing details for property:', propertyId);
+}
+
+function contactAgent(userId) {
+    console.log('Contacting agent:', userId);
+}
+</script>
+                        </div>
+                    </div>
+
+                    <!-- PROPERTY CARD -->
+
+                    <!-- Add the floating button -->
+<button id="mapButton" class="floating-map-btn" onclick="toggleMap()">
+    <i class="fas fa-map-marker-alt"></i>
+</button>
+
+<!-- Add the map panel -->
+<div id="mapPanel" class="map-panel">
+    <div class="map-controls">
+        <button class="map-control-btn" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </button>
+        <button class="map-control-btn" onclick="toggleMap()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div id="agentPropertyMap" style="width: 100%; height: 100%;"></div>
+</div>
+
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

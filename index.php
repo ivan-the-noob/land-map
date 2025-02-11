@@ -1,3 +1,28 @@
+<?php 
+    require 'db.php';
+    $query = "SELECT * FROM cms LIMIT 1";
+    $result = $conn->query($query);
+    $cms = $result->fetch_assoc();
+
+    $fontStyle = htmlspecialchars($cms['font_style'] ?? 'normal');
+    $fontFamily = htmlspecialchars($cms['font_family'] ?? 'Arial, sans-serif');
+    $fontSize = htmlspecialchars($cms['font_size'] ?? '32'); 
+    $backgroundColor = htmlspecialchars($cms['background_color'] ?? '#006D77');
+    $imageFile = htmlspecialchars($cms['img'] ?? '');
+    $backgroundImage = "assets/images/cms/{$imageFile}";
+
+    if (is_numeric($fontSize)) {
+        $fontSize .= 'px';
+    }
+
+    $style = "font-family: {$fontFamily}; font-size: {$fontSize}; ";
+    $style .= ($fontStyle === 'bold') ? "font-weight: bold;" : "font-style: {$fontStyle};";
+
+
+    $styleWithoutFontSize = "font-family: {$fontFamily}; ";
+    $styleWithoutFontSize .= ($fontStyle === 'bold') ? "font-weight: bold;" : "font-style: {$fontStyle};";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -43,12 +68,15 @@
 
     <!--Navigation bar tail-->
 
-    <div class="hero">
+    <div class="hero" style="background: <?= $backgroundColor ?>;">
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-lg-7">
                     <div class="intro-wrap">
-                    <h1 class="mb-5"><span class="d-block">Find your ideal  <br> land with our</span><span class="typed-words"></span></h1>
+                    <h1 class="mb-5">
+                        <span class="d-block w-100"  style="<?= $style ?>"><?= nl2br(htmlspecialchars($cms['text'] ?? '')) ?></span>
+                        <span class="typed-words"  style="<?= $style ?>"></span>
+                    </h1>
                         </h1>
 
                         <!--Search bar head-->
@@ -114,7 +142,7 @@
                 </div>
                 <div class="col-lg-5">
                     <div class="slides">
-                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid active">
+                        <img src="assets/images/cms/<?= htmlspecialchars($cms['img'] ?? 'assets/images/hero-slider-1.jpg') ?>" alt="Image" class="img-fluid active">
                         <img src="assets/images/hero-slider-2.jpg" alt="Image" class="img-fluid">
                         <img src="assets/images/hero-slider-3.jpg" alt="Image" class="img-fluid">
                         <img src="assets/images/hero-slider-4.jpg" alt="Image" class="img-fluid">
@@ -130,16 +158,16 @@
         <div class="container">
             <div class="row mb-5 justify-content-center">
             <div class="col-lg-6 text-center">
-                    <h2 class="section-title text-center mb-3">LAND SERVICES</h2>
-                    <p>In LandMap, we make searching for land more straightforward by means of our interactive map feature: you can filter properties by size, price, and type through a few clicks, and it will instantly reveal key details regarding land dimensions, amenities, and pricing. Directions to each property are also indicated step by step on our map, making the planning of your visits easier. Whether you're looking to buy land for your home, business, or investment, our user-friendly mapping tool ensures a seamless and efficient property search experience.</p>
+                    <h2 class="section-title text-center mb-3" style="<?= $styleWithoutFontSize ?>">LAND SERVICES</h2>
+                    <p style="<?= $styleWithoutFontSize ?>"><?= nl2br(htmlspecialchars($cms['land_services']))?></p>
                 </div>
             </div>
             <div class="row align-items-stretch">
                 <div class="col-lg-4 order-lg-1">
                     <div class="h-100">
                         <div class="frame h-100">
-                            <div class="feature-img-bg h-100"
-                                style="background-image: url('assets/images/hero-slider-1.jpg');"></div>
+                        <div class="feature-img-bg h-100" style="background-image: url('<?= $backgroundImage ?>');"></div>
+                                
                         </div>
                     </div>
                 </div>
@@ -403,7 +431,7 @@
                     <div class="col-md-6 col-lg-4">
                         <div class="widget">
                             <h3 class="heading">About Page</h3>
-                            <p>Welcome to Land Property Estate, your trusted platform for finding and selling land properties. We connect buyers with sellers and agents to facilitate seamless land transactions. Our mission is to make land property dealings transparent, efficient and accessible to everyone across the Tanza, Cavite, Philippines.</p>
+                            <p style="<?= $styleWithoutFontSize ?>"><?= nl2br(htmlspecialchars($cms['about_page'] ?? '')) ?></p>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-2 pl-lg-5">
@@ -423,9 +451,9 @@
                         <div class="widget">
                             <h3 class="heading">Contacts</h3>
                             <ul class="list-unstyled quick-info links">
-                                <li class="email"><a href="#">company@example.com</a></li>
-                                <li class="phone"><a href="#">+63 936 7876</a></li>
-                                <li class="address"><a href="#">Makati, Philippines</a></li>
+                                <li class="email"><a href="#"  style="<?= $styleWithoutFontSize ?>"><?= nl2br(htmlspecialchars($cms['contact_email'] ?? '')) ?></a></li>
+                                <li class="phone"><a href="#"  style="<?= $styleWithoutFontSize ?>"><?= nl2br(htmlspecialchars($cms['contact_number'] ?? '')) ?></a></li>
+                                <li class="address"><a href="#"  style="<?= $styleWithoutFontSize ?>"><?= nl2br(htmlspecialchars($cms['contact_location'] ?? '')) ?></a></li>
                             </ul>
                         </div>
                     </div>
@@ -462,7 +490,7 @@
             })
 
             var typed = new Typed('.typed-words', {
-                strings: ["LandMap"],
+                strings: [<?= json_encode($cms['animation_text'] ?? 'LandMap') ?>],
                 typeSpeed: 80,
                 backSpeed: 80,
                 backDelay: 4000,
