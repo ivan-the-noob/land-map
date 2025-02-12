@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(['status' => 'error', 'message' => 'User not logged in.']);
         exit;
     }
-
+ 
     $user_id = $_SESSION['user_id']; // Retrieve the logged-in user's ID
 
     // Check if all required fields exist
@@ -45,24 +45,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $longitude = floatval($_POST['longitude']);
 
     // Set appropriate values based on listing type
-    if ($saleOrLease === 'lease') {
-        if (empty($leaseDuration) || !is_numeric($leaseDuration)) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid lease duration.']);
-            exit;
-        }
-    } elseif ($saleOrLease === 'sale') {
-        if (empty($landCondition)) {
-            echo json_encode(['status' => 'error', 'message' => 'Land condition is required for sale properties.']);
-            exit;
-        }
-    }
+   
+  
 
     // Insert the property into the properties table
     $sql = "INSERT INTO properties (property_name, property_location, property_type, sale_or_lease, land_area, lease_duration, monthly_rent, land_condition, sale_price, another_info, property_description, latitude, longitude, user_id) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param('ssssissdssssdd', 
+        $stmt->bind_param('ssssisssssssdd', 
             $propertyName, $propertyLocation, $propertyType, $saleOrLease, 
             $landArea, $leaseDuration, $monthlyRent, $landCondition, 
             $salePrice, $anotherInfo, $propertyDescription, $latitude, $longitude, $user_id

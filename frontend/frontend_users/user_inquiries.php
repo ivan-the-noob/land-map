@@ -186,6 +186,9 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <?php if ($row['property_type']) { ?>
                             <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span>
                         <?php } ?>
+                        <?php if ($row['sale_or_lease']) { ?>
+                            <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['sale_or_lease']); ?></span>
+                        <?php } ?>
                     </div>
 
                     <?php if ($row['property_description']) { ?>
