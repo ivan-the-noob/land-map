@@ -1,13 +1,13 @@
-                                        <option value="all" <?= ($selectedLocation == 'all') ? 'selected' : '' ?>>All Locations</option>
-                                        <optgroup label="Cities">
-                                            <option value="Bacoor, Cavite" <?= ($selectedLocation == 'Bacoor, Cavite') ? 'selected' : '' ?>>Bacoor</option>
-                                            <option value="Cavite City, Cavite" <?= ($selectedLocation == 'Cavite City, Cavite') ? 'selected' : '' ?>>Cavite City</option>
-                                            <option value="Dasmariñas, Cavite" <?= ($selectedLocation == 'Dasmariñas, Cavite') ? 'selected' : '' ?>>Dasmariñas</option>
-                                            <option value="General Trias, Cavite" <?= ($selectedLocation == 'General Trias, Cavite') ? 'selected' : '' ?>>General Trias</option>
-                                            <option value="Imus, Cavite" <?= ($selectedLocation == 'Imus, Cavite') ? 'selected' : '' ?>>Imus</option>
-                                            <option value="Tagaytay, Cavite" <?= ($selectedLocation == 'Tagaytay, Cavite') ? 'selected' : '' ?>>Tagaytay</option>
-                                            <option value="Trece Martires, Cavite" <?= ($selectedLocation == 'Trece Martires, Cavite') ? 'selected' : '' ?>>Trece Martires</option>
-                                        </optgroup>
+<option value="all">All Locations</option>
+                                            <optgroup label="Cities">
+                                                <option value="Bacoor, Cavite">Bacoor</option>
+                                                <option value="Cavite City, Cavite">Cavite City</option>
+                                                <option value="Dasmariñas, Cavite">Dasmariñas</option>
+                                                <option value="General Trias, Cavite">General Trias</option>
+                                                <option value="Imus, Cavite">Imus</option>
+                                                <option value="Tagaytay, Cavite">Tagaytay</option>
+                                                <option value="Trece Martires, Cavite">Trece Martires</option>
+                                            </optgroup>
 
                                             
                                             <optgroup label="Municipalities">

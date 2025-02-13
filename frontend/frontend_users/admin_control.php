@@ -54,6 +54,7 @@
                     <nav class="nav flex-column">
                         <a href="#" class="nav-link active" id="userListLink" onclick="showUserTable(event)">User List</a>
                         <a href="#" class="nav-link" id="agentListLink" onclick="showAgentTable(event)">Agent List</a>
+                        <a href="#" class="nav-link" id="agentListLink" onclick="showAgentVerification(event)">Agent Verification</a>
                         <a href="#" class="nav-link" id="agentRegistrationLink" onclick="showRegistration(event)">Agent Registration</a>
                         <a href="#" class="nav-link" id="adminRegistrationLink" onclick="showAdminRegistration(event)">Admin Registration</a>
                     </nav>
@@ -200,6 +201,115 @@
                                             </ul>
                                         </nav>
                                     </div><!-- main-box -->
+
+                                    <div class="main-box clearfix" id="agent-verification" style="display:none;">
+                                        <h3>Agent Verification</h3>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped agent-list">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>Agent</th>
+                                                        <th>Role</th>
+                                                        <th class="text-center">Status</th>
+                                                        <th>Email</th>
+                                                        <th class="text-center">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    $query = "SELECT * FROM users WHERE role_type = 'agent' AND admin_verify = 0";
+                                                    $result = $conn->query($query);
+
+                                                    if ($result->num_rows > 0):
+                                                        while ($agent = $result->fetch_assoc()): ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <img src="../../assets/profile_images/<?= htmlspecialchars($agent['profile']) ?>" alt=""
+                                                                        style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
+                                                                    <a href="#" class="user-link text-dark"><?= htmlspecialchars($agent['fname'] . ' ' . $agent['lname']) ?></a>
+                                                                </td>
+                                                                <td><?= htmlspecialchars($agent['role_type']) ?></td>
+                                                                <td class="text-center">
+                                                                    <span class="badge badge-<?= $agent['admin_verify'] == 1 ? 'success' : 'secondary' ?>">
+                                                                        <?= $agent['admin_verify'] == 1 ? 'Verified' : 'Not Verified' ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td><a href="mailto:<?= htmlspecialchars($agent['email']) ?>" class="text-dark"><?= htmlspecialchars($agent['email']) ?></a></td>
+                                                                <td class="text-center">
+                                                                    <!-- View Button (Opens Modal) -->
+                                                                    <button class="btn btn-info btn-sm view-agent" data-toggle="modal" 
+                                                                        data-target="#viewAgentModal" 
+                                                                        data-agent='<?= json_encode($agent) ?>'>
+                                                                        <i class="fas fa-eye"></i> View
+                                                                    </button>
+
+                                                                    <!-- Accept Button (Approve Agent) -->
+                                                                    <button class="btn btn-success btn-sm approve-agent" data-id="<?= $agent['user_id'] ?>">
+                                                                        <i class="fas fa-check"></i> Accept
+                                                                    </button>
+
+                                                                    <!-- Decline Button (Reject Agent) -->
+                                                                    <button class="btn btn-danger btn-sm decline-agent" data-id="<?= $agent['user_id'] ?>">
+                                                                        <i class="fas fa-times"></i> Decline
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endwhile;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">No agents found.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination">
+                                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+
+                                    <div class="modal fade" id="viewAgentModal" tabindex="-1" role="dialog" aria-labelledby="viewAgentModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="viewAgentModalLabel">Agent Details</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="text-center">
+                                                        <img id="agentProfileImg" src="" alt="Agent Image" class="rounded-circle" style="width: 100px; height: 100px;">
+                                                    </div>
+                                                    <p><strong>Name:</strong> <span id="agentName"></span></p>
+                                                    <p><strong>Email:</strong> <span id="agentEmail"></span></p>
+                                                    <p><strong>Location:</strong> <span id="agentLocation"></span></p>
+                                                    <p><strong>Mobile:</strong> <span id="agentMobile"></span></p>
+                                                    <hr>
+                                                    <h6>Primary ID</h6>
+                                                    <p><strong>Type:</strong> <span id="agentPrimaryIDType"></span></p>
+                                                    <p><strong>Number:</strong> <span id="agentPrimaryIDNumber"></span></p>
+                                                    <div class="text-center">
+                                                        <img id="agentPrimaryIDImg" src="" alt="Primary ID Image" class="img-fluid" style="max-width: 200px;">
+                                                    </div>
+                                                    <hr>
+                                                    <h6>Secondary ID</h6>
+                                                    <p><strong>Type:</strong> <span id="agentSecondaryIDType"></span></p>
+                                                    <p><strong>Number:</strong> <span id="agentSecondaryIDNumber"></span></p>
+                                                    <div class="text-center">
+                                                        <img id="agentSecondaryIDImg" src="" alt="Secondary ID Image" class="img-fluid" style="max-width: 200px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
 
                                     <!-- Agent Registration Form Section -->
                                     <div class="main-box" id="registration-form" style="display:none;">
@@ -696,53 +806,70 @@
     </script>
 
     <script>
-        function showUserTable(event) {
-            event.preventDefault(); // Prevent default anchor behavior
-            document.getElementById('user-tables').style.display = 'block';
-            document.getElementById('agent-tables').style.display = 'none';
-            document.getElementById('registration-form').style.display = 'none';
-            document.getElementById('website-design').style.display = 'none';
-            setActiveLink(event.currentTarget.id);
-        }
+      function showUserTable(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        document.getElementById('user-tables').style.display = 'block';
+        document.getElementById('agent-tables').style.display = 'none';
+        document.getElementById('registration-form').style.display = 'none';
+        document.getElementById('website-design').style.display = 'none';
+        document.getElementById('agent-verification').style.display = 'none';
+        setActiveLink(event.currentTarget.id);
+    }
 
-        function showAgentTable(event) {
-            event.preventDefault(); // Prevent default anchor behavior
-            document.getElementById('user-tables').style.display = 'none';
-            document.getElementById('agent-tables').style.display = 'block';
-            document.getElementById('registration-form').style.display = 'none';
-            document.getElementById('website-design').style.display = 'none';
-            setActiveLink(event.currentTarget.id);
-        }
+    function showAgentTable(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        document.getElementById('user-tables').style.display = 'none';
+        document.getElementById('agent-tables').style.display = 'block';
+        document.getElementById('registration-form').style.display = 'none';
+        document.getElementById('website-design').style.display = 'none';
+        document.getElementById('agent-verification').style.display = 'none';
+        setActiveLink(event.currentTarget.id);
+    }
 
-        function showRegistration(event) {
-            event.preventDefault(); // Prevent default anchor behavior
-            document.getElementById('user-tables').style.display = 'none';
-            document.getElementById('agent-tables').style.display = 'none';
-            document.getElementById('registration-form').style.display = 'block';
-            document.getElementById('website-design').style.display = 'none';
-            setActiveLink(event.currentTarget.id);
-        }
+    function showRegistration(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        document.getElementById('user-tables').style.display = 'none';
+        document.getElementById('agent-tables').style.display = 'none';
+        document.getElementById('registration-form').style.display = 'block';
+        document.getElementById('website-design').style.display = 'none';
+        document.getElementById('agent-verification').style.display = 'none';
+        setActiveLink(event.currentTarget.id);
+    }
 
-        function showWebsiteDesign(event) {
-            event.preventDefault(); // Prevent default anchor behavior
-            document.getElementById('user-tables').style.display = 'none';
-            document.getElementById('agent-tables').style.display = 'none';
-            document.getElementById('registration-form').style.display = 'none';
-            document.getElementById('website-design').style.display = 'block';
-            setActiveLink(event.currentTarget.id);
-        }
+    function showWebsiteDesign(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        document.getElementById('user-tables').style.display = 'none';
+        document.getElementById('agent-tables').style.display = 'none';
+        document.getElementById('registration-form').style.display = 'none';
+        document.getElementById('website-design').style.display = 'block';
+        document.getElementById('agent-verification').style.display = 'none';
+        setActiveLink(event.currentTarget.id);
+    }
 
-        function setActiveLink(activeId) {
-            const links = ['userListLink', 'agentListLink', 'agentRegistrationLink', 'websitedesignListLink'];
-            links.forEach(link => {
-                const element = document.getElementById(link);
+    function showAgentVerification(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        document.getElementById('user-tables').style.display = 'none';
+        document.getElementById('agent-tables').style.display = 'none';
+        document.getElementById('registration-form').style.display = 'none';
+        document.getElementById('website-design').style.display = 'none';
+        document.getElementById('agent-verification').style.display = 'block';
+        setActiveLink(event.currentTarget.id);
+    }
+
+    function setActiveLink(activeId) {
+        const links = ['userListLink', 'agentListLink', 'agentRegistrationLink', 'websitedesignListLink', 'agentVerificationLink'];
+        links.forEach(link => {
+            const element = document.getElementById(link);
+            if (element) {
                 if (link === activeId) {
                     element.classList.add('active');
                 } else {
                     element.classList.remove('active');
                 }
-            });
-        }
+            }
+        });
+    }
+
     </script>
 
     <script>
@@ -1079,6 +1206,82 @@
     </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+       document.addEventListener("DOMContentLoaded", function () {
+    // Handle View Button Click
+    document.querySelectorAll(".view-agent").forEach(button => {
+        button.addEventListener("click", function () {
+            let agent = JSON.parse(this.getAttribute("data-agent"));
+
+            // Populate Modal Fields
+            document.getElementById("agentProfileImg").src = "../../assets/profile_images/" + agent.profile;
+            document.getElementById("agentName").textContent = agent.fname + " " + agent.lname;
+            document.getElementById("agentEmail").textContent = agent.email;
+            document.getElementById("agentLocation").textContent = agent.location;
+            document.getElementById("agentMobile").textContent = agent.mobile;
+
+            document.getElementById("agentPrimaryIDType").textContent = agent.primary_id_type;
+            document.getElementById("agentPrimaryIDNumber").textContent = agent.primary_id_number;
+            document.getElementById("agentPrimaryIDImg").src = "../../assets/agents/" + agent.primary_id_image;
+
+            document.getElementById("agentSecondaryIDType").textContent = agent.secondary_id_type;
+            document.getElementById("agentSecondaryIDNumber").textContent = agent.secondary_id_number;
+            document.getElementById("agentSecondaryIDImg").src = "../../assets/agents/" + agent.secondary_id_image;
+        });
+    });
+
+    // Handle Approve Agent
+    document.querySelectorAll(".approve-agent").forEach(button => {
+        button.addEventListener("click", function () {
+            let agentId = this.getAttribute("data-id");
+
+            if (confirm("Are you sure you want to approve this agent?")) {
+                fetch("../../backend/approve_agent.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "user_id=" + agentId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Agent approved successfully!");
+                        location.reload();
+                    } else {
+                        alert("Error approving agent.");
+                    }
+                });
+            }
+        });
+    });
+
+    // Handle Decline Agent
+    document.querySelectorAll(".decline-agent").forEach(button => {
+        button.addEventListener("click", function () {
+            let agentId = this.getAttribute("data-id");
+
+            if (confirm("Are you sure you want to decline this agent?")) {
+                fetch("../../backend/decline_agent.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "user_id=" + agentId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Agent declined successfully!");
+                        location.reload();
+                    } else {
+                        alert("Error declining agent.");
+                    }
+                });
+            }
+        });
+    });
+});
+
+
+    </script>
 
     <script>
     $(document).ready(function() {

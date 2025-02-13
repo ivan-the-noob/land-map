@@ -54,6 +54,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
     <link href="../../assets/lib/flag-icon-css/css/flag-icon.min.css" rel="stylesheet">
 
     <!-- Mapping Links -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmgygVeipMUsrtGeZPZ9UzXRmcVdheIqw&libraries=places"></script>
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.umd.js"></script>
     <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.css" rel="stylesheet" />
 
@@ -500,7 +501,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
 
                 
     
-
+                <button onclick="window.location.href='agent_chat.php'" class="btn btn-primary m-3">Chat Agent</button>
                 <div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
@@ -588,7 +589,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         </div>
                     <?php } ?>
 
-                    <div class="admin-actions">
+                    <div class="admin-actions d-flex justify-content-center">
                         <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View Details
                         </button>
@@ -610,13 +611,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                             <i class="fas fa-trash"></i> Cancel Inquiry
                         </button>
                         </div>
-                        <div class="user-info"> 
-                            <?php if ($row['iq_status'] == 'accepted'): ?>
-                                <button class="btn-contact" onclick="openChatModal(<?= $row['property_id']; ?>, <?= $row['agent_id']; ?>, <?= $row['inquirer_id']; ?>)">
-                                    <i class="fas fa-user"></i> Message User
-                                </button>
-                            <?php endif; ?>
-                        </div>
+                       
 
                        <!-- Chat Modal -->
                        <div class="modal fade" id="chatModal" tabindex="-1" aria-labelledby="chatModalLabel" aria-hidden="true">
@@ -730,117 +725,24 @@ function loadMessages() {
 
 setInterval(loadMessages, 2000);
 
+// Google Maps function for modal
+function initMap(latitude, longitude) {
+    const propertyLocation = { lat: latitude, lng: longitude };
 
-function sendMessage() {
-    let message = $('#chatInput').val().trim();
-    if (message === '') return;
+    // Initialize Google Map
+    const map = new google.maps.Map(document.getElementById("modalMap"), {
+        zoom: 15,
+        center: propertyLocation,
+    });
 
-    console.log('Sending message:', message, 'to property:', propertyId, 'user:', inquirerId, 'agent:', agentId);
-
-    $.ajax({
-        url: "../../backend/send_message_agent.php", 
-        type: "POST",
-        data: { 
-            property_id: propertyId, 
-            user_id: inquirerId, 
-            agent_id: agentId,   
-            message: message   
-        },
-        success: function(response) {
-            console.log("Message sent successfully:", response); 
-            $('#chatInput').val('');  
-            loadMessages(); 
-        },
-        error: function(xhr, status, error) {
-            console.log("Error sending message:", status, error); 
-        }
+    // Add marker for property location
+    const marker = new google.maps.Marker({
+        position: propertyLocation,
+        map: map,
     });
 }
 
-
-let propertyIdToDelete = null;
-
-function openDeleteModal(propertyId) {
-    propertyIdToDelete = propertyId;
-    $('#deleteInquiryModal').modal('show'); 
-}
-
-document.getElementById("confirmDeleteBtn").addEventListener("click", function() {
-    if (propertyIdToDelete) {
-        $.ajax({
-            url: "../../backend/delete_inquiry.php",
-            type: "POST",
-            data: { property_id: propertyIdToDelete },
-            success: function(response) {
-                console.log("Server Response:", response); 
-
-                if (response.trim() === "success") {
-                    $('#deleteInquiryModal').modal('hide'); 
-
-                    $('button[onclick="openDeleteModal(' + propertyIdToDelete + ')"]').closest('.property-card').fadeOut(300, function() {
-                        $(this).remove();
-                    });
-                } else {
-                    alert("Failed to cancel inquiry: " + response); 
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("AJAX Error:", error);
-                alert("Failed to cancel inquiry. Try again.");
-            }
-        });
-    }
-});
-
-
-
-let propertyIdToAccept = null;
-
-function openAcceptModal(propertyId) {
-    propertyIdToAccept = propertyId;
-    $('#acceptInquiryModal').modal('show'); 
-}
-
-document.getElementById("confirmAcceptBtn").addEventListener("click", function() {
-    if (propertyIdToAccept) {
-        $.ajax({
-            url: "../../backend/accept_inquiry.php",
-            type: "POST",
-            data: { property_id: propertyIdToAccept },
-            success: function(response) {
-                $('#acceptInquiryModal').modal('hide');
-                
-                $('button[onclick="openAcceptModal(' + propertyIdToAccept + ')"]').replaceWith(`
-                    <button class="btn-primary" disabled>
-                        <i class="fas fa-hourglass-half"></i> On-going
-                    </button>
-                `);
-            },
-            error: function() {
-                alert("Failed to accept inquiry. Try again.");
-            }
-        });
-    }
-});
-
-function submitProperty(propertyId) {
-    if(confirm('Are you sure you want to submit this property?')) {
-        // Add your submit logic here
-        console.log('Submitting property:', propertyId);
-    }
-}
-
-function updateProperty(propertyId) {
-    window.location.href = 'edit_property.php?id=' + propertyId;
-}
-
-function deleteProperty(propertyId) {
-    if(confirm('Are you sure you want to delete this property?')) {
-        // Add your delete logic here
-        console.log('Deleting property:', propertyId);
-    }
-}
-
+// Function to fetch property details and populate the modal
 function viewDetails(propertyId) {
     // Fetch property details from the server
     fetch(`../../backend/get_property_details.php?property_id=${propertyId}`)
@@ -891,20 +793,29 @@ function viewDetails(propertyId) {
                 });
             }
 
-            // Initialize map with property location
+            // Initialize Google Map with property location
             if (data.latitude && data.longitude) {
-                const propertyMap = new maptilersdk.Map({
-                    container: 'modalMap',
-                    style: maptilersdk.MapStyle.STREETS,
-                    center: [data.longitude, data.latitude],
-                    zoom: 15
-                });
+    const latitude = parseFloat(data.latitude);
+    const longitude = parseFloat(data.longitude);
 
-                // Add marker for property location
-                new maptilersdk.Marker()
-                    .setLngLat([data.longitude, data.latitude])
-                    .addTo(propertyMap);
-            }
+    // Check if the values are valid numbers
+    if (!isNaN(latitude) && !isNaN(longitude)) {
+        const propertyMap = new google.maps.Map(document.getElementById('modalGoogleMap'), {
+            center: { lat: latitude, lng: longitude },
+            zoom: 15
+        });
+
+        // Add marker for property location
+        new google.maps.Marker({
+            position: { lat: latitude, lng: longitude },
+            map: propertyMap
+        });
+    } else {
+        console.error("Invalid latitude or longitude values:", data.latitude, data.longitude);
+    }
+} else {
+    console.error("Latitude or Longitude is missing");
+}
 
             // Set agent information
             document.getElementById('modalAgentName').textContent = `${data.agent_fname} ${data.agent_lname}`;
@@ -947,12 +858,13 @@ function viewDetails(propertyId) {
         });
 }
 
+// Function to contact agent
 function contactAgent(userId) {
     // Add your contact agent logic here
     console.log('Contacting agent:', userId);
 }
 
-// Function to update the current time every second
+// Update the current time every second
 function updateTime() {
     const timeElement = document.getElementById('current-time');
     const now = new Date().toLocaleString("en-US", {
@@ -972,223 +884,306 @@ setInterval(updateTime, 1000);
 
 <!-- Add the floating button -->
 <button id="mapButton" class="floating-map-btn" onclick="toggleMap()">
-    <i class="fas fa-map-marker-alt"></i>
-</button>
+                        <i class="fas fa-map-marker-alt"></i> <!-- Map button icon -->
+                    </button>
 
-<!-- Add the map panel -->
-<div id="mapPanel" class="map-panel">
-    <div class="map-controls">
-        <button class="map-control-btn" onclick="toggleFullscreen()">
-            <i class="fas fa-expand"></i>
-        </button>
-        <button class="map-control-btn" onclick="toggleMap()">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div id="agentPropertyMap" style="width: 100%; height: 100%;"></div>
-</div>
+                    <!-- Add the map panel -->
+                    <div id="mapPanel" class="map-panel" style="margin-top: 65px;">
+                        <div class="map-controls" style="margin-top: 50px;">
+                        <button class="map-control-btn" onclick="toggleFullscreen()">
+                            <i class="fas fa-expand"></i> 
+                            
+                            <button class="map-control-btn" onclick="toggleMap()">
+                                <i class="fas fa-times"></i> <!-- Close map button icon -->
+                            </button>
+                        </div>
+                        <div id="agentPropertyMaps" style="height: 100vh;"></div> <!-- Map container -->
+                    </div>
 
-<style>
-.floating-map-btn {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #666;
-    border: 1px solid #ddd;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 1000;
-    transition: all 0.3s ease;
-}
+                    <style>
+                        .floating-map-btn {
+                            position: fixed; /* Fixed position */
+                            bottom: 30px; /* Bottom position */
+                            right: 30px; /* Right position */
+                            background: rgba(255, 255, 255, 0.9); /* Background color */
+                            color: #666; /* Text color */
+                            border: 1px solid #ddd; /* Border */
+                            border-radius: 50%; /* Circular button */
+                            width: 45px; /* Button width */
+                            height: 45px; /* Button height */
+                            display: flex; /* Flex layout */
+                            align-items: center; /* Align items to center */
+                            justify-content: center; /* Center content */
+                            cursor: pointer; /* Pointer cursor */
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Shadow effect */
+                            z-index: 1000; /* Z-index */
+                            transition: all 0.3s ease; /* Transition effect */
+                        }
 
-.map-panel {
-    position: fixed;
-    top: 0;
-    right: -50%;
-    width: 50%;
-    height: 100vh;
-    background: white;
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 999;
-}
+                        .map-panel {
+                            position: fixed; /* Fixed position */
+                            top: 0; /* Top position */
+                            right: -50%; /* Off-screen initially */
+                            width: 50%; /* Width */
+                            height: 100vh; /* Full height */
+                            background: white; /* Background color */
+                            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1); /* Shadow effect */
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transition effect */
+                            z-index: 999; /* Z-index */
+                        }
 
-.map-panel.active {
-    right: 0;
-}
+                        .map-panel.active {
+                            right: 0; /* Slide in */
+                        }
 
-.map-panel.fullscreen {
-    width: 100% !important;
-    height: 100vh !important;
-    right: 0;
-    top: 0;
-    z-index: 1001;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+                        .map-panel.fullscreen {
+                            width: 100% !important; /* Fullscreen width */
+                            height: 100vh !important; /* Fullscreen height */
+                            right: 0; /* Slide in */
+                            top: 0; /* Top position */
+                            z-index: 1001; /* Z-index */
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transition effect */
+                        }
 
-.map-controls {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    gap: 10px;
-    z-index: 1002;
-}
+                        .map-controls {
+                            position: absolute; /* Absolute position */
+                            top: 10px; /* Top position */
+                            left: 10px; /* Left position */
+                            display: flex; /* Flex layout */
+                            gap: 10px; /* Gap between items */
+                            z-index: 1002; /* Z-index */
+                        }
 
-.map-control-btn {
-    background: white;
-    border: none;
-    border-radius: 4px;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
+                        .map-control-btn {
+                            background: white; /* Background color */
+                            border: none; /* No border */
+                            border-radius: 4px; /* Rounded corners */
+                            width: 32px; /* Button width */
+                            height: 32px; /* Button height */
+                            display: flex; /* Flex layout */
+                            align-items: center; /* Align items to center */
+                            justify-content: center; /* Center content */
+                            cursor: pointer; /* Pointer cursor */
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Shadow effect */
+                            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); /* Transition effect */
+                        }
 
-.map-control-btn:hover {
-    background: #f5f5f5;
-    transform: translateY(-2px);
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-}
+                        .map-control-btn:hover {
+                            background: #f5f5f5; /* Background color on hover */
+                            transform: translateY(-2px); /* Hover effect */
+                            box-shadow: 0 3px 6px rgba(0,0,0,0.15); /* Shadow effect on hover */
+                        }
 
-.map-control-btn i {
-    transition: transform 0.3s ease;
-}
+                        .map-control-btn i {
+                            transition: transform 0.3s ease; /* Transition effect for icon */
+                        }
 
-.map-control-btn:active i {
-    transform: scale(0.9);
-}
+                        .map-control-btn:active i {
+                            transform: scale(0.9); /* Scale down on click */
+                        }
 
-/* Add animation for fullscreen icon */
-.fa-expand, .fa-compress {
-    transition: transform 0.3s ease;
-}
+                        /* Add animation for fullscreen icon */
+                        .fa-expand, .fa-compress {
+                            transition: transform 0.3s ease;
+                        }
 
-.fullscreen .fa-expand {
-    transform: rotate(180deg);
-}
+                        .fullscreen .fa-expand {
+                            transform: rotate(180deg); 
+                        }
 
-/* Add animation for property list */
-.property-list {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    width: 100%;
-}
+                        .property-list {
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            width: 100%; 
+                        }
 
-.property-list.map-active {
-    width: 50%;
-}
+                        .property-list.map-active {
+                            width: 50%; 
+                        }
 
-.property-list.fullscreen-active {
-    opacity: 0;
-    transform: scale(0.95);
-    display: none;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
+                        .property-list.fullscreen-active {
+                            opacity: 0; 
+                            transform: scale(0.95);
+                            display: none; 
+                            transition: opacity 0.3s ease, transform 0.3s ease;
+                        }
 
-@media (max-width: 768px) {
-    .map-panel {
-        width: 100%;
-        right: -100%;
-    }
+                        @media (max-width: 768px) {
+                            .map-panel {
+                                width: 100%;
+                                right: -100%; 
+                            }
 
-    .property-list.map-active {
-        width: 0;
-        overflow: hidden;
-    }
-}
-</style>
+                            .property-list.map-active {
+                                width: 0; 
+                                overflow: hidden; 
+                            }
+                        }
+                    </style>
+
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    // Initialize map
-    maptilersdk.config.apiKey = 'gLXa6ihZF9HF7keYdTHC';
+    window.map = null;
+    window.allowedBounds = null;
+    let infoWindows = []; // Store all InfoWindows
+    let showInfo = false; // Track InfoWindow visibility
 
-    const agentPropertyMap = new maptilersdk.Map({
-        container: 'agentPropertyMap',
-        style: maptilersdk.MapStyle.HYBRID,
-        geolocate: maptilersdk.GeolocationType.POINT,
-        zoom: 10,
-        maxZoom: 16.2
-    });
+    function initMap() {
+        const caviteCenter = { lat: 14.2794, lng: 120.8786 };
 
-    // Fetch coordinates from the API
-    fetch('../../backend/coordinates.php')
-        .then(response => response.json())
-        .then(coordinates => {
-            // Check if the response is an array
-            if (!Array.isArray(coordinates)) {
-                console.error('Fetched data is not an array:', coordinates);
-                return;
-            }
+        window.allowedBounds = new google.maps.LatLngBounds(
+            { lat: 14.1325, lng: 120.6750 },
+            { lat: 14.5050, lng: 121.0000 }
+        );
 
-            // Add each coordinate as a marker
-            coordinates.forEach(function(coord) {
-                // Ensure that each coordinate array has exactly 2 values (longitude, latitude)
-                if (coord.length !== 2) {
-                    console.error(`Invalid coordinate format: [${coord}]`);
+        window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
+            center: caviteCenter,
+            zoom: 12,
+            restriction: {
+                latLngBounds: window.allowedBounds,
+                strictBounds: true
+            },
+            mapTypeControl: true // Enable map/satellite toggle
+        });
+
+        fetch('../../backend/get_properties.php')
+            .then(response => response.json())
+            .then(properties => {
+                if (!Array.isArray(properties)) {
+                    console.error("Invalid data format:", properties);
                     return;
                 }
+     
+                properties.forEach(property => {
+                    const { latitude, longitude, property_name, property_type, sale_price, sale_or_lease } = property;
 
-                const [longitude, latitude] = coord;
+                    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+                        console.warn(`Skipping property: ${property_name} (Invalid coordinates)`);
+                        return;
+                    }
 
-                // Check if the coordinate values are valid numbers
-                if (isNaN(longitude) || isNaN(latitude)) {
-                    console.error(`Invalid coordinate: [${longitude}, ${latitude}]`);
+                    const propertyLocation = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
+
+                    if (!window.allowedBounds.contains(propertyLocation)) {
+                        console.warn(`Skipping property: ${property_name} (Out of Cavite bounds)`);
+                        return;
+                    }
+
+                    // Determine the correct status (For Sale / For Lease)
+                    let statusText = "N/A";
+                    if (sale_or_lease) {
+                        statusText = sale_or_lease.toLowerCase() === 'lease' ? 'For Lease' :
+                                     sale_or_lease.toLowerCase() === 'sale' ? 'For Sale' : 'N/A';
+                    }
+
+                    // Create a marker
+                    const marker = new google.maps.Marker({
+                        position: propertyLocation,
+                        map: window.map,
+                        title: property_name
+                    });
+
+                    // Create an InfoWindow without a close button
+                    const infoWindow = new google.maps.InfoWindow({
+                        content: `<div style="white-space: nowrap;">
+                                    <img src="../../assets/property_images/${property.image_name}" alt="${property.property_name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;"><br>
+                                    <strong>${property_name}</strong><br>
+                                    <b>Type:</b> ${property_type || 'N/A'}<br>
+                                    <b>Status:</b> ${statusText}<br>
+                                    <b>Price:</b> ₱${sale_price ? parseInt(sale_price).toLocaleString("en-PH") : 'N/A'}
+                                </div>`,
+                        disableAutoPan: true // Prevents auto-panning when opened
+                    });
+
+                    // Remove or hide the close button from the InfoWindow when it's opened
+                    google.maps.event.addListener(infoWindow, 'domready', function () {
+                        // Target all close buttons and hide them
+                        const closeButtons = document.querySelectorAll('.gm-ui-hover-effect');
+                        closeButtons.forEach(button => {
+                            button.style.display = 'none'; // Hide each close button
+                        });
+                    });
+
+                    // Store InfoWindow for toggling
+                    infoWindows.push({ marker, infoWindow });
+
+                    // Open InfoWindow only if "Show Info" is enabled
+                    if (showInfo) {
+                        infoWindow.open(window.map, marker);
+                    }
+
+                    // Open InfoWindow when marker is clicked
+                    marker.addListener("click", () => {
+                        if (showInfo) {
+                            infoWindow.close(); // Close the InfoWindow if it's currently open
+                        } else {
+                            infoWindow.open(window.map, marker); // Open the InfoWindow
+                        }
+                    });
+                });
+            })
+            .catch(error => console.error("Error fetching properties:", error));
+
+        // Add "Show Info" toggle button next to Maps/Satellite toggle
+        const showInfoControl = document.createElement("button");
+        showInfoControl.textContent = "Show All";
+        showInfoControl.classList.add("show-info-btn");
+
+        // Apply styles
+        showInfoControl.style.fontSize = "14px"; // Bigger text
+        showInfoControl.style.fontWeight = "bold";
+        showInfoControl.style.margin = "8px"; // Adjust spacing
+        showInfoControl.style.padding = "12px 20px"; // Bigger button
+        showInfoControl.style.background = "#fff"; // White background
+        showInfoControl.style.border = "1px solid #ccc"; // Border
+        showInfoControl.style.cursor = "pointer";
+        showInfoControl.style.borderRadius = "5px"; // Rounded corners
+        showInfoControl.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)"; // Add slight shadow
+
+        showInfoControl.addEventListener("click", () => {
+            showInfo = !showInfo; // Toggle state
+            infoWindows.forEach(({ marker, infoWindow }) => {
+                if (showInfo) {
+                    infoWindow.open(window.map, marker); // Open all InfoWindows
                 } else {
-                    new maptilersdk.Marker()
-                        .setLngLat([longitude, latitude])
-                        .addTo(agentPropertyMap);
+                    infoWindow.close(); // Close all InfoWindows
                 }
             });
-        })
-        .catch(error => {
-            console.error('Error fetching coordinates:', error);
+
+            // Toggle the button text between "Show All" and "Hide All"
+            if (showInfo) {
+                showInfoControl.textContent = "Hide All";
+            } else {
+                showInfoControl.textContent = "Show All";
+            }
         });
+
+        // Add the button to the map, positioning it on the left near Map/Satellite toggle
+        window.map.controls[google.maps.ControlPosition.TOP_LEFT].push(showInfoControl);
+    }
+
+    // ✅ Ensures `initMap()` runs correctly
+    google.maps.event.addDomListener(window, 'load', initMap);
 
     window.toggleMap = function() {
         const mapPanel = document.getElementById('mapPanel');
-        const propertyList = document.querySelector('.property-list');
+        if (mapPanel) {
+            mapPanel.classList.toggle('active'); 
+        }
 
-        if (mapPanel && propertyList) {
-            mapPanel.classList.toggle('active');
-            propertyList.classList.toggle('map-active');
-
-            // If exiting fullscreen mode when closing
-            if (mapPanel.classList.contains('fullscreen')) {
-                mapPanel.classList.remove('fullscreen');
-                propertyList.classList.remove('fullscreen-active');
-            }
-
-            // Trigger a resize event to ensure the map renders correctly
-            if (agentPropertyMap) {
-                setTimeout(() => {
-                    agentPropertyMap.resize();
-                }, 300);
-            }
+        if (window.map) {
+            setTimeout(() => {
+                google.maps.event.trigger(window.map, 'resize');
+            }, 300);
         }
     };
 
     window.toggleFullscreen = function() {
         const mapPanel = document.getElementById('mapPanel');
-        const propertyList = document.querySelector('.property-list');
         const fullscreenIcon = document.querySelector('.map-control-btn i.fa-expand, .map-control-btn i.fa-compress');
 
-        if (mapPanel && propertyList) {
-            mapPanel.classList.toggle('fullscreen');
-            propertyList.classList.toggle('fullscreen-active');
+        if (mapPanel) {
+            mapPanel.classList.toggle('fullscreen'); 
 
-            // Toggle fullscreen icon
             if (fullscreenIcon) {
                 if (mapPanel.classList.contains('fullscreen')) {
                     fullscreenIcon.classList.remove('fa-expand');
@@ -1199,25 +1194,13 @@ setInterval(updateTime, 1000);
                 }
             }
 
-            // Trigger a resize event to ensure the map renders correctly
-            if (agentPropertyMap) {
+            if (window.map) {
                 setTimeout(() => {
-                    agentPropertyMap.resize();
+                    google.maps.event.trigger(window.map, 'resize');
                 }, 300);
             }
         }
     };
-
-    // Enable the map button after map style has loaded
-    agentPropertyMap.on('load', function() {
-        const mapButton = document.getElementById('mapButton');
-        if (mapButton) {
-            mapButton.disabled = false;
-        }
-    });
-
-});
-
 </script>
 
 <!-- start of footer -->
@@ -1349,7 +1332,7 @@ setInterval(updateTime, 1000);
                         <!-- Property Location Map -->
                         <div class="mt-4">
                             <h5>Property Location</h5>
-                            <div id="modalMap" style="height: 300px;"></div>
+                            <div id="modalGoogleMap" style="height: 300px;"></div>
                         </div>
 
                         <!-- Agent Information -->

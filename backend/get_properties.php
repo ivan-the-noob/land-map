@@ -10,7 +10,7 @@ $query = "SELECT p.property_id, p.property_name, p.property_type, p.sale_price, 
 $result = $conn->query($query);
 $properties = [];
 
-while ($row = $result->fetch_assoc()) {
+while ($row = $result->fetch_assoc()) { 
     $properties[] = [
         'property_id' => $row['property_id'],
         'property_name' => $row['property_name'],

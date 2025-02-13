@@ -78,8 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $uploadDir = '../assets/agents/';
+    $uploadProfile = '../assets/profile_images/';
 
-    $profile_image = uploadFile($_FILES['profile_image'], $uploadDir);
+    $profile_image = uploadFile($_FILES['profile_image'], $uploadProfile);
     $primary_id_image = uploadFile($_FILES['primary_id_image'], $uploadDir);
     $secondary_id_image = uploadFile($_FILES['secondary_id_image'], $uploadDir);
 
@@ -92,11 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Insert into database
         $insert_query = "INSERT INTO users (role_type, fname, lname, email, password, mobile, location, profile, primary_id_type, primary_id_number, primary_id_image, secondary_id_type, secondary_id_number, secondary_id_image, verification_code, is_verified, admin_verify) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)"; 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)";
 
         $stmt = $conn->prepare($insert_query);
         $stmt->bind_param("ssssssssssssssss", $role_type, $first_name, $last_name, $email, $hashed_password, $mobile, $location, $profile_image, $primary_id_type, $primary_id_number, $primary_id_image, $secondary_id_type, $secondary_id_number, $secondary_id_image, $verification_code);
-
 
         if ($stmt->execute()) {
             // Send verification email

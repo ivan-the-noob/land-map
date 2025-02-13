@@ -31,22 +31,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Verify password
             if (password_verify($password, $user['password'])) {
                 if ($user['is_verified'] == 1) {
-                    // Successful login
-                    session_start();
-                    $_SESSION['email'] = $user['email'];
-                    $_SESSION['user_id'] = $user['user_id'];
-                    $_SESSION['user_name'] = $user['fname'] . ' ' . $user['lname'];
-                    $_SESSION['role_type'] = $user['role_type'];  // Store the role type in the session
-
-                    // Check the role type and redirect
-                    if ($user['role_type'] == 'admin') {
-                        echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/admin_page.php']);
-                    } elseif ($user['role_type'] == 'agent') {
-                        echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/agent_page.php']);
-                    } elseif ($user['role_type'] == 'user') {
-                        echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/user_page.php']);
+                    if ($user['admin_verify'] == 1) {
+                        // Successful login
+                        session_start();
+                        $_SESSION['email'] = $user['email'];
+                        $_SESSION['user_id'] = $user['user_id'];
+                        $_SESSION['user_name'] = $user['fname'] . ' ' . $user['lname'];
+                        $_SESSION['role_type'] = $user['role_type'];  // Store the role type in the session
+            
+                        // Check the role type and redirect
+                        if ($user['role_type'] == 'admin') {
+                            echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/admin_page.php']);
+                        } elseif ($user['role_type'] == 'agent') {
+                            echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/agent_page.php']);
+                        } elseif ($user['role_type'] == 'user') {
+                            echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/user_page.php']);
+                        } else {
+                            echo json_encode(['success' => false, 'errors' => ['general' => 'Invalid role type.']]);
+                        }
                     } else {
-                        echo json_encode(['success' => false, 'errors' => ['general' => 'Invalid role type.']]);
+                        // Admin verification pending
+                        $errors['general'] = "Please wait for admin to verify your account.";
+                        echo json_encode(['success' => false, 'errors' => $errors]);
                     }
                 } else {
                     // Account not verified
@@ -58,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $errors['general'] = "Incorrect email or password.";
                 echo json_encode(['success' => false, 'errors' => $errors]);
             }
+            
         } else {
             // User not found
             $errors['general'] = "No account found with this email.";

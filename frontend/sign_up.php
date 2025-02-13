@@ -70,7 +70,6 @@
             </div>
         </div>
 
-
         <div class="az-column-signup" style="overflow: hidden;">
             <a href="../index.php">
                 <img src="../assets/images/logo.png" alt="LandMap Logo" class="logo-img"
@@ -78,6 +77,11 @@
             </a>
             <div class="az-signup-header">
                 <h2>Sign up form</h2>
+
+                <div class="d-flex justify-content-center" style="gap: 5px;">
+                    <button id="signUpButton" class="btn-az-primary">Sign Up as User</button>
+                    <button id="registrationButton"  class="btn-az-primary">Sign Up as Agent</button>
+                </div>
 
                 <form id="signUpForm" action="../backend/sign_up.php" method="POST">
                     <div class="form-group d-flex">
@@ -134,6 +138,113 @@
                             class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
                     </button>
                 </form>
+
+                <form id="registrationForm" enctype="multipart/form-data" style="display: none">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input name="first_name" type="text" class="form-control" placeholder="Enter your first name" style="text-transform: capitalize;">
+                        <span class="error-message" id="first_name_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input name="last_name" type="text" class="form-control" placeholder="Enter your last name" style="text-transform: capitalize;">
+                        <span class="error-message" id="last_name_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input name="email" type="email" class="form-control" placeholder="Enter your email">
+                        <span class="error-message" id="email_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input name="password" type="password" class="form-control" placeholder="Enter your password">
+                        <span class="error-message" id="password_error" style="color:red;"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input name="confirm_password" type="password" class="form-control" placeholder="Confirm your password">
+                        <span class="error-message" id="confirm_password_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Mobile Number</label>
+                        <input name="mobile" type="text" class="form-control" placeholder="Enter your mobile number">
+                        <span class="error-message" id="mobile_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input name="location" type="text" class="form-control" placeholder="Enter your location" style="text-transform: capitalize;">
+                        <span class="error-message" id="location_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profile Image</label>
+                        <input name="profile_image" type="file" class="form-control">
+                        <span class="error-message" id="profile_image_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Primary ID Type</label>
+                        <select name="primary_id_type" class="form-control">
+                            <option value="">Select Primary ID</option>
+                            <option value="passport">PH Passport</option>
+                            <option value="sss">SSS ID</option>
+                            <option value="gsis">GSIS ID</option>
+                            <option value="drivers_license">Driver's License</option>
+                            <option value="nbi">NBI Clearance</option>
+                            <option value="voters_id">Voter's ID</option>
+                            <option value="voters_cert">Voter's Certificate</option>
+                        </select>
+                        <span class="error-message" id="primary_id_type_error" style="color:red;"></span>
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label>Primary ID Number</label>
+                        <input name="primary_id_number" type="text" class="form-control" placeholder="Enter your primary ID number">
+                        <span class="error-message" id="primary_id_number_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Primary ID Image</label>
+                        <input name="primary_id_image" type="file" class="form-control">
+                        <span class="error-message" id="primary_id_image_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Secondary ID Type</label>
+                        <select id="secondary_id_type" name="secondary_id_type" class="form-control" required>
+                            <option value="">Select Secondary ID</option>
+                            <option value="philhealth">PhilHealth ID</option>
+                            <option value="national">National ID</option>
+                            <option value="postal">Postal ID (2015 onwards)</option>
+                            <option value="company">Company ID</option>
+                        </select>
+                        <span class="error-message" id="secondary_id_type_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Secondary ID Number</label>
+                        <input name="secondary_id_number" type="text" class="form-control" placeholder="Enter your secondary ID number">
+                        <span class="error-message" id="secondary_id_number_error" style="color:red;"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Secondary ID Image</label>
+                        <input name="secondary_id_image" type="file" class="form-control">
+                        <span class="error-message" id="secondary_id_image_error" style="color:red;"></span>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn btn-primary btn-block">Register</button>
+                </form>
+
+
+
             </div>
 
             <div class="az-signup-footer" style="text-align: center;">
@@ -212,6 +323,31 @@
         <script src="../assets/lib/ionicons/ionicons.js"></script>
         <script src="../assets/js/azia.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const signUpButton = document.getElementById("signUpButton");
+                const registrationButton = document.getElementById("registrationButton");
+                const signUpForm = document.getElementById("signUpForm");
+                const registrationForm = document.getElementById("registrationForm");
+
+                signUpButton.addEventListener("click", function () {
+                    signUpForm.style.display = "block";
+                    registrationForm.style.display = "none";
+
+                    signUpButton.classList.add("active-btn");
+                    registrationButton.classList.remove("active-btn");
+                });
+
+                registrationButton.addEventListener("click", function () {
+                    signUpForm.style.display = "none";
+                    registrationForm.style.display = "block";
+
+                    registrationButton.classList.add("active-btn");
+                    signUpButton.classList.remove("active-btn");
+                });
+            });
+        </script>
 
         <script>
             $(document).ready(function () {
@@ -362,6 +498,82 @@
                 });
             });
         </script>
+
+<script>
+    $('#registrationForm').on('submit', function (e) {
+        e.preventDefault();
+
+        // Clear previous errors only for this form
+        $('#registrationForm .error-message').text('');
+
+        // Disable button and show loading state
+        $('#registrationForm #submitBtn').prop('disabled', true).text('Registering...');
+
+        // Get input values from registrationForm only
+        var firstName = $('#registrationForm input[name="first_name"]').val().trim();
+        var lastName = $('#registrationForm input[name="last_name"]').val().trim();
+        var email = $('#registrationForm input[name="email"]').val().trim();
+        var password = $('#registrationForm input[name="password"]').val().trim();
+        var confirmPassword = $('#registrationForm input[name="confirm_password"]').val().trim();
+        var mobile = $('#registrationForm input[name="mobile"]').val().trim();
+        var location = $('#registrationForm input[name="location"]').val().trim();
+        var primaryIdType = $('#registrationForm select[name="primary_id_type"]').val();
+        var primaryIdNumber = $('#registrationForm input[name="primary_id_number"]').val().trim();
+        var secondaryIdType = $('#registrationForm select[name="secondary_id_type"]').val();
+        var secondaryIdNumber = $('#registrationForm input[name="secondary_id_number"]').val().trim();
+
+        // Validation
+        var mobilePattern = /^[0-9]{10,15}$/;
+        var hasError = false;
+
+        function showError(field, message) {
+            $('#registrationForm #' + field + '_error').text(message);
+            hasError = true;
+        }
+
+        if (!firstName) showError('first_name', 'First name is required.');
+        if (!lastName) showError('last_name', 'Last name is required.');
+        if (!email) showError('email', 'Email is required.');
+        if (!password) showError('password', 'Password is required.');
+        if (password !== confirmPassword) showError('confirm_password', 'Passwords do not match.');
+        if (!mobile.match(mobilePattern)) showError('mobile', 'Invalid mobile number.');
+        if (!location) showError('location', 'Location is required.');
+        if (!primaryIdType) showError('primary_id_type', 'Primary ID type is required.');
+        if (!primaryIdNumber) showError('primary_id_number', 'Primary ID number is required.');
+        if (!secondaryIdType) showError('secondary_id_type', 'Secondary ID type is required.');
+        if (!secondaryIdNumber) showError('secondary_id_number', 'Secondary ID number is required.');
+
+        if (hasError) {
+            $('#registrationForm #submitBtn').prop('disabled', false).text('Register');
+            return false;
+        }
+
+        // Send AJAX request for registration
+        $.ajax({
+            url: '../backend/register_agent.php', 
+            type: 'POST',
+            data: new FormData(this),
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (response) {
+                $('#registrationForm #submitBtn').prop('disabled', false).text('Register');
+                if (response.success) {
+                    Swal.fire('Info', 'Registered.Check your email and please wait for admin to verify.', 'info');
+                } else {
+                    Swal.fire('Error!', response.message || 'Something went wrong!', 'error');
+                }
+            },
+            error: function () {
+                $('#registrationForm #submitBtn').prop('disabled', false).text('Register');
+                Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
+            }
+        });
+    });
+
+
+</script>
+
 
 </body>
 

@@ -82,49 +82,75 @@
                         <!--Search bar head-->
                         <div class="row">
                             <div class="col-12">
-                                <form class="form">
+                            <form class="form" action="index_properties.php" method="GET" onsubmit="return cleanForm()">
                                     <div class="row mb-2">
                                         <div class="col-sm-12 col-md-6 mb-3 mb-lg-0 col-lg-6">
                                             <select name="saleTypeFilter" id="saleTypeFilter" class="form-control">
                                                 <option value="">Sale/Lease Type</option>
-                                                <option value="sale">For Sale</option>
-                                                <option value="lease">For Lease</option>
+                                                <option value="For Sale">For Sale</option>
+                                                <option value="For Lease">For Lease</option>
                                             </select>
                                         </div>
                                         <div class="col-sm-12 col-md-6 mb-3 mb-lg-0 col-lg-6">
                                             <select name="landTypeFilter" id="landTypeFilter" class="form-control">
-                                                <option value="all">Land Types</option>
-                                                <option value="house and lot">House and Lot</option>
-                                                <option value="agricultural farm">Agricultural Farm</option>
-                                                <option value="commercial lot">Commercial Lot</option>
-                                                <option value="raw land">Raw Land</option>
-                                                <option value="residential land">Residential Land</option>
-                                                <option value="residential farm">Residential Farm</option>
-                                                <option value="memorial lot">Memorial Lot</option>
+                                                <option value="All">Land Types</option>
+                                                <option value="House and Lot">House and Lot</option>
+                                                <option value="Agricultural Farm">Agricultural Farm</option>
+                                                <option value="Commercial Lot">Commercial Lot</option>
+                                                <option value="Raw Land">Raw Land</option>
+                                                <option value="Residential Land">Residential Land</option>
+                                                <option value="Residential Farm">Residential Farm</option>
+                                                <option value="Memorial Lot">Memorial Lot</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
                                         <!--Search location-->
                                         <div class="col-sm-12 col-md-6 mb-3 mb-lg-0 col-lg-6">
-                                            <div class="position-relative">
-                                                <input id="searchInput" placeholder="Barangay, Municipal, Province" data-cy="home-filter-search-keyword" data-test="textInput-field" maxlength="100" minlength="0" autocomplete="off" aria-label="Search lands" type="search" class="-input form-control w-100" aria-invalid="false" value="">
-                                                <span class="icon-room position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%);"></span>
-                                            </div>
+                                        <div class="filter-item">
+                                            <select name="propertyLocation" class="form-control" id="propertyLocation">
+                                             <?php include 'backend/filter_places.php'; ?>    
+                                            <option value="Bacoor, Cavite">Bacoor</option>
+                                                 
+                                            </select>
+                                        </div>
+                                        <script>
+                                            document.getElementById('propertyLocation').addEventListener('change', function() {
+                                                const selectedValue = this.value;
+                                                const selectedCity = selectedValue.split(',')[0]; // Get city name before comma
+                                                const barangayOptions = document.querySelectorAll('optgroup[label^="Barangays"]');
+                                                
+                                                barangayOptions.forEach(optgroup => {
+                                                    optgroup.style.display = 'none';
+                                                    const cityInLabel = optgroup.label.split('-')[1].trim(); // Get city name after dash
+                                                    if (cityInLabel.toLowerCase().includes(selectedCity.toLowerCase())) {
+                                                        optgroup.style.display = 'block';
+                                                    }
+                                                });
+
+                                                // Reset to first option if a city/municipality is selected
+                                                if (selectedValue !== 'all') {
+                                                    this.value = selectedValue;
+                                                }
+                                            });
+                                        </script>
                                         </div>
                                         <!--Search price range -->
                                         <div class="col-sm-12 col-md-6 mb-3 mb-lg-0 col-lg-6">
                                             <div class="d-flex align-items-center">
                                                 <div class="input-group me-2">
                                                     <span class="input-group-text">₱</span>
-                                                    <input type="text"  min="0" step="1000" class="form-control" name="min_price" placeholder="Minimum price" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value < 0) this.value = 0; this.value = Number(this.value).toLocaleString();">
+                                                    <input type="text" class="form-control" name="min_price" id="minPrice" placeholder="Minimum price" 
+                                                        oninput="validatePrice(this);" value="<?= isset($_GET['min_price']) ? $_GET['min_price'] : '' ?>">
                                                 </div>
                                                 <div class="input-group">
                                                     <span class="input-group-text">₱</span>
-                                                    <input type="text" min="0" max="1000000000" step="1000" class="form-control" name="max_price" placeholder="Maximum price" oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(this.value < 0) this.value = 0; if(this.value > 1000000000) this.value = 1000000000; this.value = Number(this.value).toLocaleString();">
+                                                    <input type="text" class="form-control" name="max_price" id="maxPrice" placeholder="Maximum price" 
+                                                        oninput="validatePrice(this);" value="<?= isset($_GET['max_price']) ? $_GET['max_price'] : '' ?>">
                                                 </div>
                                             </div>
                                         </div>
+
                                     </div>
                                     <!--Search button/ check box-->
                                     <div class="row align-items-center">
@@ -152,6 +178,37 @@
             </div>
         </div>
     </div>
+
+    <script>
+   function cleanForm() {
+    const saleType = document.getElementById("saleTypeFilter");
+    const landType = document.getElementById("landTypeFilter");
+    const propertyLocation = document.getElementById("propertyLocation");
+    const minPrice = document.getElementById("minPrice");
+    const maxPrice = document.getElementById("maxPrice");
+
+    // Default values
+    const defaultSaleType = "";
+    const defaultLandType = "All";
+    const defaultLocation = "All Locations";
+
+    // Remove fields that were not changed
+    if (saleType.value === defaultSaleType) saleType.removeAttribute("name");
+    if (landType.value === defaultLandType) landType.removeAttribute("name");
+    if (propertyLocation.value === defaultLocation) propertyLocation.removeAttribute("name");
+    if (minPrice.value === "" || isNaN(minPrice.value)) minPrice.removeAttribute("name");
+    if (maxPrice.value === "" || isNaN(maxPrice.value)) maxPrice.removeAttribute("name");
+
+    return true; // Allow form submission
+}
+
+// Prevent non-numeric input for price fields
+function validatePrice(input) {
+    input.value = input.value.replace(/[^0-9]/g, '');
+}
+
+
+</script>
 
 
     <div class="untree_co-section">
