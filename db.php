@@ -1,9 +1,9 @@
 <?php
 
 $host = '127.0.0.1';       // Database host
-$username = 'root';        // Database username
-$password = '';            // Database password
-$dbname = 'landmap';  // Database name
+$username = 'u173282149_landshop';        // Database username
+$password = '#Joshua23';            // Database password
+$dbname = 'u173282149_landshop';  // Database name
 
 // Create a connection using MySQLi
 $conn = new mysqli($host, $username, $password, $dbname);
