@@ -33,7 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
     
     for ($i = 0; $i < $totalMessages; $i++) {
         $row = $messages[$i];
-        $isUser = ($row['role_type'] === 'user') ? 'user-message' : 'agent-message';
+        $isUser = ($row['role_type'] === 'agent') ? 'agent-message' : 'user-message';
+        // $isUser = ($row['role_type'] === 'agent') ? 'agent-message' : 'user-message';
         $profileImage = !empty($row['profile']) ? "../../assets/profile_images/" . $row['profile'] : "../../assets/profile_images/profile.jpg";
 
         $nextSender = ($i < $totalMessages - 1) ? $messages[$i + 1]['role_type'] : null;

@@ -606,10 +606,49 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                 <i class="fas fa-times"></i> Inquiry Declined
                             </button>
                         <?php } ?>
+                        
+                        <?php if ($inquiryStatus !== 'cancelled') { ?>
+                            <button class="btn-delete" onclick="openDeleteModal(<?= htmlspecialchars($row['property_id']); ?>)">
+                                <i class="fas fa-trash"></i> Cancel Inquiry
+                            </button>
+                            <?php } else { ?>
+                                <button class="btn btn-secondary" disabled>
+                                <i class="fas fa-ban"></i> Cancelled
+                            </button>
+                        <?php } ?>
 
-                        <button class="btn-delete" onclick="openDeleteModal(<?= $row['property_id']; ?>)">
-                            <i class="fas fa-trash"></i> Cancel Inquiry
-                        </button>
+
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                        function openDeleteModal(propertyId) {
+                            $("#confirmDeleteBtn").attr("data-property-id", propertyId);
+                            $("#deleteInquiryModal").modal("show");
+                        }
+
+                        $(document).ready(function () {
+                            $("#confirmDeleteBtn").click(function () {
+                                let propertyId = $(this).attr("data-property-id");
+
+                                $.ajax({
+                                    url: "../../backend/delete_inquiry.php",
+                                    type: "POST",
+                                    data: { property_id: propertyId },
+                                    success: function (response) {
+                                        if (response.trim() === "success") {
+                                            alert("Inquiry cancelled successfully!");
+                                            location.reload(); // Reload page to reflect changes
+                                        } else {
+                                            alert("Error: " + response);
+                                        }
+                                    },
+                                    error: function () {
+                                        alert("Failed to cancel inquiry. Please try again.");
+                                    }
+                                });
+                            });
+                        });
+                        </script>
+
                         </div>
                        
 
@@ -645,12 +684,16 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                         Are you sure you want to cancel this inquiry?
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true"><div class="btn btn-secondary">NO</div></span>
+                                    </button>
+
                                         <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Cancel Inquiry</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
 
                         <div class="modal fade" id="acceptInquiryModal" tabindex="-1" aria-labelledby="acceptInquiryModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">

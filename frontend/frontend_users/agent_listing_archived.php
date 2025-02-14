@@ -360,10 +360,9 @@ if (!isset($_SESSION['role_type'])) {
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
                             <!-- Post new land property -->
-                            <h3 class="mb-1 mr-5">My Land Properties</h3>
-                           
+                            <h3 class="mb-1 mr-5">My Archived Land Properties</h3> 
                             <div class="d-flex justify-content-end" style="padding-right: 10%">
-                                <a href="agent_listing_archived.php"><button class="btn btn-success mb-2">Archived Properties</button></a>
+                                <a href="agent_listing.php"><button class="btn btn-success mb-2">Unarchived Properties</button></a>
                             </div>
                             <div class="property-list">
                                 
@@ -384,7 +383,7 @@ if (!isset($_SESSION['role_type'])) {
             FROM properties p 
             LEFT JOIN users u ON p.user_id = u.user_id
             LEFT JOIN user_img ui ON u.user_id = ui.user_id
-            WHERE p.user_id = ? AND p.is_archive = 0
+            WHERE p.user_id = ? AND p.is_archive = 1
             ORDER BY p.property_id DESC";
 
     $stmt = $conn->prepare($sql); // Prepare SQL statement
@@ -500,7 +499,7 @@ if (!isset($_SESSION['role_type'])) {
                         }
                     </style>
 
-                    <div class="property-actions">
+                    <div class="property-actions d-flex justify-content-center">
                         <button class="btn-view" onclick="openModal(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View More Details
                         </button>
@@ -590,120 +589,16 @@ if (!isset($_SESSION['role_type'])) {
                                 document.getElementById('propertyModal' + propertyId).style.display = "none"; // Close modal
                             }
                         </script>
-                    </div>
+        
 
-                    <div class="admin-actions d-flex justify-content-center">
-                        <button class="btn-submit" onclick="submitProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-check"></i> Submit
-                        </button>
-                        <button class="btn-update" data-toggle="modal" data-target="#updateModal<?php echo $row['property_id']; ?>">
-                            <i class="fas fa-edit"></i> Update
-                        </button>
-
-                        <div class="modal fade" id="updateModal<?php echo $row['property_id']; ?>" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="updateModalLabel">Update Property</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                    <form id="updateForm<?php echo $row['property_id']; ?>">
-                                        <input type="hidden" name="property_id" value="<?php echo $row['property_id']; ?>">
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Land Type</label>
-                                            <select name="propertyType" class="form-control" id="propertyType"> 
-                                                <option value="" selected>Select Land Type</option> 
-                                                <option value="House and Lot" <?php echo ($row['property_type'] == 'House and Lot') ? 'selected' : ''; ?>>House and Lot</option>
-                                                <option value="Agricultural Farm" <?php echo ($row['property_type'] == 'Agricultural Farm') ? 'selected' : ''; ?>>Agricultural Farm</option>
-                                                <option value="Commercial Lot" <?php echo ($row['property_type'] == 'Commercial Lot') ? 'selected' : ''; ?>>Commercial Lot</option>
-                                                <option value="Raw Land" <?php echo ($row['property_type'] == 'Raw Land') ? 'selected' : ''; ?>>Raw Land</option>
-                                                <option value="Residential Land" <?php echo ($row['property_type'] == 'Residential Land') ? 'selected' : ''; ?>>Residential Land</option>
-                                                <option value="Residential Farm" <?php echo ($row['property_type'] == 'Residential Farm') ? 'selected' : ''; ?>>Residential Farm</option>
-                                                <option value="Memorial Lot" <?php echo ($row['property_type'] == 'Memorial Lot') ? 'selected' : ''; ?>>Memorial Lot</option>
-                                            </select>
-                                        </div>
-
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Property Name</label>
-                                            <input type="text" class="form-control" name="propertyName" value="<?php echo htmlspecialchars($row['property_name']); ?>" required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                        <label class="form-label">Listing Type</label>
-                                        <select name="saleOrLease" class="form-control" required> 
-                                            <option value="">Select Type</option> 
-                                            <option value="sale" <?php echo ($row['sale_or_lease'] == 'sale') ? 'selected' : ''; ?>>For Sale</option>
-                                            <option value="lease" <?php echo ($row['sale_or_lease'] == 'lease') ? 'selected' : ''; ?>>For Lease</option>
-                                        </select>
-                                    </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Land Area (sqm)</label>
-                                            <input type="number" class="form-control" name="landArea" value="<?php echo $row['land_area']; ?>">
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Land Condition</label>
-                                            <select name="landCondition" class="form-control" id="landCondition" required> 
-                                                <option value="" selected>Select Land Condition</option> 
-                                                <option value="resale" <?php echo ($row['land_condition'] == 'resale') ? 'selected' : ''; ?>>Resale</option> 
-                                                <option value="foreClose" <?php echo ($row['land_condition'] == 'foreClose') ? 'selected' : ''; ?>>Foreclose/Acquired Assets</option> 
-                                                <option value="pasalo" <?php echo ($row['land_condition'] == 'pasalo') ? 'selected' : ''; ?>>Pasalo/Assumed Balance</option> 
-                                            </select>
-                                        </div>
-
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Price</label>
-                                            <input type="number" class="form-control" name="price" value="<?php echo $row['sale_price']; ?>">
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Lease Term</label>
-                                            <select name="leaseDuration" class="form-control" id="leaseDuration" required>
-                                                <option value="select">Select Term Type</option>
-                                                <option value="short_term" <?php echo ($row['lease_duration'] == 'short_term') ? 'selected' : ''; ?>>Short term (less than 1 year)</option>
-                                                <option value="long_term" <?php echo ($row['lease_duration'] == 'long_term') ? 'selected' : ''; ?>>Long term (more than 1 year)</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Monthly Rental Cost</label>
-                                            <input type="number" class="form-control" name="monthlyRentalCost" value="<?php echo $row['monthly_rent']; ?>">
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Description</label>
-                                            <textarea class="form-control" name="description"><?php echo htmlspecialchars($row['property_description']); ?></textarea>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label">Images</label>
-                                            <input type="file" class="form-control" name="images[]" multiple>
-                                        </div>
-
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-primary" onclick="updateProperty(<?php echo $row['property_id']; ?>)">Save Changes</button>
-                                        </div>
-                                    </form>
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                  
 
                       <!-- Archive Button -->
                     <button class="btn btn-danger archive-btn" 
                             data-toggle="modal" 
                             data-target="#archiveModal" 
                             data-property-id="<?php echo $row['property_id']; ?>">
-                        <i class="fas fa-trash"></i> Archive
+                        <i class="fas fa-trash"></i> UnArchive
                     </button>
 
                     <!-- Archive Confirmation Modal -->
@@ -717,7 +612,7 @@ if (!isset($_SESSION['role_type'])) {
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to archive this property?
+                                    Are you sure you want to unarchive this property?
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -746,7 +641,7 @@ if (!isset($_SESSION['role_type'])) {
                             }
 
                             $.ajax({
-                                url: '../../backend/archive_property.php',
+                                url: '../../backend/unarchive_property.php',
                                 type: 'POST',
                                 data: { property_id: propertyId },
                                 success: function (response) {

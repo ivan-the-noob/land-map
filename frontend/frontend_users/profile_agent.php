@@ -54,7 +54,7 @@ if (!isset($_SESSION['role_type'])) {
 }
 
 // Check if the user is an user (if they are logged in)
-elseif ($_SESSION['role_type'] !== 'user') {
+elseif ($_SESSION['role_type'] !== 'agent') {
     // If not user, set flag and message for modal
     $show_modal = true;
     $error_message = 'You do not have the necessary permissions to access this page.';
@@ -155,14 +155,14 @@ elseif ($_SESSION['role_type'] !== 'user') {
 <body>
 
 <div class="az-header">
-    <?php require '../../partials/nav_user.php' ?>
+    <?php require '../../partials/nav_agent.php' ?>
 </div>
 
 <?php
 // Fetch user details from the 'users' table
 $user_id = $_SESSION['user_id'];
 
-$query = "SELECT fname, lname, profile FROM users WHERE user_id = ?";
+$query = "SELECT fname, lname, profile, position, prc_file, dshp_file, prc_id FROM users WHERE user_id = ?";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -270,6 +270,72 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
 
                 </div>
             </div>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h4>Another Information</h4>
+                    <form id="agent-info-form" enctype="multipart/form-data">
+                        
+                        <!-- Position as Agent -->
+                        <label>Position as Agent</label>
+                        <select name="position" class="form-control mt-2" required>
+                            <option value="Division Manager" <?= ($user['position'] == "Division Manager") ? 'selected' : '' ?>>Division Manager</option>
+                            <option value="Senior Property Consultant" <?= ($user['position'] == "Senior Property Consultant") ? 'selected' : '' ?>>Senior Property Consultant</option>
+                            <option value="Property Consultant" <?= ($user['position'] == "Property Consultant") ? 'selected' : '' ?>>Property Consultant</option>
+                            <option value="Salesperson" <?= ($user['position'] == "Salesperson") ? 'selected' : '' ?>>Salesperson</option>
+                        </select>
+
+                        <!-- PRC File Upload -->
+                        <label class="mt-2">PRC (Upload File)</label>
+                        <input type="file" name="prc_file" class="form-control mt-2" required>
+
+                        <!-- DSHP File Upload -->
+                        <label class="mt-2">DSHP (Upload File)</label>
+                        <input type="file" name="dshp_file" class="form-control mt-2" required>
+
+                        <!-- PRC ID Number -->
+                        <label class="mt-2">PRC ID Number</label>
+                        <input type="number" name="prc_id" class="form-control mt-2" 
+                            value="<?= htmlspecialchars($user['prc_id']) ?>" placeholder="Enter PRC ID Number" required>
+
+                        <button type="submit" class="btn btn-success mt-2">Update Information</button>
+                        <div id="agent-status-message" class="mt-2"></div>
+                    </form>
+                </div>
+            </div>
+
+
+        
+
+        <script>
+        $(document).ready(function() {
+            $("#agent-info-form").submit(function(e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: "../../backend/update_agent_info.php",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function() {
+                        $("#agent-status-message").html('<span class="text-info">Updating...</span>');
+                    },
+                    success: function(response) {
+                        if (response.includes("successfully")) {
+                            $("#agent-status-message").html('<span class="text-success">' + response + '</span>');
+                        } else {
+                            $("#agent-status-message").html('<span class="text-danger">' + response + '</span>');
+                        }
+                    },
+                    error: function() {
+                        $("#agent-status-message").html('<span class="text-danger">Error updating information.</span>');
+                    }
+                });
+            });
+        });
+        </script>
 
             <!-- Change Password Section -->
             <div class="card mt-4">

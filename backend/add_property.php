@@ -62,9 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($stmt->execute()) {
             $propertyId = $stmt->insert_id;
             $stmt->close();
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $stmt->error]);
-            exit;
+        
+            $agent_id = $_SESSION['user_id']; 
+            $notifMessage = "Agent has added a new property: $propertyName";
+            $notifSQL = "INSERT INTO notifications (agent_id, notification, created_at) VALUES (?, ?, NOW())";
+        
+            if ($notifStmt = $conn->prepare($notifSQL)) {
+                $notifStmt->bind_param('is', $agent_id, $notifMessage);
+                $notifStmt->execute();
+                $notifStmt->close();
+            }
         }
     } else {
         echo json_encode(['status' => 'error', 'message' => 'SQL statement error: ' . $conn->error]);

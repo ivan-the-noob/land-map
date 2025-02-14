@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
         $profileImage = !empty($row['profile']) ? "../../assets/profile_images/" . $row['profile'] : "../../assets/profile_images/profile.jpg";
 
         $nextSender = ($i < $totalMessages - 1) ? $messages[$i + 1]['role_type'] : null;
-        $showProfile = ($isUser === 'agent-message' && $nextSender !== 'agent') 
+        $showProfile = ($isUser === 'user-message' && $nextSender !== 'user') 
             ? '<img src="' . $profileImage . '" alt="Profile" class="profile-img" style="width: 40px; height: 40px; border-radius: 50%; margin: 0;">' 
             : '<div style="width: 40px;"></div>'; 
 

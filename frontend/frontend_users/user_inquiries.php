@@ -210,7 +210,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                     <?php } ?>
 
                     <div class="admin-actions">
-                    <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
+                    <button class="btn-view text-now" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View Details
                         </button>
                         <button class="<?= $buttonClass ?>">
@@ -218,6 +218,9 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         </button>
                         <button class="btn-delete" onclick="deleteProperty(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-trash"></i> Cancel Inquiry
+                        </button>
+                        <button class="btn-delete" onclick="reportAgent(<?php echo $row['property_id']; ?>)">
+                            <i class="fas fa-trash"></i> Report Agent
                         </button>
                     </div>
 

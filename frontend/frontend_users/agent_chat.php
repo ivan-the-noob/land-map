@@ -483,11 +483,11 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
 }
 
 .user-message {
-    justify-content: flex-end; 
+    justify-content: flex-start; 
 }
 
 .agent-message {
-    justify-content: flex-start; 
+    justify-content: flex-end; 
 }
 
 .message-box {
@@ -497,16 +497,16 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
     word-wrap: break-word;
 }
 
-.user-message .message-box {
+.agent-message .message-box {
     background-color: #007bff;
     color: white;
-    text-align: right;
+    text-align: left;
 }
 
-.agent-message .message-box {
+.user-message .message-box {
     background-color: #f1f1f1;
     color: black;
-    text-align: left;
+    text-align: right;
 }
 
 .chat-box {

@@ -277,7 +277,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                     <div class="filter-item">
                             <label for="saleTypeFilter">Sale Type:</label>
                             <select id="saleTypeFilter" class="form-control">
-                                <option value="all">All Types</option>
+                                <option value="">All Types</option>
                                 <option value="For Sale">For Sale</option>
                                 <option value="For Lease">For Lease</option>
                             </select>
@@ -285,7 +285,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <div class="filter-item lease-options" style="display:none;">
                             <label for="leaseTermFilter">Lease Term:</label>
                             <select id="leaseTermFilter" class="form-control">
-                                <option value="all">All Terms</option>
+                                <option value="">All Terms</option>
                                 <option value="Short Term">Short Term (Less than 1 year)</option>
                                 <option value="Long Term">Long Term (More than 1 year)</option>
                             </select>
@@ -298,7 +298,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <div class="filter-item sale-options" style="display:none;">
                             <label for="landCondition">Land Condition:</label>
                             <select id="landCondition" class="form-control">
-                                <option value="all">All Terms</option>
+                                <option value="">All Terms</option>
                                 <option value="resale">Resale</option>
                                 <option value="foreClose">Foreclose/Acquired Assets</option>
                                 <option value="pasalo">Pasalo/Assumed Balance</option>
@@ -314,7 +314,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <div class="filter-item">
                             <label for="landTypeFilter">Land Type:</label>
                             <select id="landTypeFilter" class="form-control">
-                                <option value="all">All Types</option>
+                                <option value="">All Types</option>
                                 <option value="House and Lot">House and Lot</option>
                                 <option value="Agricultural Farm">Agricultural Farm</option>
                                 <option value="Commercial Lot">Commercial Lot</option>
@@ -554,7 +554,7 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
                             <!-- Post new land property -->
-                            <h3 class="mb-1 mr-5">All Land Properties</h3>
+                            <h3 class="mb-1 mr-5" id="land_property">All Land Properties</h3>
                             <div class="property-list">
                                 
     <?php
@@ -570,6 +570,7 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
             FROM properties p 
             LEFT JOIN users u ON p.user_id = u.user_id
             LEFT JOIN user_img ui ON u.user_id = ui.user_id
+            WHERE p.is_archive = 0
             ORDER BY p.property_id DESC";
 
     $result = $conn->query($sql);

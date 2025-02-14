@@ -1,0 +1,28 @@
+<?php
+require '../db.php';
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = $_SESSION['user_id'];
+    $position = $_POST['position'];
+    $prc_id = $_POST['prc_id'];
+
+    // Handle File Uploads
+    $prc_file = $_FILES['prc_file']['name'] ? time() . '_' . $_FILES['prc_file']['name'] : null;
+    $dshp_file = $_FILES['dshp_file']['name'] ? time() . '_' . $_FILES['dshp_file']['name'] : null;
+
+    // Move uploaded files
+    if ($prc_file) move_uploaded_file($_FILES['prc_file']['tmp_name'], "../../uploads/" . $prc_file);
+    if ($dshp_file) move_uploaded_file($_FILES['dshp_file']['tmp_name'], "../../uploads/" . $dshp_file);
+
+    $sql = "UPDATE users SET position = ?, prc_id = ?, prc_file = COALESCE(?, prc_file), dshp_file = COALESCE(?, dshp_file) WHERE user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("sissi", $position, $prc_id, $prc_file, $dshp_file, $user_id);
+
+    if ($stmt->execute()) {
+        echo "Information updated successfully.";
+    } else {
+        echo "Error updating information.";
+    }
+}
+?>

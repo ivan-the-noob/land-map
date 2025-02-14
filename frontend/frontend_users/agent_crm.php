@@ -54,7 +54,7 @@ if (!isset($_SESSION['role_type'])) {
 }
 
 // Check if the user is an user (if they are logged in)
-elseif ($_SESSION['role_type'] !== 'user') {
+elseif ($_SESSION['role_type'] !== 'agent') {
     // If not user, set flag and message for modal
     $show_modal = true;
     $error_message = 'You do not have the necessary permissions to access this page.';
@@ -67,7 +67,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Land Map | Profile</title>
+    <title>Land Map | CRM</title>
     <link rel="icon" href="../../assets/images/logo.png" type="image/x-icon">
 
     <!-- Vendor CSS -->
@@ -155,7 +155,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
 <body>
 
 <div class="az-header">
-    <?php require '../../partials/nav_user.php' ?>
+    <?php require '../../partials/nav_agent.php' ?>
 </div>
 
 <?php
@@ -178,8 +178,8 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
         <div class="az-content-body">
             <div class="az-dashboard-one-title">
                 <div>
-                    <h2 class="az-dashboard-title">Profile</h2>
-                    <p class="az-dashboard-text">Update Information</p>
+                    <h2 class="az-dashboard-title">User Inquire</h2>
+                    <p class="az-dashboard-text">Agent Crm</p>
                 </div>
                 
                 <!-- Time and Date -->
@@ -205,133 +205,53 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                 </div>
             </div>
             <!-- end time and date -->
+             <div class="d-flex justify-content-end mb-2">
+                <a href="agent_chat.php"><button class="btn btn-success">View Chat</button></a>
+            </div>
 
-            <!-- Profile Section -->
-            <div class="col-md-6 d-flex flex-column justify-content-center mx-auto">
-            <div class="card">
-                <div class="card-body text-center">
-                    <h4>Profile Information</h4>
+       <div class="crm">
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-white">Name</th>
+                        <th class="text-white">Land Type</th>
+                        <th class="text-white">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    require '../../db.php'; 
                     
-                    <!-- Profile Image -->
-                    <img id="profile-img" src="<?= $profileImage ?>" alt="Profile Image" class="rounded-circle" width="150" height="150">
-                    <h4 class="mt-2"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></h4>
-                    
-                    <form id="profile-form" enctype="multipart/form-data" class="mt-3">
-                      <!-- Profile Image Upload -->
-                      <input type="file" name="profile" id="profile-input" class="form-control" accept="image/*">
+                    $query = "
+                        SELECT 
+                            CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, '')) AS Name,
+                            COALESCE(p.property_type, 'N/A') AS LandType,
+                            COALESCE(i.status, 'N/A') AS Status
+                        FROM inquire i
+                        LEFT JOIN users u ON i.user_id = u.user_id
+                        LEFT JOIN properties p ON i.property_id = p.property_id
+                    ";
 
-                      <!-- First Name -->
-                      <input type="text" name="fname" id="fname" class="form-control mt-2" 
-                            value="<?= htmlspecialchars($user['fname']) ?>" placeholder="First Name">
+                
 
-                      <!-- Last Name -->
-                      <input type="text" name="lname" id="lname" class="form-control mt-2" 
-                            value="<?= htmlspecialchars($user['lname']) ?>" placeholder="Last Name">
+                    $result = mysqli_query($conn, $query);
 
-                      <!-- Submit Button -->
-                      <button type="submit" class="btn btn-primary mt-2">Update Profile</button>
-
-                      <!-- Status Message -->
-                      <div id="status-message" class="mt-2"></div>
-                  </form>
-
-                  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                  <script>
-                 $(document).ready(function() {
-                $("#profile-form").submit(function(e) {
-                    e.preventDefault();
-
-                    let formData = new FormData(this);
-
-                    $.ajax({
-                        url: "../../backend/update_profile.php",
-                        type: "POST",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        beforeSend: function() {
-                            $("#status-message").html('<span class="text-info">Updating...</span>');
-                        },
-                        success: function(response) {
-                            if (response.includes("successfully")) {
-                                $("#status-message").html('<span class="text-success">' + response + '</span>');
-                            } else {
-                                $("#status-message").html('<span class="text-danger">' + response + '</span>');
-                            }
-                        },
-                        error: function() {
-                            $("#status-message").html('<span class="text-danger">Error updating profile.</span>');
+                    if ($result) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            echo "<tr>
+                                    <td>{$row['Name']}</td>
+                                    <td>{$row['LandType']}</td>
+                                    <td>{$row['Status']}</td>
+                                </tr>";
                         }
-                    });
-                });
-            });
-
-                  </script>
-
-                </div>
-            </div>
-
-            <!-- Change Password Section -->
-            <div class="card mt-4">
-                <div class="card-body">
-                    <h3>Change Password</h3>
-                    <form id="password-form">
-                    <div class="form-group">
-                        <label>Current Password</label>
-                        <input type="password" name="current_password" id="current_password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>New Password</label>
-                        <input type="password" name="new_password" id="new_password" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm New Password</label>
-                        <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-success">Update Password</button>
-
-                    <!-- Status Message -->
-                    <div id="password-status" class="mt-2"></div>
-                </form>
-
-                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <script>
-                $(document).ready(function() {
-                    $("#password-form").submit(function(e) {
-                        e.preventDefault(); 
-
-                        let formData = $(this).serialize();
-
-                        $.ajax({
-                            url: "../../backend/user_changepassword.php",
-                            type: "POST",
-                            data: formData,
-                            beforeSend: function() {
-                                $("#password-status").html('<span class="text-info">Updating...</span>');
-                            },
-                            success: function(response) {
-                                if (response.includes("successfully")) {
-                                    $("#password-status").html('<span class="text-success">' + response + '</span>');
-                                    $("#password-form")[0].reset();
-                                } else {
-                                    $("#password-status").html('<span class="text-danger">' + response + '</span>');
-                                }
-                            },
-                            error: function() {
-                                $("#password-status").html('<span class="text-danger">Error updating password.</span>');
-                            }
-                        });
-                    });
-                });
-                </script>
-
-                </div>
-            </div>
-
+                    } else {
+                        echo "<tr><td colspan='3'>No data found</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
-</div>
+
 
 
 
