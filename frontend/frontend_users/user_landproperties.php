@@ -747,13 +747,15 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                                             type: 'POST',
                                             data: { property_id: selectedPropertyId },
                                             success: function (response) {
+                                                console.log("Server Response:", response); 
                                                 if (response.trim() === "success") {
                                                     alert("Property listed successfully!");
                                                     location.reload(); 
                                                 } else {
-                                                    alert("Failed to list property.");
+                                                    alert("Failed to list property: " + response); 
                                                 }
                                             },
+
                                             error: function () {
                                                 alert("An error occurred.");
                                             }
