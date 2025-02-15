@@ -200,9 +200,11 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                 <?php foreach ($agents as $index => $agent): ?>
                     <div class="col-md-4">
                         <div class="agent-box text-center" data-toggle="modal" data-target="#agentModal<?php echo $index; ?>">
-                            <div class="agent-profile">
-                                <img src="../../assets/images/person_<?php echo ($index % 5) + 1; ?>.jpg" alt="Agent Photo" class="img-fluid rounded-circle" style="width: 100px; height: 100px;">
+                        <div class="agent-profile">
+                                <img src="../../assets/profile_images/<?php echo !empty($agent['profile']) ? htmlspecialchars($agent['profile']) : '../../assets/images/default-profile.jpg'; ?>" 
+                                    alt="Agent Photo" class="img-fluid rounded-circle" style="width: 100px; height: 100px;">
                             </div>
+
                             <div class="agent-name">
                                 <i class="fas fa-user-tie"></i> 
                                 <?php 
