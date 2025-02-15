@@ -6,19 +6,25 @@ $show_modal = false;
 $error_message = '';
 
 // Check if the user is logged in
-if (!isset($_SESSION['role_type'])) {
+if (!isset($_SESSION['role_type']) || !isset($_SESSION['user_id'])) {
     // If not logged in, set flag and message for modal
     $show_modal = true;
     $error_message = 'You must be logged in to access this page.';
 }
 
-// Check if the user is an agent (if they are logged in)
+// Check if the user is an actual 'user' (not admin, agent, etc.)
 elseif ($_SESSION['role_type'] !== 'agent') {
-    // If not agent, set flag and message for modal
+    // If not user, set flag and message for modal
     $show_modal = true;
     $error_message = 'You do not have the necessary permissions to access this page.';
 }
+
+// Add the session user_id if it is missing
+if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
+    $_SESSION['user_id'] = $user['user_id'];
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,7 +32,6 @@ elseif ($_SESSION['role_type'] !== 'agent') {
 <head>
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-90680653-2"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmgygVeipMUsrtGeZPZ9UzXRmcVdheIqw&libraries=places"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
 
@@ -51,6 +56,7 @@ elseif ($_SESSION['role_type'] !== 'agent') {
     <link href="../../assets/lib/flag-icon-css/css/flag-icon.min.css" rel="stylesheet">
 
     <!-- Mapping Links -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmgygVeipMUsrtGeZPZ9UzXRmcVdheIqw&libraries=places"></script>
     <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.umd.js"></script>
     <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.css" rel="stylesheet" />
 
@@ -271,17 +277,17 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                     <div class="filter-item">
                             <label for="saleTypeFilter">Sale Type:</label>
                             <select id="saleTypeFilter" class="form-control">
-                                <option value="all">All Types</option>
-                                <option value="sale">For Sale</option>
-                                <option value="lease">For Lease</option>
+                                <option value="">All Types</option>
+                                <option value="For Sale">For Sale</option>
+                                <option value="For Lease">For Lease</option>
                             </select>
                         </div>
                         <div class="filter-item lease-options" style="display:none;">
                             <label for="leaseTermFilter">Lease Term:</label>
                             <select id="leaseTermFilter" class="form-control">
-                                <option value="all">All Terms</option>
-                                <option value="short term">Short Term (Less than 1 year)</option>
-                                <option value="long term">Long Term (More than 1 year)</option>
+                                <option value="">All Terms</option>
+                                <option value="Short Term">Short Term (Less than 1 year)</option>
+                                <option value="Long Term">Long Term (More than 1 year)</option>
                             </select>
                         </div>
                         <div class="filter-item lease-options" style="display:none;">
@@ -292,7 +298,7 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                         <div class="filter-item sale-options" style="display:none;">
                             <label for="landCondition">Land Condition:</label>
                             <select id="landCondition" class="form-control">
-                                <option value="all">All Terms</option>
+                                <option value="">All Terms</option>
                                 <option value="resale">Resale</option>
                                 <option value="foreClose">Foreclose/Acquired Assets</option>
                                 <option value="pasalo">Pasalo/Assumed Balance</option>
@@ -303,408 +309,26 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                             <input type="text" id="landContract" class="form-control" placeholder="Enter amount" 
                                 oninput="this.value = this.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
                         </div>
-                        <script>
-                            document.getElementById('saleTypeFilter').addEventListener('change', function() {
-                                const saleOptions = document.querySelectorAll('.sale-options');
-                                saleOptions.forEach(option => {
-                                    option.style.display = this.value === 'sale' ? 'block' : 'none';
-                                });
-                            });
-                        </script>
-                        <script>
-                            document.getElementById('saleTypeFilter').addEventListener('change', function() {
-                                const leaseOptions = document.querySelectorAll('.lease-options');
-                                leaseOptions.forEach(option => {
-                                    option.style.display = this.value === 'lease' ? 'block' : 'none';
-                                });
-                            });
-                        </script>
+
+                     
                         <div class="filter-item">
                             <label for="landTypeFilter">Land Type:</label>
                             <select id="landTypeFilter" class="form-control">
-                                <option value="all">All Types</option>
-                                <option value="house and lot">House and Lot</option>
-                                <option value="agricultural farm">Agricultural Farm</option>
-                                <option value="commercial lot">Commercial Lot</option>
-                                <option value="raw land">Raw Land</option>
-                                <option value="residential land">Residential Land</option>
-                                <option value="residential farm">Residential Farm</option>
-                                <option value="memorial lot">Memorial Lot</option>
+                                <option value="">All Types</option>
+                                <option value="House and Lot">House and Lot</option>
+                                <option value="Agricultural Farm">Agricultural Farm</option>
+                                <option value="Commercial Lot">Commercial Lot</option>
+                                <option value="Raw Land">Raw Land</option>
+                                <option value="Residential Land">Residential Land</option>
+                                <option value="Residential Farm">Residential Farm</option>
+                                <option value="Memorial Lot">Memorial Lot</option>
                             </select>
                         </div>
                         <div class="filter-item">
                             <label for="locationFilter">Location:</label>
                             <select name="propertyLocation" class="form-control" id="propertyLocation">
-                                            <option value="all">All Locations</option>
-                                            <optgroup label="Cities">
-                                                <option value="Bacoor, Cavite">Bacoor</option>
-                                                <option value="Cavite City, Cavite">Cavite City</option>
-                                                <option value="Dasmariñas, Cavite">Dasmariñas</option>
-                                                <option value="General Trias, Cavite">General Trias</option>
-                                                <option value="Imus, Cavite">Imus</option>
-                                                <option value="Tagaytay, Cavite">Tagaytay</option>
-                                                <option value="Trece Martires, Cavite">Trece Martires</option>
-                                            </optgroup>
-                                            
-                                            <optgroup label="Municipalities">
-                                                <option value="Alfonso, Cavite">Alfonso</option>
-                                                <option value="Amadeo, Cavite">Amadeo</option>
-                                                <option value="Carmona, Cavite">Carmona</option>
-                                                <option value="GMA, Cavite">General Mariano Alvarez</option>
-                                                <option value="Indang, Cavite">Indang</option>
-                                                <option value="Kawit, Cavite">Kawit</option>
-                                                <option value="Magallanes, Cavite">Magallanes</option>
-                                                <option value="Maragondon, Cavite">Maragondon</option>
-                                                <option value="Mendez, Cavite">Mendez</option>
-                                                <option value="Naic, Cavite">Naic</option>
-                                                <option value="Noveleta, Cavite">Noveleta</option>
-                                                <option value="Rosario, Cavite">Rosario</option>
-                                                <option value="Silang, Cavite">Silang</option>
-                                                <option value="Tanza, Cavite">Tanza</option>
-                                                <option value="Ternate, Cavite">Ternate</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Cavite City">
-                                                <option value="Caridad, Cavite City, Cavite">Caridad, Cavite City, Cavite</option>
-                                                <option value="Sta. Cruz, Cavite City, Cavite">Sta. Cruz, Cavite City, Cavite</option>
-                                                <option value="San Roque, Cavite City, Cavite">San Roque, Cavite City, Cavite</option>
-                                                <option value="San Antonio, Cavite City, Cavite">San Antonio, Cavite City, Cavite</option>
-                                                <option value="Dalahican, Cavite City, Cavite">Dalahican, Cavite City, Cavite</option>
-                                                <option value="Santa Cruz, Cavite City, Cavite">Santa Cruz, Cavite City, Cavite</option>
-                                                <option value="San Rafael, Cavite City, Cavite">San Rafael, Cavite City, Cavite</option>
-                                                <option value="Paterno, Cavite City, Cavite">Paterno, Cavite City, Cavite</option>
-                                                <option value="San Isidro, Cavite City, Cavite">San Isidro, Cavite City, Cavite</option>
-                                                <option value="Narra, Cavite City, Cavite">Narra, Cavite City, Cavite</option>
-                                            </optgroup>
-                                            
-                                            <optgroup label="Barangays - Dasmariñas">
-                                                <option value="Burol, Dasmariñas, Cavite">Burol, Dasmariñas, Cavite</option>
-                                                <option value="Paliparan, Dasmariñas, Cavite">Paliparan, Dasmariñas, Cavite</option>
-                                                <option value="Sabang, Dasmariñas, Cavite">Sabang, Dasmariñas, Cavite</option>
-                                                <option value="Salawag, Dasmariñas, Cavite">Salawag, Dasmariñas, Cavite</option>
-                                                <option value="Sampaloc, Dasmariñas, Cavite">Sampaloc, Dasmariñas, Cavite</option>
-                                                <option value="San Agustin, Dasmariñas, Cavite">San Agustin, Dasmariñas, Cavite</option>
-                                                <option value="San Jose, Dasmariñas, Cavite">San Jose, Dasmariñas, Cavite</option>
-                                                <option value="San Luis, Dasmariñas, Cavite">San Luis, Dasmariñas, Cavite</option>
-                                                <option value="San Simon, Dasmariñas, Cavite">San Simon, Dasmariñas, Cavite</option>
-                                                <option value="Langkaan, Dasmariñas, Cavite">Langkaan, Dasmariñas, Cavite</option>
-                                                <option value="San Andres, Dasmariñas, Cavite">San Andres, Dasmariñas, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - General Trias">
-                                                <option value="Buenavista, General Trias, Cavite">Buenavista, General Trias, Cavite</option>
-                                                <option value="Manggahan, General Trias, Cavite">Manggahan, General Trias, Cavite</option>
-                                                <option value="Pasong Kawayan, General Trias, Cavite">Pasong Kawayan, General Trias, Cavite</option>
-                                                <option value="San Francisco, General Trias, Cavite">San Francisco, General Trias, Cavite</option>
-                                                <option value="Tejero, General Trias, Cavite">Tejero, General Trias, Cavite</option>
-                                                <option value="Biclatan, General Trias, Cavite">Biclatan, General Trias, Cavite</option>
-                                                <option value="Governor Ferrer, General Trias, Cavite">Governor Ferrer, General Trias, Cavite</option>
-                                                <option value="Navarro, General Trias, Cavite">Navarro, General Trias, Cavite</option>
-                                                <option value="San Juan, General Trias, Cavite">San Juan, General Trias, Cavite</option>
-                                                <option value="Santa Clara, General Trias, Cavite">Santa Clara, General Trias, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Imus">
-                                                <option value="Anabu, Imus, Cavite">Anabu, Imus, Cavite</option>
-                                                <option value="Bayan Luma, Imus, Cavite">Bayan Luma, Imus, Cavite</option>
-                                                <option value="Malagasang, Imus, Cavite">Malagasang, Imus, Cavite</option>
-                                                <option value="Medicion, Imus, Cavite">Medicion, Imus, Cavite</option>
-                                                <option value="Toclong, Imus, Cavite">Toclong, Imus, Cavite</option>
-                                                <option value="Bukandala, Imus, Cavite">Bukandala, Imus, Cavite</option>
-                                                <option value="Magdalo, Imus, Cavite">Magdalo, Imus, Cavite</option>
-                                                <option value="Mariano Espeleta, Imus, Cavite">Mariano Espeleta, Imus, Cavite</option>
-                                                <option value="Pinagbuklod, Imus, Cavite">Pinagbuklod, Imus, Cavite</option>
-                                                <option value="Tanzang Luma, Imus, Cavite">Tanzang Luma, Imus, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Tagaytay">
-                                                <option value="Asisan, Tagaytay, Cavite">Asisan, Tagaytay, Cavite</option>
-                                                <option value="Kaybagal, Tagaytay, Cavite">Kaybagal, Tagaytay, Cavite</option>
-                                                <option value="Mendez Crossing, Tagaytay, Cavite">Mendez Crossing, Tagaytay, Cavite</option>
-                                                <option value="Patutong Malaki, Tagaytay, Cavite">Patutong Malaki, Tagaytay, Cavite</option>
-                                                <option value="Sungay, Tagaytay, Cavite">Sungay, Tagaytay, Cavite</option>
-                                                <option value="Calabuso, Tagaytay, Cavite">Calabuso, Tagaytay, Cavite</option>
-                                                <option value="Francisco, Tagaytay, Cavite">Francisco, Tagaytay, Cavite</option>
-                                                <option value="Maharlika East, Tagaytay, Cavite">Maharlika East, Tagaytay, Cavite</option>
-                                                <option value="Maharlika West, Tagaytay, Cavite">Maharlika West, Tagaytay, Cavite</option>
-                                                <option value="Maitim, Tagaytay, Cavite">Maitim, Tagaytay, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Trece Martires">
-                                                <option value="Aguado, Trece Martires, Cavite">Aguado, Trece Martires, Cavite</option>
-                                                <option value="Cabezas, Trece Martires, Cavite">Cabezas, Trece Martires, Cavite</option>
-                                                <option value="De Ocampo, Trece Martires, Cavite">De Ocampo, Trece Martires, Cavite</option>
-                                                <option value="Inocencio, Trece Martires, Cavite">Inocencio, Trece Martires, Cavite</option>
-                                                <option value="Luciano, Trece Martires, Cavite">Luciano, Trece Martires, Cavite</option>
-                                                <option value="Conchu, Trece Martires, Cavite">Conchu, Trece Martires, Cavite</option>
-                                                <option value="Gregorio, Trece Martires, Cavite">Gregorio, Trece Martires, Cavite</option>
-                                                <option value="Lallana, Trece Martires, Cavite">Lallana, Trece Martires, Cavite</option>
-                                                <option value="Lapidario, Trece Martires, Cavite">Lapidario, Trece Martires, Cavite</option>
-                                                <option value="Perez, Trece Martires, Cavite">Perez, Trece Martires, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Alfonso">
-                                                <option value="Aguirre, Alfonso, Cavite">Aguirre, Alfonso, Cavite</option>
-                                                <option value="Amuyong, Alfonso, Cavite">Amuyong, Alfonso, Cavite</option>
-                                                <option value="Buck Estate, Alfonso, Cavite">Buck Estate, Alfonso, Cavite</option>
-                                                <option value="Esperanza, Alfonso, Cavite">Esperanza, Alfonso, Cavite</option>
-                                                <option value="Kaybagal, Alfonso, Cavite">Kaybagal, Alfonso, Cavite</option>
-                                                <option value="Luksuhin, Alfonso, Cavite">Luksuhin, Alfonso, Cavite</option>
-                                                <option value="Mangas, Alfonso, Cavite">Mangas, Alfonso, Cavite</option>
-                                                <option value="Marahan, Alfonso, Cavite">Marahan, Alfonso, Cavite</option>
-                                                <option value="Pajo, Alfonso, Cavite">Pajo, Alfonso, Cavite</option>
-                                                <option value="Sicat, Alfonso, Cavite">Sicat, Alfonso, Cavite</option>
-                                                <option value="Taywanak, Alfonso, Cavite">Taywanak, Alfonso, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Amadeo">
-                                                <option value="Barangay I (Pob.), Amadeo, Cavite">Barangay I (Pob.), Amadeo, Cavite</option>
-                                                <option value="Barangay II (Pob.), Amadeo, Cavite">Barangay II (Pob.), Amadeo, Cavite</option>
-                                                <option value="Barangay III (Pob.), Amadeo, Cavite">Barangay III (Pob.), Amadeo, Cavite</option>
-                                                <option value="Barangay IV (Pob.), Amadeo, Cavite">Barangay IV (Pob.), Amadeo, Cavite</option>
-                                                <option value="Barangay V (Pob.), Amadeo, Cavite">Barangay V (Pob.), Amadeo, Cavite</option>
-                                                <option value="Buho, Amadeo, Cavite">Buho, Amadeo, Cavite</option>
-                                                <option value="Halang, Amadeo, Cavite">Halang, Amadeo, Cavite</option>
-                                                <option value="Maymangga, Amadeo, Cavite">Maymangga, Amadeo, Cavite</option>
-                                                <option value="Pangil, Amadeo, Cavite">Pangil, Amadeo, Cavite</option>
-                                                <option value="Talon, Amadeo, Cavite">Talon, Amadeo, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Carmona">
-                                                <option value="Bancal, Carmona, Cavite">Bancal, Carmona, Cavite</option>
-                                                <option value="Cabilang Baybay, Carmona, Cavite">Cabilang Baybay, Carmona, Cavite</option>
-                                                <option value="Lantic, Carmona, Cavite">Lantic, Carmona, Cavite</option>
-                                                <option value="Mabuhay, Carmona, Cavite">Mabuhay, Carmona, Cavite</option>
-                                                <option value="Maduya, Carmona, Cavite">Maduya, Carmona, Cavite</option>
-                                                <option value="Milagrosa, Carmona, Cavite">Milagrosa, Carmona, Cavite</option>
-                                                <option value="Barangay 1, Carmona, Cavite">Barangay 1 (Poblacion), Carmona, Cavite</option>
-                                                <option value="Barangay 2, Carmona, Cavite">Barangay 2 (Poblacion), Carmona, Cavite</option>
-                                                <option value="Barangay 3, Carmona, Cavite">Barangay 3 (Poblacion), Carmona, Cavite</option>
-                                                <option value="Barangay 4, Carmona, Cavite">Barangay 4 (Poblacion), Carmona, Cavite</option>
-                                                <option value="Barangay 5, Carmona, Cavite">Barangay 5 (Poblacion), Carmona, Cavite</option>
-                                                <option value="Barangay 6, Carmona, Cavite">Barangay 6 (Poblacion), Carmona, Cavite</option>
-                                                <option value="Barangay 7, Carmona, Cavite">Barangay 7 (Poblacion), Carmona, Cavite</option>
-                                                <option value="Barangay 8, Carmona, Cavite">Barangay 8 (Poblacion), Carmona, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - GMA">
-                                                <option value="Aldiano Santos, GMA, Cavite">Aldiano Santos, GMA, Cavite</option>
-                                                <option value="Benjamin Tirona, GMA, Cavite">Benjamin Tirona, GMA, Cavite</option>
-                                                <option value="Francisco De Castro, GMA, Cavite">Francisco De Castro, GMA, Cavite</option>
-                                                <option value="Gavino Maderan, GMA, Cavite">Gavino Maderan, GMA, Cavite</option>
-                                                <option value="Jacinto Lumbreras, GMA, Cavite">Jacinto Lumbreras, GMA, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Indang">
-                                                <option value="Agus agus, Indang, Cavite">Agus-agus, Indang, Cavite</option>
-                                                <option value="alulod">Alulod, Indang, Cavite</option>
-                                                <option value="banaba">Banaba, Indang, Cavite</option>
-                                                <option value="carasuchi">Carasuchi, Indang, Cavite</option>
-                                                <option value="daine">Daine, Indang, Cavite</option>
-                                                <option value="guyam malaki">Guyam Malaki, Indang, Cavite</option>
-                                                <option value="guyam munti">Guyam Munti, Indang, Cavite</option>
-                                                <option value="kaytapos">Kaytapos, Indang, Cavite</option>
-                                                <option value="limbon">Limbon, Indang, Cavite</option>
-                                                <option value="lumampong">Lumampong, Indang, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Kawit">
-                                                <option value="Binakayan, kawit, Cavite">Binakayan, kawit, Cavite</option>
-                                                <option value="gahak">Gahak, kawit, Cavite</option>
-                                                <option value="kaingen">Kaingen, kawit, Cavite</option>
-                                                <option value="magdalo">Magdalo, kawit, Cavite</option>
-                                                <option value="marulas">Marulas, kawit, Cavite</option>
-                                                <option value="poblacion">Poblacion, kawit, Cavite</option>
-                                                <option value="samala">Samala, kawit, Cavite</option>
-                                                <option value="tabon">Tabon, kawit, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Magallanes">
-                                                <option value="Barangay I, Magallanes, Cavite">Barangay I, Magallanes, Cavite</option>
-                                                <option value="barangay 2">Barangay II, Magallanes, Cavite</option>
-                                                <option value="barangay 3">Barangay III, Magallanes, Cavite</option>
-                                                <option value="barangay 4">Barangay IV, Magallanes, Cavite</option>
-                                                <option value="barangay 5">Barangay V, Magallanes, Cavite</option>
-                                                <option value="barangay 6">Barangay VI, Magallanes, Cavite</option>
-                                                <option value="barangay 7">Barangay VII, Magallanes, Cavite</option>
-                                                <option value="barangay 8">Barangay VIII, Magallanes, Cavite</option>
-                                                <option value="barangay ramirez">Barangay Ramirez, Magallanes, Cavite</option>
-                                                <option value="barangay medina">Barangay Medina, Magallanes, Cavite</option>
-                                                <option value="barangay caluya">Barangay Caluya, Magallanes, Cavite</option>
-                                                <option value="barangay boundary">Barangay Boundary, Magallanes, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Maragondon">
-                                                <option value="Bucal, Maragondon, Cavite">Bucal, Maragondon, Cavite</option>
-                                                <option value="Caingin, Maragondon, Cavite">Caingin, Maragondon, Cavite</option>
-                                                <option value="Garita, Maragondon, Cavite">Garita, Maragondon, Cavite</option>
-                                                <option value="Layong, Maragondon, Cavite">Layong, Maragondon, Cavite</option>
-                                                <option value="Mabato, Maragondon, Cavite">Mabato, Maragondon, Cavite</option>
-                                                <option value="Pantihan, Maragondon, Cavite">Pantihan, Maragondon, Cavite</option>
-                                                <option value="Pinagsanhan, Maragondon, Cavite">Pinagsanhan, Maragondon, Cavite</option>
-                                                <option value="Poblacion, Maragondon, Cavite">Poblacion, Maragondon, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Mendez">
-                                                <option value="Anuling Cerca, Mendez, Cavite">Anuling Cerca, Mendez, Cavite</option>
-                                                <option value="Anuling Lejos, Mendez, Cavite">Anuling Lejos, Mendez, Cavite</option>
-                                                <option value="Arbisco, Mendez, Cavite">Arbisco, Mendez, Cavite</option>
-                                                <option value="Bukal, Mendez, Cavite">Bukal, Mendez, Cavite</option>
-                                                <option value="Galicia, Mendez, Cavite">Galicia, Mendez, Cavite</option>
-                                                <option value="Palocpoc, Mendez, Cavite">Palocpoc, Mendez, Cavite</option>
-                                                <option value="Poblacion, Mendez, Cavite">Poblacion, Mendez, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Naic">
-                                                <option value="Bagong Karsada, Naic, Cavite">Bagong Karsada, Naic, Cavite</option>
-                                                <option value="Bancaan, Naic, Cavite">Bancaan, Naic, Cavite</option>
-                                                <option value="Bayan, Naic, Cavite">Bayan, Naic, Cavite</option>
-                                                <option value="Bucana, Naic, Cavite">Bucana, Naic, Cavite</option>
-                                                <option value="Kanluran, Naic, Cavite">Kanluran, Naic, Cavite</option>
-                                                <option value="Labac, Naic, Cavite">Labac, Naic, Cavite</option>
-                                                <option value="Malainen, Naic, Cavite">Malainen, Naic, Cavite</option>
-                                                <option value="Munting Mapino, Naic, Cavite">Munting Mapino, Naic, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Noveleta">
-                                                <option value="Magdiwang, Noveleta, Cavite">Magdiwang, Noveleta, Cavite</option>
-                                                <option value="Poblacion, Noveleta, Cavite">Poblacion, Noveleta, Cavite</option>
-                                                <option value="Salcedo, Noveleta, Cavite">Salcedo, Noveleta, Cavite</option>
-                                                <option value="San Antonio, Noveleta, Cavite">San Antonio, Noveleta, Cavite</option>
-                                                <option value="San Jose, Noveleta, Cavite">San Jose, Noveleta, Cavite</option>
-                                                <option value="San Rafael, Noveleta, Cavite">San Rafael, Noveleta, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Rosario">
-                                                <option value="Bagbag, Rosario, Cavite">Bagbag, Rosario, Cavite</option>
-                                                <option value="Kanluran, Rosario, Cavite">Kanluran, Rosario, Cavite</option>
-                                                <option value="Ligtong, Rosario, Cavite">Ligtong, Rosario, Cavite</option>
-                                                <option value="Muzon, Rosario, Cavite">Muzon, Rosario, Cavite</option>
-                                                <option value="Sapa, Rosario, Cavite">Sapa, Rosario, Cavite</option>
-                                                <option value="Silangan, Rosario, Cavite">Silangan, Rosario, Cavite</option>
-                                                <option value="Tejero, Rosario, Cavite">Tejero, Rosario, Cavite</option>
-                                                <option value="Wawa, Rosario, Cavite">Wawa, Rosario, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Ternate">
-                                                <option value="Bucana">Bucana, Ternate, Cavite</option>
-                                                <option value="Poblacion, Ternate, Cavite">Poblacion I (Poblacion), Ternate, Cavite</option>
-                                                <option value="Poblacion, Ternate, Cavite">Poblacion II (Poblacion), Ternate, Cavite</option>
-                                                <option value="Poblacion, Ternate, Cavite">Poblacion III (Poblacion), Ternate, Cavite</option> 
-                                                <option value="Pooc, Ternate, Cavite">Pooc I, Ternate, Cavite</option>
-                                                <option value="Pooc, Ternate, Cavite">Pooc II, Ternate, Cavite</option>
-                                                <option value="Sapang, Ternate, Cavite">Sapang I, Ternate, Cavite</option>
-                                                <option value="Sapang, Ternate, Cavite">Sapang II, Ternate, Cavite</option>
-                                                <option value="San Jose I, Ternate, Cavite">San Jose I, Ternate, Cavite</option>
-                                                <option value="San Jose II, Ternate, Cavite">San Jose II, Ternate, Cavite</option>
-                                                <option value="San Juan I, Ternate, Cavite">San Juan I, Ternate, Cavite</option>
-                                                <option value="San Juan II, Ternate, Cavite">San Juan II, Ternate, Cavite</option>
-                                            </optgroup>
-                                            
-                                            <optgroup label="Barangays - Bacoor">
-                                                <option value="Alima, Bacoor, Cavite">Alima, Bacoor, Cavite</option>
-                                                <option value="Aniban, Bacoor, Cavite">Aniban, Bacoor, Cavite</option>
-                                                <option value="Bayanan, Bacoor, Cavite">Bayanan, Bacoor, Cavite</option>
-                                                <option value="Daang Bukid, Bacoor, Cavite">Daang Bukid, Bacoor, Cavite</option>
-                                                <option value="Digman, Bacoor, Cavite">Digman, Bacoor, Cavite</option>
-                                                <option value="Dulong Bayan, Bacoor, Cavite">Dulong Bayan, Bacoor, Cavite</option>
-                                                <option value="Habay, Bacoor, Cavite">Habay, Bacoor, Cavite</option>
-                                                <option value="Kaingin, Bacoor, Cavite">Kaingin, Bacoor, Cavite</option>
-                                                <option value="Ligas, Bacoor, Cavite">Ligas, Bacoor, Cavite</option>
-                                                <option value="Mabolo, Bacoor, Cavite">Mabolo, Bacoor, Cavite</option>
-                                                <option value="Maliksi, Bacoor, Cavite">Maliksi, Bacoor, Cavite</option>
-                                                <option value="Molino, Bacoor, Cavite">Molino, Bacoor, Cavite</option>
-                                                <option value="Niog, Bacoor, Cavite">Niog, Bacoor, Cavite</option>
-                                                <option value="Panapaan, Bacoor, Cavite">Panapaan, Bacoor, Cavite</option>
-                                                <option value="Queens Row, Bacoor, Cavite">Queens Row, Bacoor, Cavite</option>
-                                                <option value="Real, Bacoor, Cavite">Real, Bacoor, Cavite</option>
-                                                <option value="Salinas, Bacoor, Cavite">Salinas, Bacoor, Cavite</option>
-                                                <option value="San Nicolas, Bacoor, Cavite">San Nicolas, Bacoor, Cavite</option>
-                                                <option value="Sineguelasan, Bacoor, Cavite">Sineguelasan, Bacoor, Cavite</option>
-                                                <option value="Talaba, Bacoor, Cavite">Talaba, Bacoor, Cavite</option>
-                                                <option value="Zapote, Bacoor, Cavite">Zapote, Bacoor, Cavite</option>
-                                            </optgroup>
-
-                                            <optgroup label="Barangays - Tanza">
-                                                <option value="Amaya I, Tanza, Cavite">Amaya I, Tanza, Cavite</option>
-                                                <option value="Amaya II, Tanza, Cavite">Amaya II, Tanza, Cavite</option>
-                                                <option value="Amaya III, Tanza, Cavite">Amaya III, Tanza, Cavite</option>
-                                                <option value="Amaya IV, Tanza, Cavite">Amaya IV, Tanza, Cavite</option>
-                                                <option value="Amaya V, Tanza, Cavite">Amaya V, Tanza, Cavite</option>
-                                                <option value="Amaya VI, Tanza, Cavite">Amaya VI, Tanza, Cavite</option>
-                                                <option value="Amaya VII, Tanza, Cavite">Amaya VII, Tanza, Cavite</option>
-                                                <option value="Bagtas, Tanza, Cavite">Bagtas, Tanza, Cavite</option>
-                                                <option value="Biga, Tanza, Cavite">Biga, Tanza, Cavite</option>
-                                                <option value="Bunga, Tanza, Cavite">Bunga, Tanza, Cavite</option>
-                                                <option value="Calibuyo, Tanza, Cavite">Calibuyo, Tanza, Cavite</option>
-                                                <option value="Capipisa, Tanza, Cavite">Capipisa, Tanza, Cavite</option>
-                                                <option value="Daang Amaya I, Tanza, Cavite">Daang Amaya I, Tanza, Cavite</option>
-                                                <option value="Daang Amaya II, Tanza, Cavite">Daang Amaya II, Tanza, Cavite</option>
-                                                <option value="Daang Amaya III, Tanza, Cavite">Daang Amaya III, Tanza, Cavite</option>
-                                                <option value="Halayhay, Tanza, Cavite">Halayhay, Tanza, Cavite</option>
-                                                <option value="Julugan I, Tanza, Cavite">Julugan I, Tanza, Cavite</option>
-                                                <option value="Julugan II, Tanza, Cavite">Julugan II, Tanza, Cavite</option>
-                                                <option value="Julugan III, Tanza, Cavite">Julugan III, Tanza, Cavite</option>
-                                                <option value="Julugan IV, Tanza, Cavite">Julugan IV, Tanza, Cavite</option>
-                                                <option value="Julugan V, Tanza, Cavite">Julugan V, Tanza, Cavite</option>
-                                                <option value="Julugan VI, Tanza, Cavite">Julugan VI, Tanza, Cavite</option>
-                                                <option value="Julugan VII, Tanza, Cavite">Julugan VII, Tanza, Cavite</option>
-                                                <option value="Julugan VIII, Tanza, Cavite">Julugan VIII, Tanza, Cavite</option>
-                                                <option value="Mulawin, Tanza, Cavite">Mulawin, Tanza, Cavite</option>
-                                                <option value="Poblacion I, Tanza, Cavite">Poblacion I, Tanza, Cavite</option>
-                                                <option value="Poblacion II, Tanza, Cavite">Poblacion II, Tanza, Cavite</option>
-                                                <option value="Poblacion III, Tanza, Cavite">Poblacion III, Tanza, Cavite</option>
-                                                <option value="Poblacion IV, Tanza, Cavite">Poblacion IV, Tanza, Cavite</option>
-                                                <option value="Sahud Ulan, Tanza, Cavite">Sahud Ulan, Tanza, Cavite</option>
-                                                <option value="Sanja Mayor, Tanza, Cavite">Sanja Mayor, Tanza, Cavite</option>
-                                                <option value="Santol, Tanza, Cavite">Santol, Tanza, Cavite</option>
-                                                <option value="Tres Cruses, Tanza, Cavite">Tres Cruses, Tanza, Cavite</option>
-                                            </optgroup>   
-                                              
-                                            <optgroup label="Barangays - Silang">
-                                                <option value="Adlas, Silang, Cavite">Adlas, Silang, Cavite</option>
-                                                <option value="Balite I, Silang, Cavite">Balite I, Silang, Cavite</option>
-                                                <option value="Balite II, Silang, Cavite">Balite II, Silang, Cavite</option>
-                                                <option value="Balubad, Silang, Cavite">Balubad, Silang, Cavite</option>
-                                                <option value="Banaba, Silang, Cavite">Banaba, Silang, Cavite</option>
-                                                <option value="Banaybanay, Silang, Cavite">Banaybanay, Silang, Cavite</option>
-                                                <option value="Biga I, Silang, Cavite">Biga I, Silang, Cavite</option>
-                                                <option value="Biga II, Silang, Cavite">Biga II, Silang, Cavite</option>
-                                                <option value="Biluso, Silang, Cavite">Biluso, Silang, Cavite</option>
-                                                <option value="Buho, Silang, Cavite">Buho, Silang, Cavite</option>
-                                                <option value="Bulihan, Silang, Cavite">Bulihan, Silang, Cavite</option>
-                                                <option value="Carmen, Silang, Cavite">Carmen, Silang, Cavite</option>
-                                                <option value="Hoyo, Silang, Cavite">Hoyo, Silang, Cavite</option>
-                                                <option value="Ipil, Silang, Cavite">Ipil, Silang, Cavite</option>
-                                                <option value="Kalubkob, Silang, Cavite">Kalubkob, Silang, Cavite</option>
-                                                <option value="Kaong, Silang, Cavite">Kaong, Silang, Cavite</option>
-                                                <option value="Lalaan I, Silang, Cavite">Lalaan I, Silang, Cavite</option>
-                                                <option value="Lalaan II, Silang, Cavite">Lalaan II, Silang, Cavite</option>
-                                                <option value="Lucsuhin, Silang, Cavite">Lucsuhin, Silang, Cavite</option>
-                                                <option value="Lumil, Silang, Cavite">Lumil, Silang, Cavite</option>
-                                                <option value="Maguyam, Silang, Cavite">Maguyam, Silang, Cavite</option>
-                                                <option value="Malabag, Silang, Cavite">Malabag, Silang, Cavite</option>
-                                                <option value="Malaking Tatyao, Silang, Cavite">Malaking Tatyao, Silang, Cavite</option>
-                                                <option value="Mangas I, Silang, Cavite">Mangas I, Silang, Cavite</option>
-                                                <option value="Mangas II, Silang, Cavite">Mangas II, Silang, Cavite</option>
-                                                <option value="Munting Ilog, Silang, Cavite">Munting Ilog, Silang, Cavite</option>
-                                                <option value="Narra I, Silang, Cavite">Narra I, Silang, Cavite</option>
-                                                <option value="Narra II, Silang, Cavite">Narra II, Silang, Cavite</option>
-                                                <option value="Pasong Langka, Silang, Cavite">Pasong Langka, Silang, Cavite</option>
-                                                <option value="Pooc I, Silang, Cavite">Pooc I, Silang, Cavite</option>
-                                                <option value="Pooc II, Silang, Cavite">Pooc II, Silang, Cavite</option>
-                                                <option value="Puting Kahoy, Silang, Cavite">Puting Kahoy, Silang, Cavite</option>
-                                                <option value="Sabutan, Silang, Cavite">Sabutan, Silang, Cavite</option>
-                                                <option value="San Vicente I, Silang, Cavite">San Vicente I, Silang, Cavite</option>
-                                                <option value="San Vicente II, Silang, Cavite">San Vicente II, Silang, Cavite</option>
-                                                <option value="Santol, Silang, Cavite">Santol, Silang, Cavite</option>
-                                                <option value="Tartaria, Silang, Cavite">Tartaria, Silang, Cavite</option>
-                                                <option value="Tibig, Silang, Cavite">Tibig, Silang, Cavite</option>
-                                                <option value="Tubuan I, Silang, Cavite">Tubuan I, Silang, Cavite</option>
-                                                <option value="Tubuan II, Silang, Cavite">Tubuan II, Silang, Cavite</option>
-                                                <option value="Tubuan III, Silang, Cavite">Tubuan III, Silang, Cavite</option>
-                                            </optgroup>
-                                        </select>
+                                  <?php include '../../backend/filter_places.php'; ?>          
+                            </select>
                         </div>
                         <script>
                             document.getElementById('propertyLocation').addEventListener('change', function() {
@@ -726,7 +350,6 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                                 }
                             });
                         </script>
-
                         <div class="filter-item">
                             <label for="priceRange">Price Range:</label>
                             <div class="input-group">
@@ -777,6 +400,144 @@ elseif ($_SESSION['role_type'] !== 'agent') {
             </div>
         </div>
     </div>
+   
+
+<script>
+function applyFilters() {
+    let selectedSaleType = document.getElementById("saleTypeFilter").value;
+    let selectedLeaseTerm = document.getElementById("leaseTermFilter").value;
+    let monthlyRentInput = document.getElementById("monthlyRental").value.replace(/,/g, '').trim();
+    let selectedLandType = document.getElementById("landTypeFilter").value;
+    let selectedLocation = document.getElementById("propertyLocation").value;
+    let selectedLandCondition = document.getElementById("landCondition").value;
+    let minPrice = document.getElementById("minPrice").value.trim();
+    let maxPrice = document.getElementById("maxPrice").value.trim();
+    let minArea = document.getElementById("minArea").value.trim();
+    let maxArea = document.getElementById("maxArea").value.trim();
+
+    // Get selected checkboxes for additional info
+    let selectedAdditionalInfo = Array.from(document.querySelectorAll("input[name='additionalInfo']:checked")).map(cb => cb.value);
+
+    let cards = document.querySelectorAll(".property-card");
+
+    cards.forEach(card => {
+        let saleType = card.getAttribute("data-sale-type");
+        let leaseTerm = card.getAttribute("data-lease-term");
+        let monthlyRent = card.getAttribute("data-monthly-rent");
+        let landType = card.getAttribute("data-land-type");
+        let propertyLocation = card.getAttribute("data-location");
+        let landCondition = card.getAttribute("data-land-condition");
+        let salePrice = parseFloat(card.getAttribute("data-sale-price")) || 0;
+        let landArea = parseFloat(card.getAttribute("data-land-area")) || 0;
+        let additionalInfo = card.getAttribute("data-another-info") ? card.getAttribute("data-another-info").split(",") : [];
+
+        card.style.display = "none";
+
+        if (
+            selectedSaleType === "all" && 
+            selectedLeaseTerm === "all" && 
+            monthlyRentInput === "" && 
+            selectedLandType === "all" && 
+            selectedLocation === "all" && 
+            selectedLandCondition === "all" &&
+            minPrice === "" && maxPrice === "" &&
+            minArea === "" && maxArea === "" &&
+            selectedAdditionalInfo.length === 0
+        ) {
+            card.style.display = "block";
+            return;
+        }
+
+        if (selectedSaleType !== "all" && saleType !== selectedSaleType) {
+            return;
+        }
+
+        if (selectedSaleType === "For Lease" && selectedLeaseTerm !== "all" && leaseTerm !== selectedLeaseTerm) {
+            return;
+        }
+
+        if (monthlyRentInput !== "" && monthlyRent !== null) {
+            let rentValue = parseInt(monthlyRent, 10);
+            let inputValue = parseInt(monthlyRentInput, 10);
+            if (rentValue !== inputValue) {
+                return;
+            }
+        }
+
+        if (selectedLandType !== "all" && landType !== selectedLandType) {
+            return;
+        }
+
+        if (selectedLocation !== "all" && propertyLocation !== selectedLocation) {
+            return;
+        }
+
+        if (selectedSaleType === "For Sale" && selectedLandCondition !== "all" && landCondition !== selectedLandCondition) {
+            return;
+        }
+
+        if (selectedSaleType === "For Sale") {
+            if (minPrice !== "" && salePrice < parseFloat(minPrice)) {
+                return;
+            }
+            if (maxPrice !== "" && salePrice > parseFloat(maxPrice)) {
+                return;
+            }
+        } else if (selectedSaleType === "For Lease") {
+            let rentValue = parseFloat(monthlyRent) || 0;
+            if (minPrice !== "" && rentValue < parseFloat(minPrice)) {
+                return;
+            }
+            if (maxPrice !== "" && rentValue > parseFloat(maxPrice)) {
+                return;
+            }
+        }
+
+        if (minArea !== "" && landArea < parseFloat(minArea)) {
+            return;
+        }
+
+        if (maxArea !== "" && landArea > parseFloat(maxArea)) {
+            return;
+        }
+
+        // Check if the selected additional info matches any card's additional info
+        if (selectedAdditionalInfo.length > 0) {
+            let matches = selectedAdditionalInfo.some(info => additionalInfo.includes(info));
+            if (!matches) {
+                return;
+            }
+        }
+
+        card.style.display = "block";
+    });
+}
+
+function resetFilters() {
+    document.getElementById("saleTypeFilter").value = "all";
+    document.getElementById("leaseTermFilter").value = "all";
+    document.getElementById("monthlyRental").value = "";
+    document.getElementById("landTypeFilter").value = "all";
+    document.getElementById("propertyLocation").value = "all";
+    document.getElementById("landCondition").value = "all";
+    document.getElementById("minPrice").value = "";
+    document.getElementById("maxPrice").value = "";
+    document.getElementById("minArea").value = "";
+    document.getElementById("maxArea").value = "";
+
+    // Uncheck all additional info checkboxes
+    document.querySelectorAll("input[name='additionalInfo']").forEach(cb => cb.checked = false);
+
+    // Show all property cards
+    document.querySelectorAll(".property-card").forEach(card => card.style.display = "block");
+}
+
+// Attach event listener to reset button
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+
+document.getElementById("applyFilters").addEventListener("click", applyFilters);
+</script>
+
     
     
 
@@ -784,7 +545,7 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
                             <!-- Post new land property -->
-                            <h3 class="mb-1 mr-5">All Land Properties</h3>
+                            <h3 class="mb-1 mr-5" id="land_property">All Land Properties</h3>
                             <div class="property-list">
                                 
     <?php
@@ -800,6 +561,7 @@ elseif ($_SESSION['role_type'] !== 'agent') {
             FROM properties p 
             LEFT JOIN users u ON p.user_id = u.user_id
             LEFT JOIN user_img ui ON u.user_id = ui.user_id
+            WHERE p.is_archive = 0
             ORDER BY p.property_id DESC";
 
     $result = $conn->query($sql);
@@ -815,7 +577,22 @@ elseif ($_SESSION['role_type'] !== 'agent') {
             $daysDifference = floor(($currentDate - $createdDate) / (60 * 60 * 24));
             $isNew = ($row['days_since_added'] <= 7);
     ?>
-            <div class="property-card">
+          <div class="property-card" 
+        data-sale-type="<?php echo ($row['sale_or_lease'] == 'sale') ? 'For Sale' : 'For Lease'; ?>" 
+        data-lease-term="<?php echo ($row['lease_duration'] == 'short_term') ? 'Short Term' : 'Long Term'; ?>"
+        data-monthly-rent="<?php echo $row['monthly_rent']; ?>"
+        data-land-type="<?php echo htmlspecialchars($row['property_type']); ?>" 
+        data-location="<?php echo htmlspecialchars($row['property_location']); ?>"
+        data-sale-price="<?php echo htmlspecialchars($row['sale_price']); ?>"
+        data-land-condition="<?php echo htmlspecialchars($row['land_condition']); ?>"
+        data-land-area="<?php echo htmlspecialchars($row['land_area']); ?>"
+        data-another-info="<?php echo htmlspecialchars($row['another_info']); ?>">
+
+
+
+
+
+
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">
@@ -835,7 +612,7 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                     </div>
                     
                     <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price'] > 0) { ?>
-                        <div class="property-price">₱<?php echo number_format($row['sale_price'], 2); ?>/sale price</div>
+                        <div class="property-price">₱<?php echo number_format($row['sale_price'], 2); ?>/contract price</div>
                     <?php } elseif ($row['sale_or_lease'] == 'lease' && $row['monthly_rent'] > 0) { ?>
                         <div class="property-price">₱<?php echo number_format($row['monthly_rent'], 2); ?>/monthly cost</div>
                     <?php } ?>
@@ -847,23 +624,38 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                         <?php if ($row['property_type']) { ?>
                             <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span>
                         <?php } ?>
+                        <?php if (!empty($row['sale_or_lease'])) { ?>
+                            <span><i class="fas fa-tag">Lease Type </i>
+                                <?php 
+                                    echo $row['sale_or_lease'] === 'sale' ? 'For Sale' : ($row['sale_or_lease'] === 'lease' ? 'For Lease' : htmlspecialchars($row['sale_or_lease'])); 
+                                ?>
+                            </span>
+                        <?php } ?>
+                        <?php if ($row['sale_or_lease'] === 'lease' && !empty($row['lease_duration'])) { 
+                            $lease_label = ($row['lease_duration'] === 'short_term') ? 'Short Term' : 'Long Term';
+                        ?>
+                            <span><i class="fas fa-file-contract">Lease Term: </i> <?php echo $lease_label; ?></span>
+                        <?php } ?>
+
+                        <?php if ($row['sale_or_lease'] === 'lease' && !empty($row['monthly_rent'])) { ?>
+                            <span class="d-none"><i class="fas fa-money-bill-wave"></i> Monthly Rent: <?php echo $row['monthly_rent']; ?></span>
+                        <?php } ?>
+                        <?php if ($row['sale_or_lease'] === 'sale' && !empty($row['land_condition'])) { ?>
+                            <span><i class="fas fa-check-circle">Land Condition</i> <?php echo $row['land_condition']; ?></span>
+                        <?php } ?>
+                        <?php if (!empty($row['property_type'])) { ?>
+                            <span class="d-none"><i class="fas fa-map-marker-alt">Property Location</i> <?php echo $row['property_type']; ?></span>
+                        <?php } ?>
+                        <?php if (!empty($row['property_location'])) { ?>
+                            <span class="d-none"><i class="fas fa-map-marker-alt">Property Location</i> <?php echo $row['property_location']; ?></span>
+                        <?php } ?>
+
+                       
                     </div>
 
                     <?php if ($row['property_description']) { ?>
                         <div class="property-description"><i class="fas fa-land"> Land Description:</i>
                             <?php echo substr(htmlspecialchars($row['property_description']), 0, 100) . '...'; ?>
-                        </div>
-                    <?php } ?>
-
-                    <?php if ($row['lease_term']) { ?>
-                        <div class="property-condition">
-                            <span><i class="fas fa-check-circle"></i> Lease Term: <?php echo ucfirst($row['lease_term']); ?></span>
-                        </div>
-                    <?php } ?>
-
-                    <?php if ($row['land_condition']) { ?>
-                        <div class="property-conditon">
-                            <span><i class="fas fa-check-circle"></i> Land Condition: <?php echo ucfirst($row['land_condition']); ?></span>
                         </div>
                     <?php } ?>
 
@@ -882,24 +674,21 @@ elseif ($_SESSION['role_type'] !== 'agent') {
                     <?php } ?>
                     </div>
 
-                    <div class="property-actions">
-                        <button class="btn btn-primary btn-sm" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-eye"></i> View Details
+                    <div class="property-actions d-flex justify-content-center">
+                        <button class="btn btn-primary btn-sm w-50" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
+                            <i class="fas fa-eye"></i> View
                         </button>
                         
+                     
+
+
+                        <div id="floatingMessage" class="floating-message"></div>
+
+                      
+
                     </div>
 
-                    <div class="agent-info">
-                        <?php if ($row['user_image']) { ?>
-                            <img src="../../assets/images/profile/<?php echo $row['user_image']; ?>" alt="Agent">
-                        <?php } ?>
-                        <span><i class="fas fa-user"> Agent Name:</i> <?php echo htmlspecialchars($agentName); ?></span>
-                        <?php if ($row['user_id'] != $_SESSION['user_id']) { ?>
-                            <button class="btn-contact" onclick="contactAgent(<?php echo $row['user_id']; ?>)">
-                                <i class="fas fa-user"></i> Message Agent
-                            </button>
-                        <?php } ?>
-                    </div>
+                  
                 </div>
             </div>
     <?php
@@ -1143,9 +932,70 @@ elseif ($_SESSION['role_type'] !== 'agent') {
     opacity: 0.9;
     transform: translateY(-1px);
 }
+
+.floating-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+}
+.floating-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 </style>
 
 <script>
+
+let propertyIdToInquire = null;
+
+function openInquireModal(propertyId) {
+    propertyIdToInquire = propertyId;
+    $('#inquireModal').modal('show'); 
+}
+
+document.getElementById("confirmInquireBtn").addEventListener("click", function() {
+    if (propertyIdToInquire) {
+        $('#inquireModal').modal('hide'); 
+
+        fetch("../../backend/inquire.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: "property_id=" + propertyIdToInquire
+        })
+        .then(response => response.json())
+        .then(data => {
+            showFloatingMessage(data.message, data.status === 'success' ? 'success' : 'error');
+        })
+        .catch(error => console.error("Error:", error));
+    }
+});
+
+function showFloatingMessage(message, type = 'success') {
+    let floatingMessage = document.getElementById('floatingMessage');
+    
+    floatingMessage.innerText = message;
+    floatingMessage.style.backgroundColor = (type === 'error') ? '#dc3545' : '#28a745';
+
+    floatingMessage.classList.add('show');
+
+    setTimeout(() => {
+        floatingMessage.classList.remove('show');
+    }, 3000);
+}
+
+
+
 function submitProperty(propertyId) {
     if(confirm('Are you sure you want to submit this property?')) {
         // Add your submit logic here
@@ -1293,9 +1143,10 @@ updateTime();
 setInterval(updateTime, 1000);
 </script>
 
-<!-- Add the floating button -->
 
- <button id="mapButton" class="floating-map-btn" onclick="toggleMap()">
+
+                    <!-- Add the floating button -->
+                    <button id="mapButton" class="floating-map-btn" onclick="toggleMap()">
                         <i class="fas fa-map-marker-alt"></i> <!-- Map button icon -->
                     </button>
 
@@ -1430,190 +1281,184 @@ setInterval(updateTime, 1000);
                                 overflow: hidden; 
                             }
                         }
+
+                        /* Hides the InfoWindow close button */
+                        .gm-ui-hover-effect {
+                            display: none !important;
+                        }
+
                     </style>
 
 
-<script>
-    window.map = null;
-    window.allowedBounds = null;
-    let infoWindows = []; // Store all InfoWindows
-    let showInfo = false; // Track InfoWindow visibility
+                    <script>
+                       window.map = null;
+                        window.allowedBounds = null;
+                        let infoWindows = [];
+                        let showInfo = true;
 
-    function initMap() {
-        const caviteCenter = { lat: 14.2794, lng: 120.8786 };
+                        function initMap() {
+    const caviteCenter = { lat: 14.2794, lng: 120.8786 };
 
-        window.allowedBounds = new google.maps.LatLngBounds(
-            { lat: 14.1325, lng: 120.6750 },
-            { lat: 14.5050, lng: 121.0000 }
-        );
+    window.allowedBounds = new google.maps.LatLngBounds(
+        { lat: 14.1325, lng: 120.6750 },
+        { lat: 14.5050, lng: 121.0000 }
+    );
 
-        window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
-            center: caviteCenter,
-            zoom: 12,
-            restriction: {
-                latLngBounds: window.allowedBounds,
-                strictBounds: true
-            },
-            mapTypeControl: true // Enable map/satellite toggle
-        });
+    window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
+        center: caviteCenter,
+        zoom: 10,
+        restriction: {
+            latLngBounds: window.allowedBounds,
+            strictBounds: true
+        },
+        mapTypeControl: true
+    });
 
-        fetch('../../backend/get_properties.php')
-            .then(response => response.json())
-            .then(properties => {
-                if (!Array.isArray(properties)) {
-                    console.error("Invalid data format:", properties);
-                    return;
-                }
-     
-                properties.forEach(property => {
-                    const { latitude, longitude, property_name, property_type, sale_price, sale_or_lease } = property;
+    const streetView = window.map.getStreetView();
 
-                    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-                        console.warn(`Skipping property: ${property_name} (Invalid coordinates)`);
-                        return;
-                    }
+    fetch('../../backend/get_properties.php')
+    .then(response => response.json())
+    .then(properties => {
+        if (!Array.isArray(properties)) {
+            console.error("Invalid data format:", properties);
+            return;
+        }
 
-                    const propertyLocation = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
+        properties.forEach(property => {
+            const { latitude, longitude, property_name, property_type, sale_price, sale_or_lease, image_name, property_location, land_area } = property;
 
-                    if (!window.allowedBounds.contains(propertyLocation)) {
-                        console.warn(`Skipping property: ${property_name} (Out of Cavite bounds)`);
-                        return;
-                    }
+            if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+                console.warn(`Skipping property: ${property_name} (Invalid coordinates)`);
+                return;
+            }
 
-                    // Determine the correct status (For Sale / For Lease)
-                    let statusText = "N/A";
-                    if (sale_or_lease) {
-                        statusText = sale_or_lease.toLowerCase() === 'lease' ? 'For Lease' :
-                                     sale_or_lease.toLowerCase() === 'sale' ? 'For Sale' : 'N/A';
-                    }
+            const propertyLocation = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
 
-                    // Create a marker
-                    const marker = new google.maps.Marker({
-                        position: propertyLocation,
-                        map: window.map,
-                        title: property_name
-                    });
+            if (!window.allowedBounds.contains(propertyLocation)) {
+                console.warn(`Skipping property: ${property_name} (Out of Cavite bounds)`);
+                return;
+            }
 
-                    // Create an InfoWindow without a close button
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="white-space: nowrap;">
-                                    <img src="../../assets/property_images/${property.image_name}" alt="${property.property_name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;"><br>
-                                    <strong>${property_name}</strong><br>
-                                    <b>Type:</b> ${property_type || 'N/A'}<br>
-                                    <b>Status:</b> ${statusText}<br>
-                                    <b>Price:</b> ₱${sale_price ? parseInt(sale_price).toLocaleString("en-PH") : 'N/A'}
-                                </div>`,
-                        disableAutoPan: true // Prevents auto-panning when opened
-                    });
+            let statusText = sale_or_lease ? (sale_or_lease.toLowerCase() === 'lease' ? 'For Lease' :
+                                            sale_or_lease.toLowerCase() === 'sale' ? 'For Sale' : 'N/A') : 'N/A';
 
-                    // Remove or hide the close button from the InfoWindow when it's opened
-                    google.maps.event.addListener(infoWindow, 'domready', function () {
-                        // Target all close buttons and hide them
-                        const closeButtons = document.querySelectorAll('.gm-ui-hover-effect');
-                        closeButtons.forEach(button => {
-                            button.style.display = 'none'; // Hide each close button
-                        });
-                    });
+            let imageUrl = image_name ? `../../assets/property_images/${image_name}` : 'https://via.placeholder.com/150';
 
-                    // Store InfoWindow for toggling
-                    infoWindows.push({ marker, infoWindow });
+            const homeIcon = {
+                url: "../../assets/images/land.png", 
+                scaledSize: new google.maps.Size(40, 40), 
+                origin: new google.maps.Point(0, 0), 
+                anchor: new google.maps.Point(20, 40) 
+            };
 
-                    // Open InfoWindow only if "Show Info" is enabled
-                    if (showInfo) {
-                        infoWindow.open(window.map, marker);
-                    }
-
-                    // Open InfoWindow when marker is clicked
-                    marker.addListener("click", () => {
-                        if (showInfo) {
-                            infoWindow.close(); // Close the InfoWindow if it's currently open
-                        } else {
-                            infoWindow.open(window.map, marker); // Open the InfoWindow
-                        }
-                    });
-                });
-            })
-            .catch(error => console.error("Error fetching properties:", error));
-
-        // Add "Show Info" toggle button next to Maps/Satellite toggle
-        const showInfoControl = document.createElement("button");
-        showInfoControl.textContent = "Show All";
-        showInfoControl.classList.add("show-info-btn");
-
-        // Apply styles
-        showInfoControl.style.fontSize = "14px"; // Bigger text
-        showInfoControl.style.fontWeight = "bold";
-        showInfoControl.style.margin = "8px"; // Adjust spacing
-        showInfoControl.style.padding = "12px 20px"; // Bigger button
-        showInfoControl.style.background = "#fff"; // White background
-        showInfoControl.style.border = "1px solid #ccc"; // Border
-        showInfoControl.style.cursor = "pointer";
-        showInfoControl.style.borderRadius = "5px"; // Rounded corners
-        showInfoControl.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)"; // Add slight shadow
-
-        showInfoControl.addEventListener("click", () => {
-            showInfo = !showInfo; // Toggle state
-            infoWindows.forEach(({ marker, infoWindow }) => {
-                if (showInfo) {
-                    infoWindow.open(window.map, marker); // Open all InfoWindows
-                } else {
-                    infoWindow.close(); // Close all InfoWindows
-                }
+            const marker = new google.maps.Marker({
+                position: propertyLocation,
+                map: window.map,
+                title: property_name,
+                icon: homeIcon
             });
 
-            // Toggle the button text between "Show All" and "Hide All"
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="white-space: nowrap; text-align: center;">
+                        <img src="${imageUrl}" alt="${property_name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 5px;"><br>
+                        <strong>${property_name}</strong><br>
+                        <b>Location:</b> ${property_location || 'N/A'}<br>
+                        <b>Type:</b> ${property_type || 'N/A'}<br>
+                        <b>Status:</b> ${statusText}<br>
+                        <div class="d-flex justify-content-center mx-auto align-items-center">
+                        <b>Price:</b> ₱${sale_price ? parseInt(sale_price).toLocaleString("en-PH") : 'N/A'}
+                        | ${land_area ? land_area + " sqm" : 'N/A'}</div>
+                    </div>`,
+                disableAutoPan: true
+            });
+
+            infoWindows.push({ marker, infoWindow });
+
+            marker.addListener("click", () => {
+                infoWindows.forEach(({ infoWindow }) => infoWindow.close()); 
+                infoWindow.open(window.map, marker);
+
+                // Move to Street View and place marker inside it
+                streetView.setPosition(propertyLocation);
+                streetView.setVisible(true);
+            });
+        });
+    })
+    .catch(error => console.error("Error fetching properties:", error));
+
+    const showInfoControl = document.createElement("button");
+    showInfoControl.textContent = "Show all info";
+    showInfoControl.classList.add("show-info-btn");
+
+    showInfoControl.style.fontSize = "14px"; 
+    showInfoControl.style.fontWeight = "bold";
+    showInfoControl.style.margin = "8px"; 
+    showInfoControl.style.padding = "12px 20px"; 
+    showInfoControl.style.background = "#fff";
+    showInfoControl.style.border = "1px solid #ccc"; 
+    showInfoControl.style.cursor = "pointer";
+    showInfoControl.style.borderRadius = "5px";
+    showInfoControl.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)"; 
+
+    showInfoControl.addEventListener("click", () => {
+        showInfo = !showInfo;
+        infoWindows.forEach(({ marker, infoWindow }) => {
             if (showInfo) {
-                showInfoControl.textContent = "Hide All";
+                infoWindow.open(window.map, marker);
             } else {
-                showInfoControl.textContent = "Show All";
+                infoWindow.close();
             }
         });
+    });
 
-        // Add the button to the map, positioning it on the left near Map/Satellite toggle
-        window.map.controls[google.maps.ControlPosition.TOP_LEFT].push(showInfoControl);
-    }
+    window.map.controls[google.maps.ControlPosition.TOP_LEFT].push(showInfoControl);
+}
 
-    // ✅ Ensures `initMap()` runs correctly
-    google.maps.event.addDomListener(window, 'load', initMap);
+google.maps.event.addDomListener(window, 'load', initMap);
 
-    window.toggleMap = function() {
-        const mapPanel = document.getElementById('mapPanel');
-        if (mapPanel) {
-            mapPanel.classList.toggle('active'); 
-        }
 
-        if (window.map) {
-            setTimeout(() => {
-                google.maps.event.trigger(window.map, 'resize');
-            }, 300);
-        }
-    };
+                        google.maps.event.addDomListener(window, 'load', initMap);
 
-    window.toggleFullscreen = function() {
-        const mapPanel = document.getElementById('mapPanel');
-        const fullscreenIcon = document.querySelector('.map-control-btn i.fa-expand, .map-control-btn i.fa-compress');
+                        window.toggleMap = function() {
+                            const mapPanel = document.getElementById('mapPanel');
+                            if (mapPanel) {
+                                mapPanel.classList.toggle('active'); 
+                            }
 
-        if (mapPanel) {
-            mapPanel.classList.toggle('fullscreen'); 
+                            if (window.map) {
+                                setTimeout(() => {
+                                    google.maps.event.trigger(window.map, 'resize');
+                                }, 300);
+                            }
+                        };
 
-            if (fullscreenIcon) {
-                if (mapPanel.classList.contains('fullscreen')) {
-                    fullscreenIcon.classList.remove('fa-expand');
-                    fullscreenIcon.classList.add('fa-compress');
-                } else {
-                    fullscreenIcon.classList.remove('fa-compress');
-                    fullscreenIcon.classList.add('fa-expand');
-                }
-            }
+                        window.toggleFullscreen = function() {
+                            const mapPanel = document.getElementById('mapPanel');
+                            const fullscreenIcon = document.querySelector('.map-control-btn i.fa-expand, .map-control-btn i.fa-compress');
 
-            if (window.map) {
-                setTimeout(() => {
-                    google.maps.event.trigger(window.map, 'resize');
-                }, 300);
-            }
-        }
-    };
-</script>
+                            if (mapPanel) {
+                                mapPanel.classList.toggle('fullscreen'); 
+
+                                if (fullscreenIcon) {
+                                    if (mapPanel.classList.contains('fullscreen')) {
+                                        fullscreenIcon.classList.remove('fa-expand');
+                                        fullscreenIcon.classList.add('fa-compress');
+                                    } else {
+                                        fullscreenIcon.classList.remove('fa-compress');
+                                        fullscreenIcon.classList.add('fa-expand');
+                                    }
+                                }
+
+                                if (window.map) {
+                                    setTimeout(() => {
+                                        google.maps.event.trigger(window.map, 'resize');
+                                    }, 300);
+                                }
+                            }
+                        };
+
+                    </script>
 
 <!-- start of footer -->
 <div class="modal-footer">
@@ -2332,7 +2177,7 @@ setInterval(updateTime, 1000);
     </style>
 
     <!-- Add this JavaScript before the closing body tag -->
-    <script>
+    <!-- <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Get filter elements
         const saleTypeFilter = document.getElementById('saleTypeFilter');
@@ -2357,11 +2202,20 @@ setInterval(updateTime, 1000);
                 let showCard = true;
 
                 // Sale Type Filter
-                if (saleTypeFilter.value !== 'all') {
-                    const saleType = card.querySelector('.sale-badge').textContent.toLowerCase();
-                    if (saleTypeFilter.value === 'sale' && !saleType.includes('sale')) showCard = false;
-                    if (saleTypeFilter.value === 'lease' && !saleType.includes('lease')) showCard = false;
-                }
+                            // Sale Type Filter
+            // Sale Type Filter
+if (saleTypeFilter.value !== 'all') {
+    const saleType = card.querySelector('.sale-badge').textContent.trim().toLowerCase();
+    
+    if (saleTypeFilter.value === 'sale' && saleType !== 'For Sale') {
+        showCard = false;
+    }
+    if (saleTypeFilter.value === 'lease' && saleType !== 'For Lease') {
+        showCard = false;
+    }
+}
+
+
 
                 // Lease Term Filter (if applicable)
                 if (saleTypeFilter.value === 'lease' && leaseTermFilter.value !== 'all') {
@@ -2474,8 +2328,7 @@ setInterval(updateTime, 1000);
     });
     </script>
 
-    <!-- Add this script section after the filter section -->
-    <script>
+s<script>
     function handleSearch() {
         const searchInput = document.getElementById('searchInput').value.toLowerCase();
         const propertyCards = document.querySelectorAll('.property-card');
@@ -2588,7 +2441,7 @@ setInterval(updateTime, 1000);
 
     // Add event listener for search input
     document.getElementById('searchInput').addEventListener('keyup', handleSearch);
-    </script>
+    </script>  -->
 
 </body>
 

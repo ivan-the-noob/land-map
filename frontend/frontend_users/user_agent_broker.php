@@ -571,6 +571,7 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
             $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
             $agentName = $row['fname'] . ' ' . $row['lname'];
             
+            // Calculate if the property is less than 7 days old
             $createdDate = strtotime($row['created_at']);
             $currentDate = strtotime('now');
             $daysDifference = floor(($currentDate - $createdDate) / (60 * 60 * 24));

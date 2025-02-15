@@ -22,7 +22,7 @@ try {
                 ELSE 'offline'
               END as current_status 
               FROM users 
-              WHERE role_type = 'agent'";
+              WHERE role_type = 'admin'";
     $result = $conn->query($query);
     
     if ($result) {
@@ -54,7 +54,7 @@ if (!isset($_SESSION['role_type'])) {
 }
 
 // Check if the user is an user (if they are logged in)
-elseif ($_SESSION['role_type'] !== 'user') {
+elseif ($_SESSION['role_type'] !== 'agent') {
     // If not user, set flag and message for modal
     $show_modal = true;
     $error_message = 'You do not have the necessary permissions to access this page.';
@@ -67,7 +67,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Land Map | Agents</title>
+    <title>Land Map | CRM</title>
     <link rel="icon" href="../../assets/images/logo.png" type="image/x-icon">
 
     <!-- Vendor CSS -->
@@ -155,16 +155,31 @@ elseif ($_SESSION['role_type'] !== 'user') {
 <body>
 
 <div class="az-header">
-    <?php require '../../partials/nav_user.php' ?>
+    <?php require '../../partials/nav_admin.php' ?>
 </div>
+
+<?php
+// Fetch user details from the 'users' table
+$user_id = $_SESSION['user_id'];
+
+$query = "SELECT fname, lname, profile FROM users WHERE user_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+// Set default profile image if none exists
+$profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $user['profile'] : "../img/faces/default.jpg";
+?>
 
 <div class="az-content">
     <div class="container">
         <div class="az-content-body">
             <div class="az-dashboard-one-title">
                 <div>
-                    <h2 class="az-dashboard-title">Available Brokers and Sales Agents</h2>
-                    <p class="az-dashboard-text">Find and connect with our real estate brokers and sales agents</p>
+                    <h2 class="az-dashboard-title">ADMIN CRM</h2>
+                    <p class="az-dashboard-text"></p>
                 </div>
                 
                 <!-- Time and Date -->
@@ -190,113 +205,63 @@ elseif ($_SESSION['role_type'] !== 'user') {
                 </div>
             </div>
             <!-- end time and date -->
-            
-            <div class="row mt-4">
-                <div class="col-12">
-                    <h4 class="text-center">Total Brokers and Sales Agents: <?php echo $total_agents; ?></h4>
-                </div>
-                
-                <!-- Agent Card Template - Will display all agents from database -->
-                <?php foreach ($agents as $index => $agent): ?>
-                    <div class="col-md-4">
-                        <div class="agent-box text-center" data-toggle="modal" data-target="#agentModal<?php echo $index; ?>">
-                            <div class="agent-profile">
-                            <img src="../../assets/profile_images/<?php echo !empty($agent['profile']) ? htmlspecialchars($agent['profile']) : '../../assets/images/default-profile.jpg'; ?>" style="width: 70px; border-radius: 50%; height: 70px; border-radius: 50%;">
-                            </div>
-                            <div class="agent-name">
-                                <i class="fas fa-user-tie"></i> 
-                                <?php 
-                                    // Check if fname and lname exist, if not use default values
-                                    $firstName = isset($agent['fname']) ? $agent['fname'] : 'Agent';
-                                    $lastName = isset($agent['lname']) ? $agent['lname'] : ($index + 1);
-                                    echo htmlspecialchars($firstName . ' ' . $lastName);
-                                ?>
-                            </div>
-                            <div class="agent-location">
-                                <i class="fas fa-map-marker-alt"></i> 
-                                <?php 
-                                    // Check if email exists, if not use a default value
-                                    echo htmlspecialchars(isset($agent['location']) ? $agent['location'] : 'No location provided'); 
-                                ?>
-                            </div>
-                            <div class="agent-status">
-                                <?php
-                                    // Get the user's status from the database
-                                    $status = isset($agent['current_status']) ? strtolower($agent['current_status']) : 'offline';
-                                    
-                                    // Define status classes and labels
-                                    $statusClass = '';
-                                    $statusLabel = '';
-                                    
-                                    switch($status) {
-                                        case 'online':
-                                            $statusClass = 'status-online';
-                                            $statusLabel = 'Online';
-                                            break;
-                                        case 'away':
-                                            $statusClass = 'status-away';
-                                            $statusLabel = 'Away';
-                                            break;
-                                        default:
-                                            $statusClass = 'status-offline';
-                                            $statusLabel = 'Offline';
-                                    }
-                                ?>
-                                <span class="status-indicator <?php echo $statusClass; ?>"></span>
-                                <?php echo $statusLabel; ?>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </div>
+            <div class="crm">
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th class="text-white">Agent Name</th>
+                <th class="text-white">User Name</th>
+                <th class="text-white">Property Type</th>
+                <th class="text-white">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            require '../../db.php'; 
+
+            $query = "
+                SELECT 
+                    CONCAT(COALESCE(a.fname, ''), ' ', COALESCE(a.lname, '')) AS AgentName,
+                    CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, '')) AS UserName,
+                    COALESCE(p.property_type, 'N/A') AS PropertyType,
+                    COALESCE(i.status, 'N/A') AS Status
+                FROM inquire i
+                LEFT JOIN properties p ON i.property_id = p.property_id
+                LEFT JOIN users u ON i.user_id = u.user_id
+                LEFT JOIN users a ON p.user_id = a.user_id  -- Getting Agent Name from properties.user_id
+            ";
+
+            $result = mysqli_query($conn, $query);
+
+            if ($result) {
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo "<tr>
+                            <td>{$row['AgentName']}</td>
+                            <td>{$row['UserName']}</td>
+                            <td>{$row['PropertyType']}</td>
+                            <td>{$row['Status']}</td>
+                        </tr>";
+                }
+            } else {
+                echo "<tr><td colspan='4'>No data found</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
 </div>
-<div class="az-footer ht-40">
-        <div class="container ht-100p pd-t-0-f">
-            <span class="text-muted d-block text-center">Copyright ©LoremIpsum 2024</span>
-        </div><!-- container -->
-    </div>
 
-<!-- Unauthorized Access Modal -->
-<div class="modal fade" id="warningModal" tabindex="-1" role="dialog" aria-labelledby="warningModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="warning-modal-content">
-                <div class="modal-body text-center">
-                    <!-- Custom Warning Icon with Animation -->
-                    <div class="warning-icon-wrapper">
-                        <i class="fas fa-exclamation-circle warning-icon"></i>
-                    </div>
-                    <p class="warning-modal-message" id="warningMessage">You do not have permission to view this page.
-                    </p>
-                </div>
-                <div class="warning-modal-footer justify-content-center">
-                    <button type="button" class="btn warning-btn-danger" id="warningCloseButton">Sign In</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    
 
-    <!-- Sign Out Confirmation Modal -->
-    <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content"> <!-- This is the white container -->
-                <div class="modal-body text-center">
-                    <!-- Custom Sign Out Icon with Animation -->
-                    <div class="signout-icon-wrapper">
-                        <i class="fas fa-sign-out-alt signout-icon"></i>
-                    </div>
-                    <p class="signout-modal-message">Are you sure you want to sign out?</p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmSignOutButton">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
+
+
+
+
+
+           
+
+
+
 
 <!-- Required Scripts -->
 <script src="../../assets/lib/jquery/jquery.min.js"></script>

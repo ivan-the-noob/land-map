@@ -205,9 +205,7 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                 </div>
             </div>
             <!-- end time and date -->
-             <div class="d-flex justify-content-end mb-2">
-                <a href="agent_chat.php"><button class="btn btn-success">View Chat</button></a>
-            </div>
+
 
        <div class="crm">
             <table class="table table-striped table-bordered">

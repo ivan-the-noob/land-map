@@ -650,7 +650,7 @@ if (!isset($_SESSION['role_type'])) {
 
                                         <div class="mb-3">
                                             <label class="form-label">Land Condition</label>
-                                            <select name="landCondition" class="form-control" id="landCondition" required> 
+                                            <select name="landCondition" class="form-control" id="landCondition"> 
                                                 <option value="" selected>Select Land Condition</option> 
                                                 <option value="resale" <?php echo ($row['land_condition'] == 'resale') ? 'selected' : ''; ?>>Resale</option> 
                                                 <option value="foreClose" <?php echo ($row['land_condition'] == 'foreClose') ? 'selected' : ''; ?>>Foreclose/Acquired Assets</option> 
