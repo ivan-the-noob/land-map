@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id']; // Retrieve the logged-in user's ID
 
     // Check if all required fields exist
-    $requiredFields = ['propertyName', 'propertyLocation', 'propertyType', 'saleOrLease', 'landArea', 'propertyDescription', 'latitude', 'longitude'];
+    $requiredFields = ['propertyName', 'propertyType', 'saleOrLease', 'landArea', 'propertyDescription', 'latitude', 'longitude'];
     foreach ($requiredFields as $field) {
         if (!isset($_POST[$field]) || empty(trim($_POST[$field]))) {
             echo json_encode(['status' => 'error', 'message' => "Missing required field: $field"]);

@@ -1424,6 +1424,15 @@ function contactAgent(userId) {
                                             oninput="this.value = this.value.replace(/\b\w/g, l => l.toUpperCase())"> <!-- Property name input with auto-uppercase -->
                                     </div>
 
+                                    <div class="form-group">
+                                    <label for="propertyLocation">Location:</label>
+                                    <select name="propertyLocation" class="form-control" id="propertyLocation">
+                                           <?php include '../../backend/filter_places.php'
+                                           ?>
+                                        </select>
+                                    </div>
+                                  
+
                                     <!-- Property Location -->
                                     
                                     <script>
