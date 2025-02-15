@@ -500,9 +500,7 @@ if (!isset($_SESSION['role_type'])) {
                     </style>
 
                     <div class="property-actions d-flex justify-content-center">
-                        <button class="btn-view" onclick="openModal(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-eye"></i> View More Details
-                        </button>
+                   
 
                         <!-- Modal -->
                         <div id="propertyModal<?php echo $row['property_id']; ?>" class="modal">

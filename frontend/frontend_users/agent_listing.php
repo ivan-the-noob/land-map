@@ -429,10 +429,7 @@ if (!isset($_SESSION['role_type'])) {
                                 <i class="fas fa-eye"></i>
                                 <span><?php echo number_format($row['view_count'] ?? 0); ?> Views</span>
                             </div>
-                            <div class="stat-item">
-                                <i class="fas fa-envelope"></i>
-                                <span><?php echo number_format($row['message_count'] ?? 0); ?> Messages</span>
-                            </div>
+
                         </div>
                     <?php } ?>
 
@@ -594,9 +591,7 @@ if (!isset($_SESSION['role_type'])) {
                     </div>
 
                     <div class="admin-actions d-flex justify-content-center">
-                        <button class="btn-submit" onclick="submitProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-check"></i> Submit
-                        </button>
+
                         <button class="btn-update" data-toggle="modal" data-target="#updateModal<?php echo $row['property_id']; ?>">
                             <i class="fas fa-edit"></i> Update
                         </button>

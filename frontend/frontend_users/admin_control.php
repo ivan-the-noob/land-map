@@ -100,7 +100,7 @@
                                                                     <img src="<?= htmlspecialchars($user['avatar']) ?>" alt=""
                                                                         style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
                                                                     <a href="#"
-                                                                        class="user-link"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></a>
+                                                                        class="user-link text-dark"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></a>
                                                                 </td>
                                                                 <td><?= htmlspecialchars($user['role_type']) ?></td>
                                                                 <td class="text-center">
@@ -109,7 +109,7 @@
                                                                         <?= $user['is_verified'] == 1 ? 'Active' : 'Inactive' ?>
                                                                     </span>
                                                                 </td>
-                                                                <td><a
+                                                                <td><a class="text-dark"
                                                                         href="mailto:<?= htmlspecialchars($user['email']) ?>"><?= htmlspecialchars($user['email']) ?></a>
                                                                 </td>
                                                                 <td class="text-center">
@@ -157,7 +157,7 @@
                                                                     <img src="<?= htmlspecialchars($agent['avatar']) ?>" alt=""
                                                                         style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
                                                                     <a href="#"
-                                                                        class="user-link"><?= htmlspecialchars($agent['fname'] . ' ' . $agent['lname']) ?></a>
+                                                                        class="user-link text-dark"><?= htmlspecialchars($agent['fname'] . ' ' . $agent['lname']) ?></a>
                                                                 </td>
                                                                 <td><?= htmlspecialchars($agent['role_type']) ?></td>
                                                                 <td class="text-center">
@@ -166,7 +166,7 @@
                                                                         <?= $agent['is_verified'] == 1 ? 'Active' : 'Inactive' ?>
                                                                     </span>
                                                                 </td>
-                                                                <td><a
+                                                                <td><a class="text-dark"
                                                                         href="mailto:<?= htmlspecialchars($agent['email']) ?>"><?= htmlspecialchars($agent['email']) ?></a>
                                                                 </td>
                                                                 <td class="text-center">
@@ -257,6 +257,47 @@
                                             </table>
                                         </div>
                                     </div>
+                                    <div class="main-box" id="admin-registration-form" style="display:none; margin-bottom: 5px;">
+                        <h3>Admin Registration</h3>
+                        
+                        <!-- PIN Code Verification Form -->
+                        <div id="pin-verification">
+                            <div class="form-group">
+                                <label for="adminPin">Enter Admin PIN Code</label>
+                                <input type="password" class="form-control" id="adminPin" placeholder="Enter PIN code" required>
+                                <span class="error-message" id="pin_error" style="color:red;"></span>
+                            </div>
+                            <button type="button" class="btn btn-primary" id="verifyPin">Verify PIN</button>
+                        </div>
+
+                        <!-- Admin Registration Form (initially hidden) -->
+                        <form action="../../backend/admin_registration.php" method="POST" id="adminRegistrationForm" style="display:none;">
+                            <div class="form-group">
+                                <label>First name</label>
+                                <input name="first_name" type="text" class="form-control" placeholder="Enter first name" required>
+                                <span class="error-message" id="admin_first_name_error" style="color:red;"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Last name</label>
+                                <input name="last_name" type="text" class="form-control" placeholder="Enter last name" required>
+                                <span class="error-message" id="admin_last_name_error" style="color:red;"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input name="email" type="email" class="form-control" placeholder="Enter email" required>
+                                <span class="error-message" id="admin_email_error" style="color:red;"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Password</label>
+                                <input name="password" type="password" class="form-control" placeholder="Enter password" required>
+                                <span class="error-message" id="admin_password_error" style="color:red;"></span>
+                            </div>
+                            <button name="admin_signup_btn" type="submit" class="btn btn-primary">
+                                <span id="adminButtonText">Register Admin</span>
+                                <span id="adminLoadingSpinner" style="display: none;" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
+                            </button>
+                        </form>
+                    </div>
                                         <nav aria-label="Page navigation">
                                             <ul class="pagination">
                                                 <li class="page-item"><a class="page-link" href="#">Previous</a></li>
@@ -637,47 +678,7 @@
                     </div>
 
                     <!-- Admin Registration Form Section -->
-                    <div class="main-box" id="admin-registration-form" style="display:none;">
-                        <h3>Admin Registration</h3>
-                        
-                        <!-- PIN Code Verification Form -->
-                        <div id="pin-verification">
-                            <div class="form-group">
-                                <label for="adminPin">Enter Admin PIN Code</label>
-                                <input type="password" class="form-control" id="adminPin" placeholder="Enter PIN code" required>
-                                <span class="error-message" id="pin_error" style="color:red;"></span>
-                            </div>
-                            <button type="button" class="btn btn-primary" id="verifyPin">Verify PIN</button>
-                        </div>
-
-                        <!-- Admin Registration Form (initially hidden) -->
-                        <form action="../../backend/admin_registration.php" method="POST" id="adminRegistrationForm" style="display:none;">
-                            <div class="form-group">
-                                <label>First name</label>
-                                <input name="first_name" type="text" class="form-control" placeholder="Enter first name" required>
-                                <span class="error-message" id="admin_first_name_error" style="color:red;"></span>
-                            </div>
-                            <div class="form-group">
-                                <label>Last name</label>
-                                <input name="last_name" type="text" class="form-control" placeholder="Enter last name" required>
-                                <span class="error-message" id="admin_last_name_error" style="color:red;"></span>
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input name="email" type="email" class="form-control" placeholder="Enter email" required>
-                                <span class="error-message" id="admin_email_error" style="color:red;"></span>
-                            </div>
-                            <div class="form-group">
-                                <label>Password</label>
-                                <input name="password" type="password" class="form-control" placeholder="Enter password" required>
-                                <span class="error-message" id="admin_password_error" style="color:red;"></span>
-                            </div>
-                            <button name="admin_signup_btn" type="submit" class="btn btn-primary">
-                                <span id="adminButtonText">Register Admin</span>
-                                <span id="adminLoadingSpinner" style="display: none;" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
-                            </button>
-                        </form>
-                    </div>
+                    
                 </div>
             </div><!-- az-content-body -->
         </div><!-- container -->
@@ -816,6 +817,7 @@
         document.getElementById('registration-form').style.display = 'none';
         document.getElementById('website-design').style.display = 'none';
         document.getElementById('agent-verification').style.display = 'none';
+        document.getElementById('admin-registration-form').style.display = 'none';
         setActiveLink(event.currentTarget.id);
     }
 
@@ -826,8 +828,19 @@
         document.getElementById('registration-form').style.display = 'block';
         document.getElementById('website-design').style.display = 'none';
         document.getElementById('agent-verification').style.display = 'none';
+        document.getElementById('admin-registration-form').style.display = 'none';
         setActiveLink(event.currentTarget.id);
     }
+
+    function showAdminRegistration(event) {
+            event.preventDefault();
+            document.getElementById('user-tables').style.display = 'none';
+            document.getElementById('agent-tables').style.display = 'none';
+            document.getElementById('registration-form').style.display = 'none';
+            document.getElementById('website-design').style.display = 'none';
+            document.getElementById('admin-registration-form').style.display = 'block';
+            setActiveLink(event.currentTarget.id);
+        }
 
     function showWebsiteDesign(event) {
         event.preventDefault(); // Prevent default anchor behavior
@@ -836,6 +849,7 @@
         document.getElementById('registration-form').style.display = 'none';
         document.getElementById('website-design').style.display = 'block';
         document.getElementById('agent-verification').style.display = 'none';
+        document.getElementById('admin-registration-form').style.display = 'none';
         setActiveLink(event.currentTarget.id);
     }
 
@@ -1121,15 +1135,7 @@
     </script>
 
     <script>
-        function showAdminRegistration(event) {
-            event.preventDefault();
-            document.getElementById('user-tables').style.display = 'none';
-            document.getElementById('agent-tables').style.display = 'none';
-            document.getElementById('registration-form').style.display = 'none';
-            document.getElementById('website-design').style.display = 'none';
-            document.getElementById('admin-registration-form').style.display = 'block';
-            setActiveLink(event.currentTarget.id);
-        }
+      
 
         // PIN verification handling
         document.getElementById('verifyPin').addEventListener('click', function() {
