@@ -400,7 +400,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
             </div>
         </div>
     </div>
-   
+  
 </div>
 
 <script>
