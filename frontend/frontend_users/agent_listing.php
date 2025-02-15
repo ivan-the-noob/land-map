@@ -1523,48 +1523,53 @@ function contactAgent(userId) {
                                                 </div>
                                             </div>
                                             <script>
-                                                document.getElementById('leaseDuration').addEventListener('change', function() {
-                                                    const monthlyRent = document.getElementById('monthlyRent');
-                                                    const message = document.getElementById('rentValidationMessage');
-                                                    
-                                                    if (this.value === 'select') {
+                                               document.addEventListener("DOMContentLoaded", function () {
+                                                const leaseDuration = document.getElementById('leaseDuration');
+                                                const monthlyRent = document.getElementById('monthlyRent');
+                                                const message = document.getElementById('rentValidationMessage');
+
+                                                leaseDuration.addEventListener('change', function () {
+                                                    // Get selected value
+                                                    const leaseType = this.value;
+
+                                                    if (leaseType === 'select') {
                                                         monthlyRent.value = '';
                                                         monthlyRent.disabled = true;
                                                         message.textContent = '';
-                                                    } else if (this.value === 'short term') {
+                                                    } else {
                                                         monthlyRent.disabled = false;
-                                                        monthlyRent.max = "1000000";
-                                                        message.textContent = "Maximum rental cost for short term is ₱1,000,000"; 
-                                                    } else if (this.value === 'long term') {
-                                                        monthlyRent.disabled = false;
-                                                        monthlyRent.max = "1000000000";
-                                                        message.textContent = "Maximum rental cost for long term is ₱1,000,000,000";
+                                                        if (leaseType === 'short_term') {
+                                                            monthlyRent.max = 1000000;
+                                                            message.textContent = "Maximum rental cost for short term is ₱1,000,000";
+                                                        } else if (leaseType === 'long_term') {
+                                                            monthlyRent.max = 1000000000;
+                                                            message.textContent = "Maximum rental cost for long term is ₱1,000,000,000";
+                                                        }
                                                     }
                                                 });
 
-                                                document.getElementById('monthlyRent').addEventListener('input', function(e) {
+                                                monthlyRent.addEventListener('input', function () {
                                                     // Remove any dashes from input
                                                     this.value = this.value.replace(/-/g, '');
-                                                    
-                                                    const leaseDuration = document.getElementById('leaseDuration').value;
-                                                    const message = document.getElementById('rentValidationMessage');
-                                                    
-                                                    if (leaseDuration === 'select') {
-                                                        this.value = '';
-                                                        message.textContent = "Please select a lease term first";
-                                                    } else if (this.value < 0) {
+
+                                                    const leaseType = leaseDuration.value; // Get selected lease duration
+
+                                                
+
+                                                    let maxAmount = leaseType === 'short_term' ? 1000000 : 1000000000;
+
+                                                    if (this.value < 0) {
                                                         message.textContent = "Monthly rent cannot be negative";
                                                         this.value = 0;
-                                                    } else if (leaseDuration === 'short term' && this.value > 1000000) {
-                                                        message.textContent = "Amount exceeds maximum limit for short term (₱1,000,000)";
-                                                        this.value = 1000000;
-                                                    } else if (leaseDuration === 'long term' && this.value > 1000000000) {
-                                                        message.textContent = "Amount exceeds maximum limit for long term (₱1,000,000,000)";
-                                                        this.value = 1000000000;
+                                                    } else if (this.value > maxAmount) {
+                                                        message.textContent = `Amount exceeds maximum limit for ${leaseType === 'short_term' ? "short term (₱1,000,000)" : "long term (₱1,000,000,000)"}`;
+                                                        this.value = maxAmount;
                                                     } else {
                                                         message.textContent = "";
                                                     }
                                                 });
+                                            });
+
                                             </script>
 
                                         </div>

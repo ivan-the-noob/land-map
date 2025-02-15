@@ -497,11 +497,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <div class="az-content-body">
             
                 <!-- Add this before the Filters Section -->
-                
-
-                
-    
-                <button onclick="window.location.href='agent_chat.php'" class="btn btn-primary m-3">Chat Agent</button>
+            
                 <div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">

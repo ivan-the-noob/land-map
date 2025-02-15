@@ -57,10 +57,10 @@ $cms = $result->fetch_assoc();
     </div>
 
     <div class="az-header-right">
-    <a href="agent_crm.php" class="az-header-search-link"><i class="fas fa-handshake"></i></a>
+    <a href="" class="az-header-search-link"><i class="fas fa-handshake"></i></a>
         <a href="../frontend_users/agent_landproperties.php" class="az-header-search-link"><i class="fas fa-search"></i></a>
         <div class="az-header-message">
-            <a href="../frontend_users/user_chat.php"><i class="typcn typcn-messages"></i></a>
+            <a href="../frontend_users/agent_chat.php"><i class="typcn typcn-messages"></i></a>
         </div><!-- az-header-message -->
         <?php
 if (!isset($_SESSION['user_id'])) {

@@ -67,80 +67,159 @@
     </div>
 
     <div class="az-header-right">
-        <a href="" class="az-header-search-link"><i class="fas fa-handshake"></i></a>
+        <a href="../frontend_users/user_landproperties.php" class="az-header-search-link"><i class="fas fa-search"></i></a>
         <div class="az-header-message">
-            <a href="../frontend_users/admin_chat.php"><i class="typcn typcn-messages"></i></a>
+            <a href="../frontend_users/user_chat.php"><i class="typcn typcn-messages"></i></a>
         </div><!-- az-header-message -->
-        <div class="dropdown az-header-notification">
-            <a href="" class="new"><i class="typcn typcn-bell"></i></a>
-            <div class="dropdown-menu">
-                <div class="az-dropdown-header mg-b-20 d-sm-none">
-                    <a href="" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
-                </div>
-                <h6 class="az-notification-title">Notifications</h6>
-                <p class="az-notification-text">You have 3 unread notification</p>
-                <div class="az-notification-list">
-                    <div class="media new">
-                        <div class="az-img-user"><img src="../landMap_V6/assets/images/person_1.jpg" alt=""></div>
-                        <div class="media-body">
-                            <p><strong>New Land Property</strong> added in Batangas City</p>
-                            <span>Mar 15 12:32pm</span>
-                        </div><!-- media-body -->
-                    </div><!-- media -->
-                    <div class="media new">
-                        <div class="az-img-user online"><img src="../landMap_V6/assets/images/person_1.jpg" alt=""></div>
-                        <div class="media-body">
-                            <p><strong>Agricultural Land</strong> now available in Laguna</p>
-                            <span>Mar 13 04:16am</span>
-                        </div><!-- media-body -->
-                    </div><!-- media -->
-                    <div class="media new">
-                        <div class="az-img-user"><img src="../landMap_V6/assets/images/person_1.jpg" alt=""></div>
-                        <div class="media-body">
-                            <p><strong>Commercial Lot</strong> listed in Cavite</p>
-                            <span>Mar 13 02:56am</span>
-                        </div><!-- media-body -->
-                    </div><!-- media -->
-                    <div class="media">
-                        <div class="az-img-user"><img src="../landMap_V6/assets/images/person_1.jpg" alt=""></div>
-                        <div class="media-body">
-                            <p><strong>Residential Lot</strong> price updated in Quezon City</p>
-                            <span>Mar 12 10:40pm</span>
-                        </div><!-- media-body -->
-                    </div><!-- media -->
-                </div><!-- az-notification-list -->
-                <div class="dropdown-footer"><a href="">View All Notifications</a></div>
-            </div><!-- dropdown-menu -->
-        </div><!-- az-header-notification -->
+
+        <?php
+if (!isset($_SESSION['user_id'])) {
+    // Redirect to login page if the user is not logged in
+    header("Location: login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch notifications with agent profile if agent_id is available
+$sql = "SELECT n.notification, n.created_at, u.profile, n.user_id, n.is_seen
+        FROM notifications n
+        LEFT JOIN users u ON n.agent_id = u.user_id
+        WHERE n.user_id = ? OR n.user_id = 0
+        ORDER BY n.created_at DESC";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+$notifications = [];
+while ($row = $result->fetch_assoc()) {
+    $notifications[] = $row;
+}
+
+// Get the count of unseen notifications
+$query = "SELECT COUNT(*) AS unseen_count FROM notifications WHERE is_seen = 0";
+$result = mysqli_query($conn, $query);
+$row = mysqli_fetch_assoc($result);
+$unseenCount = $row['unseen_count'];
+?>
+
+
+<div class="dropdown az-header-notification">
+    <a href="#" class="notif-bell position-relative">
+        <i class="typcn typcn-bell"></i>
+        <?php if ($unseenCount > 0): ?>
+            <span class="badge badge-danger notif-count"><?= $unseenCount ?></span>
+        <?php endif; ?>
+    </a>
+    <div class="dropdown-menu" style="width: 350px;">
+        <div class="az-dropdown-header mg-b-20 d-sm-none">
+            <a href="#" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
+        </div>
+        <h6 class="az-notification-title">Notifications</h6>
+        <div class="az-notification-list">
+            <?php if (!empty($notifications)): ?>
+                <?php foreach ($notifications as $notif): ?>
+                    <?php 
+                        $profileImage = !empty($notif['profile']) ? "../../assets/profile_images/" . $notif['profile'] : "../img/faces/default.jpgs";
+                        
+                        // Determine the notification link
+                        if ($notif['user_id'] == 0) {
+                            $notifLink = "user_landproperties.php#land_property";                      
+                        } elseif ($notif['user_id'] == $user_id) {
+                            $notifLink = "user_inquiries.php?notif_id=" . urlencode($notif['notification']);
+                        } else {
+                            $notifLink = "#"; // Default fallback if needed
+                        }
+                    ?>
+                    <a href="<?= $notifLink ?>" style="text-decoration: none; color: inherit; display: block;">
+                        <div class="media <?= ($notif['is_seen'] == 0) ? 'new' : '' ?>">
+                            <div class="az-img-user">
+                                <img src="<?= $profileImage ?>" alt="Profile" style="width: 40px; height: 40px; border-radius: 50%;">
+                            </div>
+                            <div class="media-body">
+                                <p><strong><?= htmlspecialchars($notif['notification']) ?></strong></p>
+                                <span><?= date("M d h:ia", strtotime($notif['created_at'])) ?></span>
+                            </div>
+                        </div>
+                    </a>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="text-center">No new notifications</p>
+            <?php endif; ?>
+        </div><!-- az-notification-list -->
+        <div class="dropdown-footer"><a href="user_inquiries.php">View All Notifications</a></div>
+    </div><!-- dropdown-menu -->
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $(".notif-bell").click(function() {
+        $.ajax({
+            url: "../../backend/mark_notifications_seen.php",
+            method: "POST",
+            success: function() {
+                $(".notif-count").fadeOut(); 
+                $(".media.new").removeClass("new");
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.badge-danger.notif-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 3px 7px;
+    border-radius: 50%;
+}
+</style>
+
+<?php
+    if (!isset($_SESSION['user_id'])) {
+        $_SESSION['user_id'] = null;
+    }
+
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT profile FROM users WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($profileImageUser);
+    $stmt->fetch();
+    $stmt->close();
+
+    $profileImageUser = !empty($profileImageUser) ? "../../assets/profile_images/" . htmlspecialchars($profileImageUser) : "../assets/profile_images/profile.jpg";
+?>
+
         <div class="dropdown az-profile-menu">
-            <a href="" class="az-img-user"><img src="../landMap_V6/assets/images/person_1.jpg" alt=""></a>
+            <a href="" class="az-img-user"> <img src="<?= $profileImageUser ?>"></a>
             <div class="dropdown-menu">
                 <div class="az-dropdown-header d-sm-none">
                     <a href="" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
                 </div>
-                <h6 class="az-notification-title">Notifications</h6>
-                <p class="az-notification-text">You have 3 unread notification</p>
                 <div class="az-header-profile">
                     <div class="az-img-user">
-                        <img src="../landMap_V6/assets/images/person_1.jpg" alt=""> <!-- Optionally replace with dynamic image -->
+                       <img src="<?= $profileImageUser ?>"> 
                     </div><!-- az-img-user -->
                     <h6 class="text-nowrap"><?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Guest'; ?></h6>
                     <span><?php echo isset($_SESSION['role_type']) ? htmlspecialchars($_SESSION['role_type']) : 'No Role'; ?></span>
                     <span><?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : 'No Email'; ?></span>
                 </div><!-- az-header-profile -->
 
-                <a href="" class="dropdown-item" style="display: flex; align-items: center; padding: 8px 15px; color: #1b2e4b; transition: all 0.2s ease;">
-                    <i class="typcn typcn-user-outline" style="margin-right: 10px; font-size: 18px;"></i>
-                    <span>My Profile</span>
-                </a>
-                <a href="" class="dropdown-item" style="display: flex; align-items: center; padding: 8px 15px; color: #1b2e4b; transition: all 0.2s ease;">
-                    <i class="typcn typcn-edit" style="margin-right: 10px; font-size: 18px;"></i>
-                    <span>Edit Profile</span>
-                </a>
-                <a href="#" class="dropdown-item" style="display: flex; align-items: center; padding: 8px 15px; color: #1b2e4b; transition: all 0.2s ease;">
+                <a href="profile_admin.php" class="dropdown-item" styl\e="display: flex; align-items: center; padding: 8px 15px; color: #1b2e4b; transition: all 0.2s ease;">
                     <i class="typcn typcn-cog-outline" style="margin-right: 10px; font-size: 18px;"></i>
                     <span>Account Settings</span>
                 </a>
+
+              
 
                 <button id="signOutButton" class="dropdown-item" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; display: flex; align-items: center; padding: 8px 15px;">
                     <i class="typcn typcn-power-outline" style="margin-right: 10px; color: #dc3545;"></i>

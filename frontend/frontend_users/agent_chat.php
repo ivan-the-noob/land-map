@@ -757,17 +757,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                 </div>
             </div> 
 
-            <script>
-                 document.addEventListener("DOMContentLoaded", function () {
-                // Listen for Enter key press on the chat input
-                document.getElementById("chatInput").addEventListener("keydown", function (event) {
-                    if (event.key === "Enter" && !event.shiftKey) { // Prevents Shift+Enter from triggering the send
-                        event.preventDefault(); // Prevents the default new line behavior
-                        sendMessage(); // Calls the sendMessage function
-                    }
-                });
-            });
-            </script>
+           
 
              
                             <?php
@@ -884,9 +874,16 @@ function hideHeaderChat() {
 
 
 // Function to send a message
+let isSending = false; // Flag to prevent multiple requests
+
 function sendMessage() {
-    let message = $('#chatInput').val().trim();
-    if (message === '') return;
+    let chatInput = $('#chatInput');
+    let message = chatInput.val().trim();
+
+    if (message === '' || isSending) return;
+
+    isSending = true; 
+    $('#sendButton').prop('disabled', true);
 
     console.log('Sending message:', { message, propertyId, inquirerId, agentId });
 
@@ -901,14 +898,29 @@ function sendMessage() {
         },
         success: function(response) {
             console.log("Message sent successfully:", response);
-            $('#chatInput').val('');  
+            chatInput.val('');  
             loadMessages(); 
         },
         error: function(xhr, status, error) {
             console.log("Error sending message:", status, error);
+        },
+        complete: function() {
+            isSending = false; // Reset flag
+            $('#sendButton').prop('disabled', false); // Re-enable button
         }
     });
 }
+
+// Prevent multiple sends on Enter key
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("chatInput").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+});
+
 
 
 

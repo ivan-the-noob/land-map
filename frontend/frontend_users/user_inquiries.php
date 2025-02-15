@@ -276,16 +276,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         </div>
                     </div>
 
-                    <script>
-                         document.addEventListener("DOMContentLoaded", function () {
-                            document.getElementById("chatInput").addEventListener("keydown", function (event) {
-                                if (event.key === "Enter" && !event.shiftKey) { 
-                                    event.preventDefault()
-                                    sendMessage(); 
-                                }
-                            });
-                        });
-                    </script>
+                  
 
                     <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -756,20 +747,43 @@ function loadMessages() {
 }
 
 
+let isSending = false; // Prevent multiple sends
+
 function sendMessage() {
-    let message = $('#chatInput').val().trim();
-    if (message === '') return;
+    let chatInput = $('#chatInput');
+    let message = chatInput.val().trim();
+
+    if (message === '' || isSending) return; // Prevent sending empty messages or multiple clicks
+
+    isSending = true; // Lock sending
+    $('#sendButton').prop('disabled', true); // Disable button to prevent spam clicks
 
     $.ajax({
         url: "../../backend/send_message.php",
         type: "POST",
         data: { property_id: propertyId, agent_id: agentId, message: message },
         success: function(response) {
-            $('#chatInput').val('');
+            chatInput.val('');  
             loadMessages(); 
+        },
+        error: function(xhr, status, error) {
+            console.log("Error sending message:", status, error);
+        },
+        complete: function() {
+            isSending = false; // Unlock sending
+            $('#sendButton').prop('disabled', false); // Re-enable button
         }
     });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("chatInput").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" && !event.shiftKey) { 
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+});
 
 function viewPropertyImages() {
     console.log("Fetching images for Property ID:", propertyId);
