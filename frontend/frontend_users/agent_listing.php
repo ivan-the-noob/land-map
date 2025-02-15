@@ -1580,7 +1580,7 @@ function contactAgent(userId) {
                                                         class="block text-gray-700 font-bold mb-2">Land
                                                         condition</label> <!-- Land condition label -->
                                                     <select name="landCondition" class="form-control" id="landCondition"
-                                                        required> <!-- Land condition dropdown -->
+                                                        > <!-- Land condition dropdown -->
                                                         <option value="" selected>Select Land Condition</option> <!-- Default option -->
                                                         <option value="resale">Resale</option> <!-- Resale option -->
                                                         <option value="foreClose">Foreclose/Acquired Assets</option> <!-- Foreclose option -->
@@ -2274,7 +2274,7 @@ function contactAgent(userId) {
             } else if (this.value === 'lease') {
                 leaseForm.style.display = 'block';
                 leaseDuration.required = true; // Enable required for lease duration if lease is selected
-
+                landCondition.required = false; 
                 // Hide landCondition and anotherInfo for lease
                 landCondition.style.display = 'none';
                 anotherInfo.style.display = 'none';
