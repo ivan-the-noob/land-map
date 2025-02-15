@@ -711,7 +711,7 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                         </button>
 
                         <!-- Add to List Modal -->
-                        <div class="modal fade" id="addToListModal" tabindex="-1" aria-labelledby="addToListModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="addToListModal" tabindex="-1" aria-labelledby="addToListModalLabel">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -722,12 +722,13 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                                         Are you sure you want to list this property?
                                     </div>
                                     <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
                                         <button type="button" class="btn btn-success" id="confirmAddToListBtn">Yes, List</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
 
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                         <script>
