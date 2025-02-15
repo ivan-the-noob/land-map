@@ -757,6 +757,18 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                 </div>
             </div> 
 
+            <script>
+                 document.addEventListener("DOMContentLoaded", function () {
+                // Listen for Enter key press on the chat input
+                document.getElementById("chatInput").addEventListener("keydown", function (event) {
+                    if (event.key === "Enter" && !event.shiftKey) { // Prevents Shift+Enter from triggering the send
+                        event.preventDefault(); // Prevents the default new line behavior
+                        sendMessage(); // Calls the sendMessage function
+                    }
+                });
+            });
+            </script>
+
              
                             <?php
                                 require '../../db.php';

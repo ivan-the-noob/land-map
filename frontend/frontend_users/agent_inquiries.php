@@ -731,8 +731,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                             data: { property_id: selectedPropertyId },
                                             success: function (response) {
                                                 if (response.trim() === "success") {
-                                                    alert("Inquiry accepted successfully!");
-                                                    location.reload(); 
+                                                    window.location.href = "agent_chat.php"; 
                                                 } else {
                                                     alert("Failed to accept inquiry.");
                                                 }
@@ -746,6 +745,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                 });
                             });
                         </script>
+
 
                     </div>
 

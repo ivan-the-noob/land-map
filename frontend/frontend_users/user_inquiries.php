@@ -276,6 +276,17 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         </div>
                     </div>
 
+                    <script>
+                         document.addEventListener("DOMContentLoaded", function () {
+                            document.getElementById("chatInput").addEventListener("keydown", function (event) {
+                                if (event.key === "Enter" && !event.shiftKey) { 
+                                    event.preventDefault()
+                                    sendMessage(); 
+                                }
+                            });
+                        });
+                    </script>
+
                     <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content">
