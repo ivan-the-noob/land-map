@@ -713,6 +713,40 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                             </div>
                         </div>
 
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            let selectedPropertyId = null;
+
+                            function openAcceptModal(propertyId) {
+                                selectedPropertyId = propertyId;
+                                $('#acceptInquiryModal').modal('show');
+                            }
+
+                            $(document).ready(function () {
+                                $('#confirmAcceptBtn').on('click', function () {
+                                    if (selectedPropertyId) {
+                                        $.ajax({
+                                            url: '../../backend/accept_inquiry.php',
+                                            type: 'POST',
+                                            data: { property_id: selectedPropertyId },
+                                            success: function (response) {
+                                                if (response.trim() === "success") {
+                                                    alert("Inquiry accepted successfully!");
+                                                    location.reload(); 
+                                                } else {
+                                                    alert("Failed to accept inquiry.");
+                                                }
+                                            },
+                                            error: function () {
+                                                alert("An error occurred.");
+                                            }
+                                        });
+                                        $('#acceptInquiryModal').modal('hide');
+                                    }
+                                });
+                            });
+                        </script>
+
                     </div>
 
                     
