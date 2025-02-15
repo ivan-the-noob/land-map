@@ -400,15 +400,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
             </div>
         </div>
     </div>
-    <div class="filter-item">
-    <label>Additional Info:</label>
-    <div class="features-list">
-        <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="cleanTitle"> Clean Title</label>
-        <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="DisPromo"> Discounted/Promo</label>
-        <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="pagibig"> Pag-IBIG Accredited</label>
-        <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="fsbo"> For Sale by Owner</label>
-        <small class="text-muted">Additional Info will be displayed in the land details</small>
-    </div>
+   
 </div>
 
 <script>
