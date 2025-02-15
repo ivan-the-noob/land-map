@@ -221,12 +221,14 @@ elseif ($_SESSION['role_type'] !== 'user') {
     require '../../db.php';
 
     $sql = "SELECT p.*, 
-            u.fname, u.lname,
-            ui.image_name as user_image,
-            (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
-            FROM properties p 
-            LEFT JOIN users u ON p.user_id = u.user_id
-            LEFT JOIN user_img ui ON u.user_id = ui.user_id";
+       u.fname, u.lname,
+       ui.image_name AS user_image,
+       (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
+        FROM archive_table a
+        JOIN properties p ON a.property_id = p.property_id
+        LEFT JOIN users u ON p.user_id = u.user_id
+        LEFT JOIN user_img ui ON u.user_id = ui.user_id
+        WHERE a.add_list = 1;";
 
     $result = $conn->query($sql);
 
@@ -282,16 +284,45 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         </div>
                     <?php } ?>
 
-                    <div class="admin-actions">
+                    <div class="admin-actions d-flex justify-content-center">
                     <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View Details
                         </button>
-                        <button class="btn-update" onclick="updateProperty(<?php echo $row['property_id']; ?>)">
+                        <button class="btn-update">
                             <i class="fas fa-plus"></i> Listed
                         </button>
                         <button class="btn-delete" onclick="deleteProperty(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-trash"></i> Archive
                         </button>
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                           function deleteProperty(propertyId) {
+                                if (confirm("Are you sure you want to unlist this property?")) {
+                                    $.ajax({
+                                        url: '../../backend/delete_archive.php', 
+                                        type: 'POST',
+                                        data: { property_id: propertyId },
+                                        dataType: 'text',
+                                        success: function(response) {
+                                            console.log("Server response:", response);
+                                            if (response.trim() === "success") {
+                                                alert("Property unlisted successfully!");
+                                                location.reload();
+                                            } else {
+                                                alert("Error: " + response);
+                                            }
+                                        },
+                                        error: function(xhr, status, error) {
+                                            console.error("AJAX Error:", error);
+                                            alert("AJAX request failed.");
+                                        }
+                                    });
+                                }
+                            }
+
+
+                        </script>
+                        
                     </div>
 
                     <div class="agent-info">
@@ -527,12 +558,6 @@ function updateProperty(propertyId) {
     window.location.href = 'edit_property.php?id=' + propertyId;
 }
 
-function deleteProperty(propertyId) {
-    if(confirm('Are you sure you want to delete this property?')) {
-        // Add your delete logic here
-        console.log('Deleting property:', propertyId);
-    }
-}
 
 function viewDetails(propertyId) {
     // Add your view details logic here

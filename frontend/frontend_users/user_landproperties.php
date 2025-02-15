@@ -705,9 +705,65 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
 
                         <div id="floatingMessage" class="floating-message"></div>
 
-                        <button class="btn btn-danger btn-sm" onclick="archiveProperty(<?php echo $row['property_id']; ?>)">
+                        <!-- Add to List Button -->
+                        <button class="btn btn-danger btn-sm" onclick="openAddToListModal(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-archive"></i> Add to List
                         </button>
+
+                        <!-- Add to List Modal -->
+                        <div class="modal fade" id="addToListModal" tabindex="-1" aria-labelledby="addToListModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addToListModalLabel">Confirm Listing</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to list this property?
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                                        <button type="button" class="btn btn-success" id="confirmAddToListBtn">Yes, List</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            let selectedPropertyId = null;
+
+                            function openAddToListModal(propertyId) {
+                                selectedPropertyId = propertyId;
+                                $('#addToListModal').modal('show');
+                            }
+
+                            $(document).ready(function () {
+                                $('#confirmAddToListBtn').on('click', function () {
+                                    if (selectedPropertyId) {
+                                        $.ajax({
+                                            url: '../../backend/update_add_list.php',
+                                            type: 'POST',
+                                            data: { property_id: selectedPropertyId },
+                                            success: function (response) {
+                                                if (response.trim() === "success") {
+                                                    alert("Property listed successfully!");
+                                                    location.reload(); 
+                                                } else {
+                                                    alert("Failed to list property.");
+                                                }
+                                            },
+                                            error: function () {
+                                                alert("An error occurred.");
+                                            }
+                                        });
+                                        $('#addToListModal').modal('hide');
+                                    }
+                                });
+                            });
+                        </script>
+
+
                     </div>
 
                   

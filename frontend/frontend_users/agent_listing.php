@@ -53,6 +53,7 @@ if (!isset($_SESSION['role_type'])) {
 
     <!-- azia CSS -->
     <link rel="stylesheet" href="../../assets/css/azia.css"> <!-- Custom CSS -->
+    </head>
     <style>
         /* Modal Styles */
         .modal-content {
@@ -286,7 +287,7 @@ if (!isset($_SESSION['role_type'])) {
             margin: 5px 0;
         }
     </style>
-</head>
+
 
 <body>
     <div class="az-header">

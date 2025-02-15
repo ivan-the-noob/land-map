@@ -45,42 +45,39 @@ if (isset($_SESSION['user_id'])) {
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-90680653-2"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
+        window.dataLayer = window.dataLayer || []; // Initialize dataLayer
 
         function gtag() {
-            dataLayer.push(arguments);
+            dataLayer.push(arguments); // Push arguments to dataLayer
         }
-        gtag('js', new Date());
-
-        gtag('config', 'UA-90680653-2');
+        gtag('js', new Date()); // Log the current date
+        gtag('config', 'UA-90680653-2'); // Configure Google Analytics
     </script>
 
     <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8"> <!-- Character encoding -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Responsive design -->
 
-    <title>Land Map | AGENT</title>
-    <link rel="icon" href="../../assets/images/logo.png" type="image/x-icon">
+    <title>Land Map | My Listings</title> <!-- Page title -->
+    <link rel="icon" href="../../assets/images/logo.png" type="image/x-icon"> <!-- Favicon -->
 
     <!-- vendor css -->
-    <link href="../../assets/lib/fontawesome-free/css/all.min.css" rel="stylesheet">
-    <link href="../../assets/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
-    <link href="../../assets/lib/typicons.font/typicons.css" rel="stylesheet">
-    <link href="../../assets/lib/flag-icon-css/css/flag-icon.min.css" rel="stylesheet">
+    <link href="../../assets/lib/fontawesome-free/css/all.min.css" rel="stylesheet"> <!-- Font Awesome -->
+    <link href="../../assets/lib/ionicons/css/ionicons.min.css" rel="stylesheet"> <!-- Ionicons -->
+    <link href="../../assets/lib/typicons.font/typicons.css" rel="stylesheet"> <!-- Typicons -->
+    <link href="../../assets/lib/flag-icon-css/css/flag-icon.min.css" rel="stylesheet"> <!-- Flag Icons -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDmgygVeipMUsrtGeZPZ9UzXRmcVdheIqw&libraries=places"></script>
 
     <!-- Mapping Links -->
-    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.umd.js"></script>
-    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.css" rel="stylesheet" />
-
-    <!--di pa sure kung buburahin-->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" />
+    <script src="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.umd.js"></script> <!-- Maptiler SDK -->
+    <link href="https://cdn.maptiler.com/maptiler-sdk-js/v2.3.0/maptiler-sdk.css" rel="stylesheet" /> <!-- Maptiler CSS -->
 
     <!-- azia CSS -->
-    <link rel="stylesheet" href="../../assets/css/azia.css">
-    <link rel="stylesheet" href="../../assets/css/profile.css">
+    <link rel="stylesheet" href="../../assets/css/azia.css"> <!-- Custom CSS -->
+    </head>
 
-    <!-- Blur Effect -->
-    <style>
+  <!-- Blur Effect -->
+  <style>
         /* Foggy effect for the entire screen */
         .modal-backdrop {
             backdrop-filter: blur(100px) brightness(200); /* Heavy blur with slight dimming */
@@ -115,15 +112,14 @@ if (isset($_SESSION['user_id'])) {
         }
     </style>
     <!-- Blur Effect -->
-
-</head>
+    <div class="az-header">
+        <?php require "../../partials/nav_agent.php" ?>
+    </div>
 
 <body>
     <!-- az-header-head -->
 
-    <div class="az-header">
-        <?php require "../../partials/nav_agent.php" ?>
-    </div>
+   
 
     <!-- az-header-tail -->
 
@@ -352,11 +348,6 @@ if (isset($_SESSION['user_id'])) {
         </div><!-- container -->
     </div>
 
-    <!-- Required Scripts -->
-    <script src="../../assets/lib/jquery/jquery.min.js"></script>
-    <script src="../../assets/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/lib/ionicons/ionicons.js"></script>
-    <script src="../../assets/js/azia.js"></script>
 
     <script src="../../assets/js/addedFunctions.js"></script>
 

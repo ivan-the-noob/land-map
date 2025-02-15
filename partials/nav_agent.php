@@ -171,8 +171,24 @@ $(document).ready(function() {
     border-radius: 50%;
 }
 </style>
+
+<?php
+    if (!isset($_SESSION['user_id'])) {
+        $_SESSION['user_id'] = null;
+    }
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT profile FROM users WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($profileImageUser);
+    $stmt->fetch();
+    $stmt->close();
+
+    $profileImageUser = !empty($profileImageUser) ? "../../assets/profile_images/" . htmlspecialchars($profileImageUser) : "../assets/profile_images/profile.jpg";
+?>
         <div class="dropdown az-profile-menu">
-            <a href="" class="az-img-user"><img src="../img/faces/face1.jpg" alt=""></a>
+        <a href="" class="az-img-user"> <img src="<?= $profileImageUser ?>"></a>
             <div class="dropdown-menu">
                 <div class="az-dropdown-header d-sm-none">
                     <a href="" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
@@ -181,7 +197,7 @@ $(document).ready(function() {
                 <p class="az-notification-text">User Information</p>
                 <div class="az-header-profile">
                     <div class="az-img-user">
-                        <img src="../img/faces/face1.jpg" alt=""> <!-- Optionally replace with dynamic image -->
+                    <img src="<?= $profileImageUser ?>"> 
                     </div><!-- az-img-user -->
                     <h6 class="text-nowrap"><?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Guest'; ?></h6>
                     <span><?php echo isset($_SESSION['role_type']) ? htmlspecialchars($_SESSION['role_type']) : 'No Role'; ?></span>
