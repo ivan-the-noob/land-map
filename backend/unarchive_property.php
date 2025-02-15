@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'])) {
     }
 
     // Update property
-    $sql = "UPDATE properties SET is_archive = 1 WHERE property_id = ?";
+    $sql = "UPDATE properties SET is_archive = 0 WHERE property_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $property_id);
 
