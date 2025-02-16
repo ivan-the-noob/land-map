@@ -707,13 +707,11 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                     </div>
 
                     <div class="property-actions">
-                        <button class="btn btn-primary btn-sm" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
+                        <a href="frontend/sign_in.php"><button class="btn btn-primary btn-sm">
                             <i class="fas fa-eye"></i> View
-                        </button>
+                        </button></a>
                         
-                        <button class="btn btn-info btn-sm" onclick="openInquireModal(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-question-circle"></i> Inquire
-                        </button>
+                      
                         <div class="modal fade" id="inquireModal" tabindex="-1" role="dialog" aria-labelledby="inquireModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
@@ -737,9 +735,7 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
 
                         <div id="floatingMessage" class="floating-message"></div>
 
-                        <button class="btn btn-danger btn-sm" onclick="archiveProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-archive"></i> Add to List
-                        </button>
+                       
                     </div>
 
                   
