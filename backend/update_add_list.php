@@ -22,23 +22,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         die("Connection failed: " . $conn->connect_error);
     }
 
-    // Prepare the SQL statement to insert into archive_table
-    $sql = "INSERT INTO archive_table (property_id, user_id, add_list) VALUES (?, ?, 1)";
-    $stmt = $conn->prepare($sql);
+    // Check if the property is already listed by this user
+    $check_sql = "SELECT * FROM archive_table WHERE property_id = ? AND user_id = ? AND add_list = 1";
+    $check_stmt = $conn->prepare($check_sql);
 
-    if (!$stmt) {
+    if (!$check_stmt) {
         die("Prepare failed: " . $conn->error);
     }
 
-    $stmt->bind_param("ii", $property_id, $user_id);
+    $check_stmt->bind_param("ii", $property_id, $user_id);
 
-    if ($stmt->execute()) {
-        echo "success";
+    $check_stmt->execute();
+    $result = $check_stmt->get_result();
+
+    if ($result->num_rows > 0) {
+        // Property already listed
+        echo "You already listed this property!";
     } else {
-        die("Execute failed: " . $stmt->error);
+        // Prepare the SQL statement to insert into archive_table
+        $sql = "INSERT INTO archive_table (property_id, user_id, add_list) VALUES (?, ?, 1)";
+        $stmt = $conn->prepare($sql);
+
+        if (!$stmt) {
+            die("Prepare failed: " . $conn->error);
+        }
+
+        $stmt->bind_param("ii", $property_id, $user_id);
+
+        if ($stmt->execute()) {
+            echo "success";
+        } else {
+            die("Execute failed: " . $stmt->error);
+        }
+
+        $stmt->close();
     }
 
-    $stmt->close();
+    $check_stmt->close();
     $conn->close();
 } else {
     die("Invalid request method");

@@ -274,33 +274,104 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
             <div class="card mt-4">
                 <div class="card-body">
                     <h4>Another Information</h4>
-                    <form id="agent-info-form" enctype="multipart/form-data">
+                    <?php
+                        require '../../db.php';
+
+                        $user_id = $_SESSION['user_id'];
+
+                        // Fetch user information
+                        $sql = "SELECT position, prc_id, dshp_id, information_status, prc_file, dshp_file FROM users WHERE user_id = ?";
+                        $stmt = $conn->prepare($sql);
+                        $stmt->bind_param("i", $user_id);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+                        $user = $result->fetch_assoc();
+
+                        if (!$user) {
+                            echo "<p class='text-danger'>User not found.</p>";
+                            exit;
+                        }
+
+                        // Determine the information status
+                        $info_status = $user['information_status'];
+
+                        if ($info_status == 1) {
+                            // Show form for input
+                            ?>
+                            <form id="agent-info-form" enctype="multipart/form-data">
+                                <label>Position as Agent</label>
+                                <select name="position" class="form-control mt-2" required>
+                                    <option value="Division Manager" <?= ($user['position'] == "Division Manager") ? 'selected' : '' ?>>Division Manager</option>
+                                    <option value="Senior Property Consultant" <?= ($user['position'] == "Senior Property Consultant") ? 'selected' : '' ?>>Senior Property Consultant</option>
+                                    <option value="Property Consultant" <?= ($user['position'] == "Property Consultant") ? 'selected' : '' ?>>Property Consultant</option>
+                                    <option value="Salesperson" <?= ($user['position'] == "Salesperson") ? 'selected' : '' ?>>Salesperson</option>
+                                </select>
+
+                                <label class="mt-2">PRC (Upload File)</label>
+                                <input type="file" name="prc_file" class="form-control mt-2">
+
+                                <label class="mt-2">PRC ID Number</label>
+                                <input type="number" name="prc_id" class="form-control mt-2" 
+                                    placeholder="Enter PRC ID Number" required>
+
+                                <label class="mt-2">DSHP (Upload File)</label>
+                                <input type="file" name="dshp_file" class="form-control mt-2">
+
+                                <label class="mt-2">DSHP ID Number</label>
+                                <input type="number" name="dshp_id" class="form-control mt-2" 
+                                placeholder="Enter DSHP ID Number" required>
+
+                                <button type="submit" class="btn btn-success mt-2">Update Information</button>
+                                <div id="agent-status-message" class="mt-2"></div>
+                            </form>
+                            <?php
+                        } elseif ($info_status == 2) {
+                            // Show waiting message
+                            echo "<p class='text-warning font-weight-bold'>Please wait for Admin to verify your information.</p>";
+                        } 
+                        elseif ($info_status == 3) {
+                            // Show form but in read-only mode
+                            ?>
+                            <form id="agent-info-form">
+                                <label>Position as Agent</label>
+                                <select name="position" class="form-control mt-2" disabled>
+                                    <option value="Division Manager" <?= ($user['position'] == "Division Manager") ? 'selected' : '' ?>>Division Manager</option>
+                                    <option value="Senior Property Consultant" <?= ($user['position'] == "Senior Property Consultant") ? 'selected' : '' ?>>Senior Property Consultant</option>
+                                    <option value="Property Consultant" <?= ($user['position'] == "Property Consultant") ? 'selected' : '' ?>>Property Consultant</option>
+                                    <option value="Salesperson" <?= ($user['position'] == "Salesperson") ? 'selected' : '' ?>>Salesperson</option>
+                                </select>
+                                <div class="div">
+                                <label class="mt-2">PRC (Uploaded File)</label><br>
+                                <?php if (!empty($user['prc_file'])): ?>
+                                    <img src="../../assets/agent_information/<?= $user['prc_file'] ?>" alt="PRC File" style="max-width: 200px; max-height: 150px;">
+                                <?php else: ?>
+                                    <p>No file uploaded</p>
+                                <?php endif; ?>
+                                </div>
                         
-                        <!-- Position as Agent -->
-                        <label>Position as Agent</label>
-                        <select name="position" class="form-control mt-2" required>
-                            <option value="Division Manager" <?= ($user['position'] == "Division Manager") ? 'selected' : '' ?>>Division Manager</option>
-                            <option value="Senior Property Consultant" <?= ($user['position'] == "Senior Property Consultant") ? 'selected' : '' ?>>Senior Property Consultant</option>
-                            <option value="Property Consultant" <?= ($user['position'] == "Property Consultant") ? 'selected' : '' ?>>Property Consultant</option>
-                            <option value="Salesperson" <?= ($user['position'] == "Salesperson") ? 'selected' : '' ?>>Salesperson</option>
-                        </select>
+                                <label class="mt-2">PRC ID Number</label>
+                                <input type="number" name="prc_id" class="form-control mt-2" 
+                                    value="<?= htmlspecialchars($user['prc_id']) ?>" readonly>
+                        
+                                <div class="div">
+                                    <label class="mt-2">DSHP (Uploaded File)</label><br>
+                                    <?php if (!empty($user['dshp_file'])): ?>
+                                        <img src="../../assets/agent_information/<?= $user['dshp_file'] ?>" alt="DSHP File" style="max-width: 200px; max-height: 150px;">
+                                    <?php else: ?>
+                                        <p>No file uploaded</p>
+                                    <?php endif; ?>
+                                </div>
+                        
+                                <label class="mt-2">DSHP ID Number</label>
+                                <input type="number" name="dshp_id" class="form-control mt-2" 
+                                value="<?= htmlspecialchars($user['dshp_id']) ?>" readonly>
+                            </form>
+                            <?php
+                        }
+                        ?>
 
-                        <!-- PRC File Upload -->
-                        <label class="mt-2">PRC (Upload File)</label>
-                        <input type="file" name="prc_file" class="form-control mt-2" required>
 
-                        <!-- DSHP File Upload -->
-                        <label class="mt-2">DSHP (Upload File)</label>
-                        <input type="file" name="dshp_file" class="form-control mt-2" required>
 
-                        <!-- PRC ID Number -->
-                        <label class="mt-2">PRC ID Number</label>
-                        <input type="number" name="prc_id" class="form-control mt-2" 
-                            value="<?= htmlspecialchars($user['prc_id']) ?>" placeholder="Enter PRC ID Number" required>
-
-                        <button type="submit" class="btn btn-success mt-2">Update Information</button>
-                        <div id="agent-status-message" class="mt-2"></div>
-                    </form>
                 </div>
             </div>
 
@@ -308,33 +379,51 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
         
 
         <script>
-        $(document).ready(function() {
-            $("#agent-info-form").submit(function(e) {
-                e.preventDefault();
-                let formData = new FormData(this);
+            $(document).ready(function() {
+                $("#agent-info-form").submit(function(e) {
+                    e.preventDefault();
+                    let formData = new FormData(this);
 
-                $.ajax({
-                    url: "../../backend/update_agent_info.php",
-                    type: "POST",
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    beforeSend: function() {
-                        $("#agent-status-message").html('<span class="text-info">Updating...</span>');
-                    },
-                    success: function(response) {
-                        if (response.includes("successfully")) {
-                            $("#agent-status-message").html('<span class="text-success">' + response + '</span>');
-                        } else {
-                            $("#agent-status-message").html('<span class="text-danger">' + response + '</span>');
+                    $.ajax({
+                        url: "../../backend/update_agent_info.php",
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        beforeSend: function() {
+                            $("#agent-status-message").html('<span class="text-info">Updating...</span>');
+                        },
+                        success: function(response) {
+                            console.log("AJAX Response:", response); // Debugging
+
+                            // No need to parse if response is already an object
+                            if (typeof response !== "object") {
+                                try {
+                                    response = JSON.parse(response);
+                                } catch (e) {
+                                    console.error("JSON Parse Error:", e);
+                                    $("#agent-status-message").html('<span class="text-danger">Invalid JSON response.</span>');
+                                    return;
+                                }
+                            }
+
+                            if (response.success) {
+                                $("#agent-status-message").html('<span class="text-success">' + response.message + '</span>');
+                            } else {
+                                $("#agent-status-message").html('<span class="text-danger">' + response.message + '</span>');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("AJAX Error:", status, error);
+                            $("#agent-status-message").html('<span class="text-danger">AJAX request failed.</span>');
                         }
-                    },
-                    error: function() {
-                        $("#agent-status-message").html('<span class="text-danger">Error updating information.</span>');
-                    }
+                    });
                 });
             });
-        });
+
+
+
+
         </script>
 
             <!-- Change Password Section -->

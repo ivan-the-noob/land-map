@@ -688,6 +688,7 @@ function contactAgent(userId) {
     window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
         center: caviteCenter,
         zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         restriction: {
             latLngBounds: window.allowedBounds,
             strictBounds: true

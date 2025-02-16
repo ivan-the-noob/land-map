@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 
 require '../db.php';
 require '../vendor/autoload.php';
@@ -96,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)";
 
         $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param("ssssssssssssssss", $role_type, $first_name, $last_name, $email, $hashed_password, $mobile, $location, $profile_image, $primary_id_type, $primary_id_number, $primary_id_image, $secondary_id_type, $secondary_id_number, $secondary_id_image, $verification_code);
+        $stmt->bind_param("sssssssssssssss", $role_type, $first_name, $last_name, $email, $hashed_password, $mobile, $location, $profile_image, $primary_id_type, $primary_id_number, $primary_id_image, $secondary_id_type, $secondary_id_number, $secondary_id_image, $verification_code);
 
         if ($stmt->execute()) {
             // Send verification email

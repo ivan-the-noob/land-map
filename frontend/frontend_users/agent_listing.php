@@ -683,6 +683,8 @@ if (!isset($_SESSION['role_type'])) {
                                             <input type="file" class="form-control" name="images[]" multiple>
                                         </div>
 
+
+
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                             <button type="button" class="btn btn-primary" onclick="updateProperty(<?php echo $row['property_id']; ?>)">Save Changes</button>
@@ -1202,7 +1204,8 @@ function contactAgent(userId) {
 
         window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
             center: caviteCenter,
-            zoom: 12,
+          zoom: 12,
+            mapTypeId: google.maps.MapTypeId.SATELLITE,
             restriction: {
                 latLngBounds: window.allowedBounds,
                 strictBounds: true
@@ -1430,26 +1433,7 @@ function contactAgent(userId) {
 
                                     <!-- Property Location -->
                                     
-                                    <script>
-                                        document.getElementById('propertyLocation').addEventListener('change', function() {
-                                            const selectedValue = this.value;
-                                            const selectedCity = selectedValue.split(',')[0]; // Get city name before comma
-                                            const barangayOptions = document.querySelectorAll('optgroup[label^="Barangays"]');
-                                            
-                                            barangayOptions.forEach(optgroup => {
-                                                optgroup.style.display = 'none';
-                                                const cityInLabel = optgroup.label.split('-')[1].trim(); // Get city name after dash
-                                                if (cityInLabel.toLowerCase().includes(selectedCity.toLowerCase())) {
-                                                    optgroup.style.display = 'block';
-                                                }
-                                            });
-
-                                            // Reset to first option if a city/municipality is selected
-                                            if (selectedValue !== 'all') {
-                                                this.value = selectedValue;
-                                            }
-                                        });
-                                    </script>
+                                  
 
                                     <!-- Listing Type and Land Area -->
                                     <div class="form-row">
@@ -1468,27 +1452,7 @@ function contactAgent(userId) {
                                             <small id="landAreaValidationMessage" class="text-danger"></small>
                                         </div>
 
-                                        <script>
-                                            document.getElementById('landArea').addEventListener('input', function(e) {
-                                                // Remove any dashes from input
-                                                this.value = this.value.replace(/-/g, '');
-                                                
-                                                const message = document.getElementById('landAreaValidationMessage');
-                                                // 1 hectare = 10,000 square meters
-                                                // 1000 hectares = 10,000,000 square meters
-                                                const maxArea = 10000000; // 1000 hectares in square meters
-                                                
-                                                if (this.value > maxArea) {
-                                                    message.textContent = "Land area cannot exceed 1000 hectares (10,000,000 sqm)";
-                                                    this.value = maxArea;
-                                                } else if (this.value < 0) {
-                                                    message.textContent = "Land area cannot be negative";
-                                                    this.value = 0;
-                                                } else {
-                                                    message.textContent = "";
-                                                }
-                                            });
-                                        </script>
+                                    
 
                                         <div id="leaseForm" class="hidden">
                                             <div class="form-row">
@@ -1517,55 +1481,7 @@ function contactAgent(userId) {
                                                     <small id="rentValidationMessage" class="text-danger"></small>
                                                 </div>
                                             </div>
-                                            <script>
-                                               document.addEventListener("DOMContentLoaded", function () {
-                                                const leaseDuration = document.getElementById('leaseDuration');
-                                                const monthlyRent = document.getElementById('monthlyRent');
-                                                const message = document.getElementById('rentValidationMessage');
-
-                                                leaseDuration.addEventListener('change', function () {
-                                                    // Get selected value
-                                                    const leaseType = this.value;
-
-                                                    if (leaseType === 'select') {
-                                                        monthlyRent.value = '';
-                                                        monthlyRent.disabled = true;
-                                                        message.textContent = '';
-                                                    } else {
-                                                        monthlyRent.disabled = false;
-                                                        if (leaseType === 'short_term') {
-                                                            monthlyRent.max = 1000000;
-                                                            message.textContent = "Maximum rental cost for short term is ₱1,000,000";
-                                                        } else if (leaseType === 'long_term') {
-                                                            monthlyRent.max = 1000000000;
-                                                            message.textContent = "Maximum rental cost for long term is ₱1,000,000,000";
-                                                        }
-                                                    }
-                                                });
-
-                                                monthlyRent.addEventListener('input', function () {
-                                                    // Remove any dashes from input
-                                                    this.value = this.value.replace(/-/g, '');
-
-                                                    const leaseType = leaseDuration.value; // Get selected lease duration
-
-                                                
-
-                                                    let maxAmount = leaseType === 'short_term' ? 1000000 : 1000000000;
-
-                                                    if (this.value < 0) {
-                                                        message.textContent = "Monthly rent cannot be negative";
-                                                        this.value = 0;
-                                                    } else if (this.value > maxAmount) {
-                                                        message.textContent = `Amount exceeds maximum limit for ${leaseType === 'short_term' ? "short term (₱1,000,000)" : "long term (₱1,000,000,000)"}`;
-                                                        this.value = maxAmount;
-                                                    } else {
-                                                        message.textContent = "";
-                                                    }
-                                                });
-                                            });
-
-                                            </script>
+                                            
 
                                         </div>
                                         <div id="saleForm" class="hidden">
@@ -1594,22 +1510,7 @@ function contactAgent(userId) {
                                                     </div>
                                                     <small id="priceValidationMessage" class="text-danger"></small>
                                                 </div>
-                                                <script>
-                                                    document.getElementById('salePrice').addEventListener('input', function() {
-                                                        const message = document.getElementById('priceValidationMessage');
-                                                        const maxPrice = 1000000000; // 1 billion
-                                                        
-                                                        if (this.value > maxPrice) {
-                                                            message.textContent = "Price cannot exceed ₱1,000,000,000";
-                                                            this.value = maxPrice;
-                                                        } else if (this.value < 0) {
-                                                            message.textContent = "Price cannot be negative";
-                                                            this.value = 0;
-                                                        } else {
-                                                            message.textContent = "";
-                                                        }
-                                                    });
-                                                </script>
+                                              
                                                 
                                                 <div class="form-group col-md-6">
                                                     <label for="anotherInfo"
@@ -1660,7 +1561,25 @@ function contactAgent(userId) {
                                         </div>
                                     </div>
 
-                                    <style>
+                                   
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="coordinates" id="coordinates" value="">
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <span id="btnText">Submit</span>
+                                <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none" role="status"
+                                    aria-hidden="true"></span>
+                            </button>
+                        </form>
+                    </div>
+                    <!-- Cend of the land property form -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
                                         .draggable {
                                             cursor: move;
                                             transition: transform 0.2s;
@@ -1703,6 +1622,112 @@ function contactAgent(userId) {
                                             z-index: 11;
                                         }
                                     </style>
+                                      <script>
+                                        document.getElementById('propertyLocation').addEventListener('change', function() {
+                                            const selectedValue = this.value;
+                                            const selectedCity = selectedValue.split(',')[0]; // Get city name before comma
+                                            const barangayOptions = document.querySelectorAll('optgroup[label^="Barangays"]');
+                                            
+                                            barangayOptions.forEach(optgroup => {
+                                                optgroup.style.display = 'none';
+                                                const cityInLabel = optgroup.label.split('-')[1].trim(); // Get city name after dash
+                                                if (cityInLabel.toLowerCase().includes(selectedCity.toLowerCase())) {
+                                                    optgroup.style.display = 'block';
+                                                }
+                                            });
+
+                                            // Reset to first option if a city/municipality is selected
+                                            if (selectedValue !== 'all') {
+                                                this.value = selectedValue;
+                                            }
+                                        });
+                                    </script>
+                                        <script>
+                                            document.getElementById('landArea').addEventListener('input', function(e) {
+                                                // Remove any dashes from input
+                                                this.value = this.value.replace(/-/g, '');
+                                                
+                                                const message = document.getElementById('landAreaValidationMessage');
+                                                // 1 hectare = 10,000 square meters
+                                                // 1000 hectares = 10,000,000 square meters
+                                                const maxArea = 10000000; // 1000 hectares in square meters
+                                                
+                                                if (this.value > maxArea) {
+                                                    message.textContent = "Land area cannot exceed 1000 hectares (10,000,000 sqm)";
+                                                    this.value = maxArea;
+                                                } else if (this.value < 0) {
+                                                    message.textContent = "Land area cannot be negative";
+                                                    this.value = 0;
+                                                } else {
+                                                    message.textContent = "";
+                                                }
+                                            });
+                                        </script>
+                                      <script>
+                                                    document.getElementById('salePrice').addEventListener('input', function() {
+                                                        const message = document.getElementById('priceValidationMessage');
+                                                        const maxPrice = 1000000000; // 1 billion
+                                                        
+                                                        if (this.value > maxPrice) {
+                                                            message.textContent = "Price cannot exceed ₱1,000,000,000";
+                                                            this.value = maxPrice;
+                                                        } else if (this.value < 0) {
+                                                            message.textContent = "Price cannot be negative";
+                                                            this.value = 0;
+                                                        } else {
+                                                            message.textContent = "";
+                                                        }
+                                                    });
+                                        </script>
+                                    <script>
+                                               document.addEventListener("DOMContentLoaded", function () {
+                                                const leaseDuration = document.getElementById('leaseDuration');
+                                                const monthlyRent = document.getElementById('monthlyRent');
+                                                const message = document.getElementById('rentValidationMessage');
+
+                                                leaseDuration.addEventListener('change', function () {
+                                                    // Get selected value
+                                                    const leaseType = this.value;
+
+                                                    if (leaseType === 'select') {
+                                                        monthlyRent.value = '';
+                                                        monthlyRent.disabled = true;
+                                                        message.textContent = '';
+                                                    } else {
+                                                        monthlyRent.disabled = false;
+                                                        if (leaseType === 'short_term') {
+                                                            monthlyRent.max = 1000000;
+                                                            message.textContent = "Maximum rental cost for short term is ₱1,000,000";
+                                                        } else if (leaseType === 'long_term') {
+                                                            monthlyRent.max = 1000000000;
+                                                            message.textContent = "Maximum rental cost for long term is ₱1,000,000,000";
+                                                        }
+                                                    }
+                                                });
+
+                                                monthlyRent.addEventListener('input', function () {
+                                                    // Remove any dashes from input
+                                                    this.value = this.value.replace(/-/g, '');
+
+                                                    const leaseType = leaseDuration.value; // Get selected lease duration
+
+                                                
+
+                                                    let maxAmount = leaseType === 'short_term' ? 1000000 : 1000000000;
+
+                                                    if (this.value < 0) {
+                                                        message.textContent = "Monthly rent cannot be negative";
+                                                        this.value = 0;
+                                                    } else if (this.value > maxAmount) {
+                                                        message.textContent = `Amount exceeds maximum limit for ${leaseType === 'short_term' ? "short term (₱1,000,000)" : "long term (₱1,000,000,000)"}`;
+                                                        this.value = maxAmount;
+                                                    } else {
+                                                        message.textContent = "";
+                                                    }
+                                                });
+                                            });
+
+                                            </script>
 
                                     <script>
                                         const MAX_IMAGES = 10; // Maximum number of images allowed
@@ -1819,7 +1844,8 @@ function contactAgent(userId) {
                                         // Initialize the map
                                         map = new google.maps.Map(document.getElementById("map"), {
                                             center: caviteCenter,
-                                            zoom: 12,
+                                          zoom: 12,
+            mapTypeId: google.maps.MapTypeId.SATELLITE,
                                             restriction: {
                                                 latLngBounds: allowedBounds,
                                                 strictBounds: true
@@ -1918,22 +1944,6 @@ function contactAgent(userId) {
 
                                     window.onload = initMap;
                                 </script>
-                                </div>
-                            </div>
-
-                            <input type="hidden" name="coordinates" id="coordinates" value="">
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <span id="btnText">Submit</span>
-                                <span id="loadingSpinner" class="spinner-border spinner-border-sm d-none" role="status"
-                                    aria-hidden="true"></span>
-                            </button>
-                        </form>
-                    </div>
-                    <!-- Cend of the land property form -->
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="az-footer">
         <div class="container">

@@ -87,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $verification_code = bin2hex(random_bytes(16)); // 32-character random string
 
         // Insert into database
-        $insert_query = "INSERT INTO users (role_type, fname, lname, location, email, password, verification_code, is_verified) 
-                         VALUES ('$role_type', '$first_name', '$last_name', '$location','$email', '$hashed_password', '$verification_code', 0)";
+        $insert_query = "INSERT INTO users (role_type, fname, lname, mobile, location, email, password, verification_code, is_verified) 
+                         VALUES ('$role_type', '$first_name', '$last_name', mobile,  '$location','$email', '$hashed_password', '$verification_code', 0)";
 
         if ($conn->query($insert_query) === TRUE) {
             // Send the verification email using PHPMailer

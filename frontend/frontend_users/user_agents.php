@@ -414,7 +414,7 @@ setInterval(updateDateTime, 1000);
                 </div>
                 <div class="modal-body">
                     <div class="text-center mb-4">
-                        <img src="../../assets/images/person_<?php echo ($index % 5) + 1; ?>.jpg" alt="Agent Photo" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                    <img src="../../assets/profile_images/<?php echo !empty($agent['profile']) ? htmlspecialchars($agent['profile']) : '../../assets/images/default-profile.jpg'; ?>" style="width: 150px; height: 150px; border-radius: 50%;">
                     </div>
                     <div class="agent-details">
                         <h4 class="text-center mb-4">
@@ -435,10 +435,10 @@ setInterval(updateDateTime, 1000);
                                     <?php echo isset($agent['location']) ? htmlspecialchars($agent['location']) : 'Tanza, Cavite'; ?>
                                 </p>
                                 <p><strong><i class="fa fa-id-card"></i> PRC:</strong> 
-                                    <?php echo isset($agent['prc']) ? htmlspecialchars($agent['prc']) : 'Not provided'; ?>
+                                    <?php echo isset($agent['prc_id']) ? htmlspecialchars($agent['prc_id']) : 'Not provided'; ?>
                                 </p>
                                 <p><strong><i class="fa fa-address-card"></i> DHSP:</strong> 
-                                    <?php echo isset($agent['dshp']) ? htmlspecialchars($agent['dshp']) : 'Not provided'; ?>
+                                    <?php echo isset($agent['dshp_id']) ? htmlspecialchars($agent['dshp_id']) : 'Not provided'; ?>
                                 </p>
                                 <p><strong><i class="fas fa-briefcase"></i> Role:</strong> 
                                     <?php echo ucfirst(htmlspecialchars($agent['role_type'])); ?>
@@ -450,7 +450,7 @@ setInterval(updateDateTime, 1000);
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <a href="agent_profile.php?id=<?php echo $agent['id']; ?>" class="btn btn-primary">View Full Profile</a>
+                    <a href="agent_profile.php?id=<?php echo $agent['user_id']; ?>" class="btn btn-primary">View Full Profile</a>
                 </div>
             </div>
         </div>

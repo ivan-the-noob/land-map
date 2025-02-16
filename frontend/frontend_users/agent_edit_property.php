@@ -983,7 +983,8 @@ function contactAgent(userId) {
                                 container: 'agentPropertyMap', // Map container
                                 style: maptilersdk.MapStyle.HYBRID, // Map style
                                 geolocate: maptilersdk.GeolocationType.POINT, // Geolocation type
-                                zoom: 10, // Initial zoom level
+                                zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE, // Initial zoom level
                                 maxZoom: 16.2 // Max zoom level
                             });
 

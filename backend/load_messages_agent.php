@@ -41,9 +41,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
             ? '<img src="' . $profileImage . '" alt="Profile" class="profile-img" style="width: 40px; height: 40px; border-radius: 50%; margin: 0;">' 
             : '<div style="width: 40px;"></div>'; 
 
+        $messageTime = date('H:i', strtotime($row['created_at']));
+
         echo '<div class="chat-message d-flex ' . $isUser . '" style="gap: 5px; align-items: flex-start;">' . 
                 $showProfile . 
-                '<div class="message-box">' . nl2br(htmlspecialchars($row['message'])) . '</div>
+                '<div class="message-box">' . nl2br(htmlspecialchars($row['message'])) . 
+                '<div class="message-time" style="font-size: 12px; color: gray; margin-top: 2px;">' . $messageTime . '</div>' . 
+                '</div>
               </div>';
     }
 }

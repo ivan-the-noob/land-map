@@ -54,9 +54,12 @@
                     <nav class="nav flex-column">
                         <a href="#" class="nav-link active" id="userListLink" onclick="showUserTable(event)">User List</a>
                         <a href="#" class="nav-link" id="agentListLink" onclick="showAgentTable(event)">Agent List</a>
-                        <a href="#" class="nav-link" id="agentListLink" onclick="showAgentVerification(event)">Agent Verification</a>
+                        <a href="#" class="nav-link" id="agentVerificationListLink" onclick="showAgentVerification(event)">Agent Verification</a>
                         <a href="#" class="nav-link" id="agentRegistrationLink" onclick="showRegistration(event)">Agent Registration</a>
                         <a href="#" class="nav-link" id="adminRegistrationLink" onclick="showAdminRegistration(event)">Admin Registration</a>
+                        <a href="#" class="nav-link" id="verifyInfo" onclick="showVerifyInfo(event)">Verify Agent Information</a>
+                        <a href="#" class="nav-link" id="reportLink" onclick="showReportLink(event)">Reports</a>
+                      
                     </nav>
                     <label>Website Edit</label>
                     <nav class="nav flex-column">
@@ -66,7 +69,7 @@
             </div><!-- az-content-left -->
 
             <div class="container">
-                <div class="az-content-body pd-lg-l-40 d-flex flex-column" style="width: 1000px;">
+
                     <!-- User Tables Section -->
                     <div class="main-box clearfix" id="user-tables">
                         <div class="table-responsive">
@@ -81,7 +84,7 @@
                                     ?>
                                     <div class="main-box clearfix" id="user-tables">
                                         <h3>User List</h3>
-                                        <div class="table-responsive">
+                                        <div class="table-responsive d-flex ">
                                             <table class="table table-striped user-list">
                                                 <thead class="thead-light">
                                                     <tr>
@@ -135,55 +138,185 @@
                                     <div class="main-box clearfix" id="agent-tables" style="display:none;">
                                         <h3>Agent List</h3>
                                         <div class="table-responsive">
-                                            <table class="table table-striped agent-list">
-                                                <thead class="thead-light">
-                                                    <tr>
-                                                        <th>Agent</th>
-                                                        <th>Role</th>
-                                                        <th class="text-center">Status</th>
-                                                        <th>Email</th>
-                                                        <th class="text-center">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php
-                                                    $query = "SELECT * FROM users WHERE role_type = 'agent'"; // Fetch all agents
-                                                    $result = $conn->query($query);
+                                        <table class="table table-striped agent-list">
+                                            <thead class="thead-light">
+                                                <tr>
+                                                    <th>First Name</th>
+                                                    <th>Last Name</th>
+                                                    <th>Email</th>
+                                                    <th>Mobile</th>
+                                                    <th>Location</th>
+                                                    <th class="text-center">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php
+                                                $query = "SELECT user_id, fname, lname, email, mobile, location FROM users WHERE role_type = 'agent'";
+                                                $result = $conn->query($query);
 
-                                                    if ($result->num_rows > 0):
-                                                        while ($agent = $result->fetch_assoc()): ?>
-                                                            <tr>
-                                                                <td>
-                                                                    <img src="<?= htmlspecialchars($agent['avatar']) ?>" alt=""
-                                                                        style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
-                                                                    <a href="#"
-                                                                        class="user-link text-dark"><?= htmlspecialchars($agent['fname'] . ' ' . $agent['lname']) ?></a>
-                                                                </td>
-                                                                <td><?= htmlspecialchars($agent['role_type']) ?></td>
-                                                                <td class="text-center">
-                                                                    <span
-                                                                        class="badge badge-<?= $agent['is_verified'] == 1 ? 'success' : 'secondary' ?>">
-                                                                        <?= $agent['is_verified'] == 1 ? 'Active' : 'Inactive' ?>
-                                                                    </span>
-                                                                </td>
-                                                                <td><a class="text-dark"
-                                                                        href="mailto:<?= htmlspecialchars($agent['email']) ?>"><?= htmlspecialchars($agent['email']) ?></a>
-                                                                </td>
-                                                                <td class="text-center">
-                                                                    <a href="#" class="table-link"><i class="fas fa-search-plus"></i></a>
-                                                                    <a href="#" class="table-link"><i class="fas fa-pencil-alt"></i></a>
-                                                                    <a href="#" class="table-link text-danger"><i
-                                                                            class="fas fa-trash-alt"></i></a>
-                                                                </td>
-                                                            </tr>
-                                                        <?php endwhile;
-                                                    else: ?>
+                                                if ($result->num_rows > 0):
+                                                    while ($agent = $result->fetch_assoc()): ?>
                                                         <tr>
-                                                            <td colspan="5" class="text-center">No agents found.</td>
+                                                            <td><?= htmlspecialchars($agent['fname']) ?></td>
+                                                            <td><?= htmlspecialchars($agent['lname']) ?></td>
+                                                            <td><a class="text-dark" href="mailto:<?= htmlspecialchars($agent['email']) ?>">
+                                                                    <?= htmlspecialchars($agent['email']) ?></a>
+                                                            </td>
+                                                            <td><?= htmlspecialchars($agent['mobile']) ?></td>
+                                                            <td><?= htmlspecialchars($agent['location']) ?></td>
+                                                            <td class="text-center">
+                                                                <!-- Edit Button -->
+                                                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editModal<?= $agent['user_id'] ?>">
+                                                                    <i class="fas fa-pencil-alt"></i>
+                                                                </button>
+
+                                                                <!-- Edit Modal -->
+                                                                <div class="modal fade" id="editModal<?= $agent['user_id'] ?>" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                                                    <div class="modal-dialog" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title">Edit Agent</h5>
+                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <form class="editAgentForm">
+                                                                                    <input type="hidden" name="user_id" value="<?= $agent['user_id'] ?>">
+
+                                                                                    <div class="form-group">
+                                                                                        <label>First Name</label>
+                                                                                        <input type="text" class="form-control" name="fname" value="<?= htmlspecialchars($agent['fname']) ?>">
+                                                                                    </div>
+
+                                                                                    <div class="form-group">
+                                                                                        <label>Last Name</label>
+                                                                                        <input type="text" class="form-control" name="lname" value="<?= htmlspecialchars($agent['lname']) ?>">
+                                                                                    </div>
+
+                                                                                    <div class="form-group">
+                                                                                        <label>Email</label>
+                                                                                        <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($agent['email']) ?>">
+                                                                                    </div>
+
+                                                                                    <div class="form-group">
+                                                                                        <label>Mobile</label>
+                                                                                        <input type="text" class="form-control" name="mobile" value="<?= htmlspecialchars($agent['mobile']) ?>">
+                                                                                    </div>
+
+                                                                                    <div class="form-group">
+                                                                                        <label>Location</label>
+                                                                                        <input type="text" class="form-control" name="location" value="<?= htmlspecialchars($agent['location']) ?>">
+                                                                                    </div>
+
+                                                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Delete Button -->
+                                                                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteModal<?= $agent['user_id'] ?>">
+                                                                    <i class="fas fa-trash-alt"></i>
+                                                                </button>
+
+                                                                <!-- Delete Modal -->
+                                                                <div class="modal fade" id="deleteModal<?= $agent['user_id'] ?>" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                                                    <div class="modal-dialog" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title">Confirm Deletion</h5>
+                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                Are you sure you want to delete this agent?
+                                                                            </div>
+                                                                            <div class="modal-footer">
+                                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                                                                <button type="button" class="btn btn-danger confirmDelete" data-user_id="<?= $agent['user_id'] ?>">Delete</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
                                                         </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
+                                                    <?php endwhile;
+                                                else: ?>
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">No agents found.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+
+                                        <script>
+                                       $(document).ready(function () {
+                                        // AJAX Request to Update Agent
+                                        $('.editAgentForm').submit(function (e) {
+                                            e.preventDefault();
+                                            var form = $(this);
+                                            $.ajax({
+                                                url: '../../backend/update_agent.php',
+                                                type: 'POST',
+                                                data: form.serialize(),
+                                                success: function (response) {
+                                                    if (response.trim() === 'success') {
+                                                        alert('Agent updated successfully!');
+                                                        $('.modal').modal('hide'); // Close modal
+                                                        setTimeout(function () {
+                                                            window.location.reload(true); // Force page reload
+                                                        }, 500);
+                                                    } else {
+                                                        alert('Update failed: ' + response);
+                                                    }
+                                                },
+                                                error: function () {
+                                                    alert('An error occurred while updating.');
+                                                }
+                                            });
+                                        });
+
+                                        // AJAX Request to Delete Agent
+                                        $('.confirmDelete').click(function () {
+                                            var userId = $(this).data('user_id');
+
+                                            $.ajax({
+                                                url: '../../backend/delete_agent.php',
+                                                type: 'POST',
+                                                data: { user_id: userId },
+                                                success: function (response) {
+                                                    if (response.trim() === 'success') {
+                                                        alert('Agent deleted successfully!');
+                                                        $('.modal').modal('hide'); // Close modal
+                                                        setTimeout(function () {
+                                                            window.location.reload(true); // Force page reload
+                                                        }, 500);
+                                                    } else {
+                                                        alert('Delete failed: ' + response);
+                                                    }
+                                                },
+                                                error: function () {
+                                                    alert('An error occurred while deleting.');
+                                                }
+                                            });
+                                        });
+                                    });
+
+                                        </script>
+
+
+                                        <!-- Edit Modal -->
+                                        
+
+
+
+                                        <!-- Delete Modal -->
+                                       
+
+
                                         </div>
                                         <nav aria-label="Page navigation">
                                             <ul class="pagination">
@@ -271,15 +404,15 @@
                         </div>
 
                         <!-- Admin Registration Form (initially hidden) -->
-                        <form action="../../backend/admin_registration.php" method="POST" id="adminRegistrationForm" style="display:none;">
+                        <form id="adminRegistrationForm" style="display:none;">
                             <div class="form-group">
                                 <label>First name</label>
-                                <input name="first_name" type="text" class="form-control" placeholder="Enter first name" required>
+                                <input name="fname" type="text" class="form-control" placeholder="Enter first name" required>
                                 <span class="error-message" id="admin_first_name_error" style="color:red;"></span>
                             </div>
                             <div class="form-group">
                                 <label>Last name</label>
-                                <input name="last_name" type="text" class="form-control" placeholder="Enter last name" required>
+                                <input name="lname" type="text" class="form-control" placeholder="Enter last name" required>
                                 <span class="error-message" id="admin_last_name_error" style="color:red;"></span>
                             </div>
                             <div class="form-group">
@@ -298,14 +431,7 @@
                             </button>
                         </form>
                     </div>
-                                        <nav aria-label="Page navigation">
-                                            <ul class="pagination">
-                                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                                            </ul>
-                                        </nav>
+                                      
                                     </div>
 
                                     <div class="modal fade" id="viewAgentModal" tabindex="-1" role="dialog" aria-labelledby="viewAgentModalLabel" aria-hidden="true">
@@ -343,6 +469,131 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="main-box clearfix" id="reports-section" style="display:none;">
+                                        <h3>Reports</h3>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped reports-list">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>User Name</th>
+                                                        <th>Agent Name</th>
+                                                        <th>Report Reason</th>
+                                                        <th>Report To (Role)</th>
+                                                        <th>Status</th>
+                                                        <th class="text-center">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                    $query = "SELECT r.*, 
+                                                                u1.fname AS user_fname, u1.lname AS user_lname, 
+                                                                u2.fname AS agent_fname, u2.lname AS agent_lname, 
+                                                                u3.role_type AS report_to_role, u3.disable_status, u3.user_id AS reported_user_id
+                                                            FROM reports r
+                                                            JOIN users u1 ON r.user_id = u1.user_id
+                                                            JOIN users u2 ON r.agent_id = u2.user_id
+                                                            JOIN users u3 ON r.report_to = u3.user_id";
+                                                    
+                                                    $result = $conn->query($query);
+
+                                                    if ($result->num_rows > 0):
+                                                        while ($report = $result->fetch_assoc()): ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <a href="#" class="text-dark">
+                                                                        <?= htmlspecialchars($report['user_fname'] . ' ' . $report['user_lname']) ?>
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    <?= htmlspecialchars($report['agent_fname'] . ' ' . $report['agent_lname']) ?>
+                                                                </td>
+                                                                <td><?= htmlspecialchars($report['report_reason']) ?></td>
+                                                                <td><?= htmlspecialchars($report['report_to_role']) ?></td>
+                                                                <td class="text-center">
+                                                                    <?php
+                                                                    $disableStatus = $report['disable_status'];
+
+                                                                    if ($disableStatus == 0) {
+                                                                        echo '<span class="badge badge-success">Active</span>';
+                                                                    } elseif ($disableStatus == 1) {
+                                                                        echo '<span class="badge badge-warning">Active 1 Warning</span>';
+                                                                    } elseif ($disableStatus == 2) {
+                                                                        echo '<span class="badge badge-warning">Active 2 Warnings</span>';
+                                                                    } else {
+                                                                        echo '<span class="badge badge-danger">Disabled</span>';
+                                                                    }
+                                                                    ?>
+                                                                </td>
+
+                                                                <td class="text-center">
+                                                                    <!-- Approve (Disable) -->
+                                                                    <button class="btn btn-success btn-sm disable-user" data-user-id="<?= $report['reported_user_id'] ?>">
+                                                                        <i class="fas fa-check"></i>
+                                                                    </button>
+
+                                                                    <!-- Delete Report -->
+                                                                    <button class="btn btn-danger btn-sm delete-report" data-report-id="<?= $report['id'] ?>">
+                                                                        <i class="fas fa-times"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endwhile;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">No reports found.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    
+                                    <script>
+                                        $(document).ready(function () {
+                                            // Disable user (Increment disable_status)
+                                            $('.disable-user').on('click', function () {
+                                                var userId = $(this).data('user-id');
+
+                                                $.ajax({
+                                                    url: '../../backend/disable_user.php',
+                                                    type: 'POST',
+                                                    data: { user_id: userId },
+                                                    dataType: 'json',
+                                                    success: function (response) {
+                                                        if (response.success) {
+                                                            alert("User disabled successfully!");
+                                                            location.reload(); 
+                                                        } else {
+                                                            alert("Error: " + response.error);
+                                                        }
+                                                    }
+                                                });
+                                            });
+
+                                            // Delete report
+                                            $('.delete-report').on('click', function () {
+                                                var reportId = $(this).data('report-id');
+
+                                                $.ajax({
+                                                    url: '../../backend/delete_report.php',
+                                                    type: 'POST',
+                                                    data: { report_id: reportId },
+                                                    dataType: 'json',
+                                                    success: function (response) {
+                                                        if (response.success) {
+                                                            alert("Report deleted successfully!");
+                                                            location.reload();
+                                                        } else {
+                                                            alert("Error: " + response.error);
+                                                        }
+                                                    }
+                                                });
+                                            });
+                                        });
+                                        </script>
+
+
+
 
 
                                     <!-- Agent Registration Form Section -->
@@ -470,6 +721,156 @@
                                             </div>
                                         </form>
                                     </div>
+
+                                    <div class="main-box clearfix" id="verify-info" style="display: none;">
+                                        <h3>Verify Agent Information</h3>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>PRC File</th>
+                                                        <th>DSHP File</th>
+                                                        <th>PRC ID</th>
+                                                        <th>DSHP ID</th>
+                                                        <th class="text-center">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                 $query = "SELECT user_id, fname, lname, prc_file, dshp_file, prc_id, dshp_id, information_status 
+                                                 FROM users 
+                                                 WHERE information_status IN (1,2)
+                                                 AND prc_file IS NOT NULL 
+                                                 AND dshp_file IS NOT NULL 
+                                                 AND prc_id IS NOT NULL 
+                                                 AND dshp_id IS NOT NULL";
+                                       
+                                       $result = $conn->query($query);
+                                       
+
+                                                    if ($result->num_rows > 0):
+                                                        while ($user = $result->fetch_assoc()): ?>
+                                                            <tr>
+                                                                <td><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></td>
+                                                                <td>
+                                                                <?php if (!empty($user['prc_file'])): ?>
+                                                                    <img src="../../assets/agent_information/<?= htmlspecialchars($user['prc_file']) ?>" 
+                                                                        alt="PRC File" 
+                                                                        class="img-thumbnail zoomable-image" 
+                                                                        data-toggle="modal" 
+                                                                        data-target="#imageModal" 
+                                                                        data-image="../../assets/agent_information/<?= htmlspecialchars($user['prc_file']) ?>"
+                                                                        width="50" height="50">
+                                                                <?php else: ?>
+                                                                    <span class="text-muted">No file</span>
+                                                                <?php endif; ?>
+                                                            </td>
+
+                                                            <td>
+                                                                <?php if (!empty($user['dshp_file'])): ?>
+                                                                    <img src="../../assets/agent_information/<?= htmlspecialchars($user['dshp_file']) ?>" 
+                                                                        alt="DSHP File" 
+                                                                        class="img-thumbnail zoomable-image" 
+                                                                        data-toggle="modal" 
+                                                                        data-target="#imageModal" 
+                                                                        data-image="../../assets/agent_information/<?= htmlspecialchars($user['dshp_file']) ?>"
+                                                                        width="50" height="50">
+                                                                <?php else: ?>
+                                                                    <span class="text-muted">No file</span>
+                                                                <?php endif; ?>
+                                                            </td>
+
+                                                                <td><?= htmlspecialchars($user['prc_id']) ?></td>
+                                                                <td><?= htmlspecialchars($user['dshp_id']) ?></td>
+                                                                <td class="text-center">
+                                                                    <button class="btn btn-success btn-sm verify-user" data-user-id="<?= $user['user_id'] ?>" data-status="3">
+                                                                        ✅
+                                                                    </button>
+                                                                    <button class="btn btn-danger btn-sm verify-user" data-user-id="<?= $user['user_id'] ?>" data-status="1">
+                                                                        ❌
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endwhile;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">No pending verifications.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <!-- Image Modal -->
+                                    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="imageModalLabel">View Image</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body text-center">
+                                                    <img id="modalImage" src="" alt="Zoomed Image" class="img-fluid">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        $(document).ready(function() {
+                                            $(".zoomable-image").click(function() {
+                                                let imageUrl = $(this).data("image");
+                                                $("#modalImage").attr("src", imageUrl);
+                                            });
+                                        });
+
+                                    </script>
+
+
+                                    <script>
+                                 $(document).ready(function() {
+                                $(".verify-user").click(function() {
+                                    let userId = $(this).data("user-id");
+                                    let status = $(this).data("status");
+
+                                    $.ajax({
+                                        url: "../../backend/update_verification_status.php",
+                                        type: "POST",
+                                        data: { user_id: userId, status: status },
+                                        success: function(response) {
+                                            try {
+                                                console.log("Raw Response:", response);
+
+                                                // Ensure response is an object before using
+                                                if (typeof response !== "object") {
+                                                    response = JSON.parse(response);
+                                                }
+
+                                                if (response.success) {
+                                                    location.reload();
+                                                } else {
+                                                    alert("Error: " + response.message);
+                                                }
+                                            } catch (e) {
+                                                console.error("JSON Parse Error:", e, response);
+                                                alert("Server response is invalid. Check console.");
+                                            }
+                                        },
+                                        error: function(xhr, status, error) {
+                                            console.error("AJAX Error:", status, error, xhr.responseText);
+                                            alert("AJAX request failed.");
+                                        }
+                                    });
+                                });
+                            });
+
+                                    </script>
+
+
+                                   
+
                  
                   
                                       
@@ -732,6 +1133,7 @@
             style: maptilersdk.MapStyle.HYBRID,
             geolocate: maptilersdk.GeolocationType.POINT,
             zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
             maxZoom: 16.2
         });
 
@@ -740,6 +1142,7 @@
             style: maptilersdk.MapStyle.HYBRID,
             geolocate: maptilersdk.GeolocationType.POINT,
             zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
             maxZoom: 16.2
         });
 
@@ -807,6 +1210,10 @@
         document.getElementById('registration-form').style.display = 'none';
         document.getElementById('website-design').style.display = 'none';
         document.getElementById('agent-verification').style.display = 'none';
+        document.getElementById('reports-section').style.display = 'none';
+        document.getElementById('admin-registration-form').style.display = 'none';
+        document.getElementById('verify-info').style.display = 'none';
+
         setActiveLink(event.currentTarget.id);
     }
 
@@ -818,6 +1225,9 @@
         document.getElementById('website-design').style.display = 'none';
         document.getElementById('agent-verification').style.display = 'none';
         document.getElementById('admin-registration-form').style.display = 'none';
+        document.getElementById('reports-section').style.display = 'none';
+        document.getElementById('verify-info').style.display = 'none';
+
         setActiveLink(event.currentTarget.id);
     }
 
@@ -829,6 +1239,9 @@
         document.getElementById('website-design').style.display = 'none';
         document.getElementById('agent-verification').style.display = 'none';
         document.getElementById('admin-registration-form').style.display = 'none';
+        document.getElementById('reports-section').style.display = 'none';
+        document.getElementById('verify-info').style.display = 'none';
+
         setActiveLink(event.currentTarget.id);
     }
 
@@ -839,6 +1252,10 @@
             document.getElementById('registration-form').style.display = 'none';
             document.getElementById('website-design').style.display = 'none';
             document.getElementById('admin-registration-form').style.display = 'block';
+            document.getElementById('reports-section').style.display = 'none';
+            document.getElementById('verify-info').style.display = 'none';
+            
+
             setActiveLink(event.currentTarget.id);
         }
 
@@ -850,6 +1267,9 @@
         document.getElementById('website-design').style.display = 'block';
         document.getElementById('agent-verification').style.display = 'none';
         document.getElementById('admin-registration-form').style.display = 'none';
+        document.getElementById('reports-section').style.display = 'none';
+        document.getElementById('verify-info').style.display = 'none';
+
         setActiveLink(event.currentTarget.id);
     }
 
@@ -859,12 +1279,39 @@
         document.getElementById('agent-tables').style.display = 'none';
         document.getElementById('registration-form').style.display = 'none';
         document.getElementById('website-design').style.display = 'none';
+        document.getElementById('reports-section').style.display = 'none';
         document.getElementById('agent-verification').style.display = 'block';
+        document.getElementById('admin-registration-form').style.display = 'none';
+        document.getElementById('verify-info').style.display = 'none';
+        setActiveLink(event.currentTarget.id);
+    }
+    function showReportLink(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        document.getElementById('user-tables').style.display = 'none';
+        document.getElementById('agent-tables').style.display = 'none';
+        document.getElementById('registration-form').style.display = 'none';
+        document.getElementById('website-design').style.display = 'none';
+        document.getElementById('agent-verification').style.display = 'none';
+        document.getElementById('reports-section').style.display = 'block';
+        document.getElementById('verify-info').style.display = 'none';
+        document.getElementById('admin-registration-form').style.display = 'none';
+        setActiveLink(event.currentTarget.id);
+    }
+    function showVerifyInfo(event) {
+        event.preventDefault(); // Prevent default anchor behavior
+        document.getElementById('user-tables').style.display = 'none';
+        document.getElementById('agent-tables').style.display = 'none';
+        document.getElementById('registration-form').style.display = 'none';
+        document.getElementById('website-design').style.display = 'none';
+        document.getElementById('agent-verification').style.display = 'none';
+        document.getElementById('reports-section').style.display = 'none';
+        document.getElementById('verify-info').style.display = 'block';
+        document.getElementById('admin-registration-form').style.display = 'none';
         setActiveLink(event.currentTarget.id);
     }
 
     function setActiveLink(activeId) {
-        const links = ['userListLink', 'agentListLink', 'agentRegistrationLink', 'websitedesignListLink', 'agentVerificationLink'];
+        const links = ['userListLink', 'agentListLink','agentVerificationListLink', 'agentRegistrationLink', 'websitedesignListLink', 'agentVerificationLink','reportLink','verifyInfo'];
         links.forEach(link => {
             const element = document.getElementById(link);
             if (element) {
@@ -1152,56 +1599,63 @@
             }
         });
 
-        // Admin registration form handling
         document.getElementById('adminRegistrationForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+        event.preventDefault();
 
-            // Hide error messages
-            document.getElementById('admin_first_name_error').textContent = '';
-            document.getElementById('admin_last_name_error').textContent = '';
-            document.getElementById('admin_email_error').textContent = '';
-            document.getElementById('admin_password_error').textContent = '';
+        // Clear previous error messages
+        document.getElementById('admin_first_name_error').textContent = '';
+        document.getElementById('admin_last_name_error').textContent = '';
+        document.getElementById('admin_email_error').textContent = '';
+        document.getElementById('admin_password_error').textContent = '';
 
-            // Show loading spinner
-            document.getElementById('adminButtonText').style.display = 'none';
-            document.getElementById('adminLoadingSpinner').style.display = 'inline-block';
+        // Show loading spinner
+        document.getElementById('adminButtonText').style.display = 'none';
+        document.getElementById('adminLoadingSpinner').style.display = 'inline-block';
 
-            const formData = new FormData(this);
+        const formData = new FormData(this);
 
-            // Send form data using AJAX
-            fetch('../../backend/admin_registration.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Hide loading spinner
-                document.getElementById('adminLoadingSpinner').style.display = 'none';
-                document.getElementById('adminButtonText').style.display = 'inline-block';
+        // Send form data using AJAX
+        fetch('../../backend/admin_registration.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())  // Read as text first
+        .then(text => {
+            console.log("Response Text:", text); // Log the raw response text for debugging
+            
+            // Hide loading spinner
+            document.getElementById('adminLoadingSpinner').style.display = 'none';
+            document.getElementById('adminButtonText').style.display = 'inline-block';
 
-                if (data.success) {
-                    // Show success modal
-                    $('#successModal').modal('show');
-                    // Update success message for admin registration
-                    document.querySelector('.modal-message').textContent = 'Admin account successfully created.';
-                } else {
-                    // Show validation errors
-                    for (const key in data.errors) {
-                        if (data.errors.hasOwnProperty(key)) {
-                            const errorElement = document.getElementById(`admin_${key}_error`);
-                            if (errorElement) {
-                                errorElement.textContent = data.errors[key];
-                            }
-                        }
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('adminLoadingSpinner').style.display = 'none';
-                document.getElementById('adminButtonText').style.display = 'inline-block';
-            });
-        });
+            // Check if the response contains an error message
+            if (text.includes("Error:")) {
+                // Show error in alert
+                alert(text);  // Error message from PHP
+            } else {
+                // Success case
+                alert(text);  // Success message from PHP
+
+                // Optionally, show success modal if needed
+                $('#successModal').modal('show');
+                document.querySelector('.modal-message').textContent = text;
+
+                // Reload the page after successful registration
+                window.location.reload();
+            }
+        })
+        
+    });
+
+
+
+
+
+
+
+
+
+    
+
     </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

@@ -1443,6 +1443,7 @@ setInterval(updateTime, 1000);
         style: maptilersdk.MapStyle.HYBRID,
         geolocate: maptilersdk.GeolocationType.POINT,
         zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         maxZoom: 16.2
     });
 

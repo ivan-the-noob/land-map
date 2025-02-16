@@ -139,6 +139,26 @@ elseif ($_SESSION['role_type'] !== 'user') {
             border-radius: 15px;
             font-size: 0.9em;
         }
+
+        .floating-message {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 1000;
+}
+.floating-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
     </style>
 </head>
 
@@ -217,26 +237,29 @@ elseif ($_SESSION['role_type'] !== 'user') {
                             <!-- Post new land property -->
                             <div class="property-list">
                                 
-    <?php
-    require '../../db.php';
+                            <?php
+                require '../../db.php';
 
-    $sql = "SELECT p.*, 
-       u.fname, u.lname,
-       ui.image_name AS user_image,
-       (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
-        FROM archive_table a
-        JOIN properties p ON a.property_id = p.property_id
-        LEFT JOIN users u ON p.user_id = u.user_id
-        LEFT JOIN user_img ui ON u.user_id = ui.user_id
-        WHERE a.add_list = 1;";
+                $user_id = $_SESSION['user_id']; 
 
-    $result = $conn->query($sql);
+                $sql = "SELECT p.*, 
+                u.fname, u.lname,
+                ui.image_name AS user_image,
+                (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
+                    FROM archive_table a
+                    JOIN properties p ON a.property_id = p.property_id
+                    LEFT JOIN users u ON p.user_id = u.user_id
+                    LEFT JOIN user_img ui ON u.user_id = ui.user_id
+                    WHERE a.add_list = 1 AND a.user_id = $user_id";
 
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
-            $agentName = $row['fname'] . ' ' . $row['lname'];
-    ?>
+                $result = $conn->query($sql);
+
+                if ($result->num_rows > 0) {
+                    while ($row = $result->fetch_assoc()) {
+                        $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
+                        $agentName = $row['fname'] . ' ' . $row['lname'];
+            ?>
+
             <div class="property-card">
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
@@ -285,16 +308,171 @@ elseif ($_SESSION['role_type'] !== 'user') {
                     <?php } ?>
 
                     <div class="admin-actions d-flex justify-content-center">
-                    <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
+                        <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View Details
                         </button>
+                        <div class="modal fade" id="propertyDetailsModal" tabindex="-1" role="dialog" aria-labelledby="propertyDetailsModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="propertyDetailsModalLabel">Property Details</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Image Carousel -->
+                                        <div id="propertyImageCarousel" class="carousel slide mb-4" data-ride="carousel">
+                                            <div class="carousel-inner">
+                                                <!-- Images will be dynamically added here -->
+                                            </div>
+                                            <a class="carousel-control-prev" href="#propertyImageCarousel" role="button" data-slide="prev">
+                                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                <span class="sr-only">Previous</span>
+                                            </a>
+                                            <a class="carousel-control-next" href="#propertyImageCarousel" role="button" data-slide="next">
+                                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                <span class="sr-only">Next</span>
+                                            </a>
+                                        </div>
+
+                                        <!-- Property Information -->
+                                        <div class="property-info">
+                                            <h3 id="modalPropertyName"></h3>
+                                            <div class="property-meta">
+                                                <span class="badge badge-primary" id="modalPropertyType"></span>
+                                                <span class="badge badge-info" id="modalSaleType"></span>
+                                            </div>
+                                            
+                                            <div class="row mt-4">
+                                                <div class="col-md-6">
+                                                    <h5>Basic Information</h5>
+                                                    <ul class="list-unstyled">
+
+                                                        <li><strong>Location:</strong> <span id="modalLocation"></span></li>
+                                                        <li><strong>Land Area:</strong> <span id="modalLandArea"></span> sqm</li>
+                                                        <li><strong>Price:</strong> <span id="modalPrice"></span></li>
+                                                        <li><strong>Land Condition:</strong> <span id="modalLandCondition"></span></li>
+                                                        <li><strong>Lease Duration:</strong> <span id="modalLeaseDuration"></span></li>
+                                                        <li><strong>Monthly Rent:</strong> <span id="modalMonthlyRent"></span></li>
+                                                        <li><strong>Property Description:</strong> <span id="modalDescription"></span></li>
+                                                    </ul>
+                                                    <script>
+                                                        
+                                                    </script>
+
+                                                </div>
+                                                <div class="col-md-6 d-none">
+                                                    <h5>Features</h5>
+                                                    <div id="modalFeatures" class="features-list">
+                                                        <!-- Features will be dynamically added here -->
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="description-section mt-4 d-none">
+                                                <h5>Description</h5>
+                                                <p id="modalDescription"></p>
+                                            </div>
+
+                                            <!-- Property Location Map -->
+                                            <div class="mt-4">
+                                                <h5>Property Location</h5>
+                                                <div id="modalMap" style="height: 300px;"></div>
+                                            </div>
+
+                                            <!-- Agent Information -->
+                                            <div class="agent-info mt-4">
+                                                <h5>Agent Information</h5>
+                                                <div class="d-flex align-items-center">
+                                                    <img id="modalAgentImage" src="" alt="Agent" class="rounded-circle mr-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                                    <div>
+                                                        <h6 id="modalAgentName"></h6>
+                                                        <div id="agentActions">
+                                                            <!-- Buttons will be dynamically populated based on ownership -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <button class="btn-update">
                             <i class="fas fa-plus"></i> Listed
                         </button>
+                        <button class="btn btn-info btn-sm" onclick="openInquireModal(<?php echo $row['property_id']; ?>)">
+                            <i class="fas fa-question-circle"></i> Inquire
+                        </button>
+                        <div class="modal fade" id="inquireModal" tabindex="-1" role="dialog" aria-labelledby="inquireModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="inquireModalLabel">Confirm Inquiry</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"> 
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to inquire about this property?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button> 
+                                        <button type="button" class="btn btn-info" id="confirmInquireBtn">Yes, Inquire</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="floatingMessage" class="floating-message"></div>
+                       
                         <button class="btn-delete" onclick="deleteProperty(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-trash"></i> Archive
                         </button>
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            let propertyIdToInquire = null;
+
+                            function openInquireModal(propertyId) {
+                                propertyIdToInquire = propertyId;
+                                $('#inquireModal').modal('show'); 
+                            }
+
+                            document.getElementById("confirmInquireBtn").addEventListener("click", function() {
+                                if (propertyIdToInquire) {
+                                    $('#inquireModal').modal('hide'); 
+
+                                    fetch("../../backend/inquire.php", {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                                        body: "property_id=" + propertyIdToInquire
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        showFloatingMessage(data.message, data.status === 'success' ? 'success' : 'error');
+                                    })
+                                    .catch(error => console.error("Error:", error));
+                                }
+                            });
+
+                            function showFloatingMessage(message, type = 'success') {
+                                let floatingMessage = document.getElementById('floatingMessage');
+                                
+                                floatingMessage.innerText = message;
+                                floatingMessage.style.backgroundColor = (type === 'error') ? '#dc3545' : '#28a745';
+
+                                floatingMessage.classList.add('show');
+
+                                setTimeout(() => {
+                                    floatingMessage.classList.remove('show');
+                                }, 3000);
+                            }
+
+                        </script>
                         <script>
                            function deleteProperty(propertyId) {
                                 if (confirm("Are you sure you want to unlist this property?")) {
@@ -560,8 +738,124 @@ function updateProperty(propertyId) {
 
 
 function viewDetails(propertyId) {
-    // Add your view details logic here
-    console.log('Viewing details for property:', propertyId);
+    fetch(`../../backend/get_property_details.php?property_id=${propertyId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Populate modal with property details
+            document.getElementById('modalPropertyName').textContent = data.property_name || '';
+            document.getElementById('modalPropertyType').textContent = data.property_type || '';
+            document.getElementById('modalSaleType').textContent = data.sale_or_lease ? data.sale_or_lease.toUpperCase() : '';
+            document.getElementById('modalLocation').textContent = data.property_location || '';
+            document.getElementById('modalLandArea').textContent = data.land_area || '';
+            document.getElementById('modalPrice').textContent = data.price || '';
+            document.getElementById('modalLandCondition').textContent = data.land_condition || '';
+            document.getElementById('modalLeaseDuration').textContent = data.lease_duration || '';
+            document.getElementById('modalMonthlyRent').textContent = data.monthly_rent || '';
+            document.getElementById('modalAgentName').textContent = (data.agent_fname ? data.agent_fname + ' ' + data.agent_lname : '');
+            document.getElementById('modalDescription').textContent = data.property_description || '';
+
+            
+
+
+            // Set price based on sale or lease type
+            const price = data.sale_or_lease === 'sale' 
+                ? `₱${Number(data.sale_price).toLocaleString()}`
+                : `₱${Number(data.monthly_rent).toLocaleString()}/month`;
+            document.getElementById('modalPrice').textContent = price;
+
+            // Populate features
+            const featuresContainer = document.getElementById('modalFeatures');
+            featuresContainer.innerHTML = '';
+            if (data.features) {
+                const features = data.features.split(',');
+                features.forEach(feature => {
+                    const featureElement = document.createElement('div');
+                    featureElement.className = 'feature-item';
+                    featureElement.innerHTML = `<i class="fas fa-check"></i> ${feature.trim()}`;
+                    featuresContainer.appendChild(featureElement);
+                });
+            }
+
+            // Populate image carousel
+            const carouselInner = document.querySelector('.carousel-inner');
+            carouselInner.innerHTML = '';
+            if (data.images && data.images.length > 0) {
+                data.images.forEach((image, index) => {
+                    const carouselItem = document.createElement('div');
+                    carouselItem.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+                    carouselItem.innerHTML = `<img src="../../assets/property_images/${image}" class="d-block w-100" alt="Property Image">`;
+                    carouselInner.appendChild(carouselItem);
+                });
+            }
+
+            // **Initialize Google Map**
+            if (data.latitude && data.longitude) {
+                initGoogleMap(data.latitude, data.longitude);
+            }
+
+            // Set agent information
+            document.getElementById('modalAgentName').textContent = 
+                data.agent_fname && data.agent_lname ? `${data.agent_fname} ${data.agent_lname}` : 'Unknown Agent';
+
+                console.log("Agent Image:", data.agent_image);
+                document.getElementById('modalAgentImage').src = data.agent_image 
+                    ? `../../assets/profile_images/${data.agent_image}`
+                    : '../../assets/images/default-profile.jpg';
+
+            // Get the actions container
+            const actionsContainer = document.getElementById('agentActions');
+            actionsContainer.innerHTML = '';
+
+            // Check if the property belongs to the logged-in user
+            if (data.user_id == <?php echo $_SESSION['user_id']; ?>) {
+                actionsContainer.innerHTML = `
+                    <button class="btn btn-warning btn-sm mr-2" onclick="editProperty(${propertyId})">
+                        <i class="fas fa-edit"></i> Edit Property
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="archiveProperty(${propertyId})">
+                        <i class="fas fa-archive"></i> Archive Property
+                    </button>
+                `;
+            } else {
+                actionsContainer.innerHTML = `
+                    
+                `;
+            }
+
+            // Show the modal
+            $('#propertyDetailsModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error fetching property details:', error);
+            alert('Error loading property details. Please try again.');
+        });
+}
+
+
+// **Google Maps Initialization**
+function initGoogleMap(lat, lng) {
+    const map = new google.maps.Map(document.getElementById('modalMap'), {
+        center: { lat: parseFloat(lat), lng: parseFloat(lng) },
+        zoom: 15,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+        mapTypeControl: true, // Ensures map type options are visible
+        zoomControl: true, // Ensures zoom buttons appear
+        streetViewControl: true, // Ensures the walk icon is available
+        fullscreenControl: true, // Ensures fullscreen button appears
+        
+    });
+
+    new google.maps.Marker({
+        position: { lat: parseFloat(lat), lng: parseFloat(lng) },
+        map: map,
+        title: 'Property Location',
+        icon: {
+            url: '../../assets/images/land.png', // Replace with your custom marker image path
+            scaledSize: new google.maps.Size(32, 32), // Adjust size of the marker
+            origin: new google.maps.Point(0, 0), // Origin point of the image
+            anchor: new google.maps.Point(16, 32) // Anchor point for the marker
+        }
+    });
 }
 
 function contactAgent(userId) {
@@ -736,6 +1030,7 @@ function contactAgent(userId) {
     window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
         center: caviteCenter,
         zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         restriction: {
             latLngBounds: window.allowedBounds,
             strictBounds: true

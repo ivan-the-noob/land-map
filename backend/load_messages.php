@@ -34,7 +34,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
     for ($i = 0; $i < $totalMessages; $i++) {
         $row = $messages[$i];
         $isUser = ($row['role_type'] === 'agent') ? 'agent-message' : 'user-message';
-        // $isUser = ($row['role_type'] === 'agent') ? 'agent-message' : 'user-message';
         $profileImage = !empty($row['profile']) ? "../../assets/profile_images/" . $row['profile'] : "../../assets/profile_images/profile.jpg";
 
         $nextSender = ($i < $totalMessages - 1) ? $messages[$i + 1]['role_type'] : null;
@@ -42,9 +41,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
             ? '<img src="' . $profileImage . '" alt="Profile" class="profile-img" style="width: 40px; height: 40px; border-radius: 50%; margin: 0;">' 
             : '<div style="width: 40px;"></div>'; 
 
+        $messageTime = date('H:i', strtotime($row['created_at']));
+
         echo '<div class="chat-message d-flex ' . $isUser . '" style="gap: 5px; align-items: flex-start;">' . 
                 $showProfile . 
-                '<div class="message-box">' . nl2br(htmlspecialchars($row['message'])) . '</div>
+                 
+                    '<div class="message-box">' . nl2br(htmlspecialchars($row['message'])) . 
+                    '<div class="message-time" style="font-size: 12px; color: grey; margin-top: 2px wio;">' . $messageTime . '</div>' . 
+              
+                '</div>
               </div>';
     }
 }

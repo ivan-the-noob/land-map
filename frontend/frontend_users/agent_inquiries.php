@@ -509,17 +509,20 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                 $agent_id = $_SESSION['user_id']; 
 
                                 $sql = "SELECT iq.status AS iq_status, p.*, 
-                                            u_inq.fname AS inquirer_fname, u_inq.lname AS inquirer_lname, 
-                                            iq.user_id AS inquirer_id,  -- Alias for the inquirer user_id
-                                            p.user_id AS agent_id,      -- Alias for the agent user_id
-                                            ui.image_name AS user_image,
-                                            (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image 
-                                        FROM inquire iq
-                                        INNER JOIN properties p ON iq.property_id = p.property_id
-                                        INNER JOIN users u_agent ON p.user_id = u_agent.user_id  
-                                        INNER JOIN users u_inq ON iq.user_id = u_inq.user_id     
-                                        LEFT JOIN user_img ui ON u_inq.user_id = ui.user_id      
-                                        WHERE p.user_id = ?";  // Filter properties by agent_id
+                                    u_inq.fname AS inquirer_fname, u_inq.lname AS inquirer_lname, 
+                                    iq.user_id AS inquirer_id,  
+                                    p.user_id AS agent_id,      
+                                    ui.image_name AS user_image,
+                                    (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+                                    u_inq.report_status AS report_status,  -- Added report_status
+                                    CONCAT(u_inq.fname, ' ', u_inq.lname) AS inquirer_name  -- Concatenate first and last name
+                            FROM inquire iq
+                            INNER JOIN properties p ON iq.property_id = p.property_id
+                            INNER JOIN users u_agent ON p.user_id = u_agent.user_id  
+                            INNER JOIN users u_inq ON iq.user_id = u_inq.user_id     
+                            LEFT JOIN user_img ui ON u_inq.user_id = ui.user_id
+                            WHERE p.user_id = ?
+                            ORDER BY iq.created_at DESC";
                     
                     
 
@@ -533,10 +536,10 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                     $inquiryStatus = $row['iq_status']; 
                                     $propertyName = $row['property_name'];
                                     $inquirerName = $row['inquirer_fname'] . ' ' . $row['inquirer_lname']; 
-
+                                    $reportStatus = $row['report_status']; 
+                                            
                                     $imagePath = !empty($row['property_image']) ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";        
                             ?>
-
             <div class="property-card">
                 <div class="property-image">
                 <img src="<?php echo htmlspecialchars($imagePath); ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
@@ -602,7 +605,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                 <i class="fas fa-times"></i> Inquiry Declined
                             </button>
                         <?php } ?>
-                        
+                       
                         <?php if ($inquiryStatus !== 'cancelled') { ?>
                             <button class="btn-delete" onclick="openDeleteModal(<?= htmlspecialchars($row['property_id']); ?>)">
                                 <i class="fas fa-trash"></i> Cancel Inquiry
@@ -612,6 +615,82 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                 <i class="fas fa-ban"></i> Cancelled
                             </button>
                         <?php } ?>
+                        <?php 
+                         if ($reportStatus == 0) {
+                            echo '<button class="btn-delete report-btn" data-toggle="modal" data-target="#reportModal" data-inquirer-id="' . $row['inquirer_id'] . '">
+                                    <i class="fas fa-trash"></i> Report
+                                  </button>';
+                        } else {
+                            echo '<button class="btn btn-secondary rounded fw-bold" disabled>Reported</button>';
+                        }
+                
+                        ?>
+            
+
+                       <!-- Report Button -->
+
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reportModalLabel">Report Inquirer</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>You are reporting: <strong><?php echo $inquirerName ; ?></strong></p>
+                <form id="reportForm">
+                    <input type="hidden" name="inquirer_id" id="inquirer_id">
+                    <div class="mb-3">
+                        <label for="report_reason" class="form-label">Report Reason</label>
+                        <textarea class="form-control" id="report_reason" name="report_reason" rows="4" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger d-flex mx-auto">Submit Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function () {
+    // Capture the inquirer ID when the modal is triggered
+    $('.report-btn').on('click', function () {
+        var inquirerId = $(this).data('inquirer-id');
+        $('#inquirer_id').val(inquirerId);
+    });
+
+    // Handle form submission via AJAX
+    $('#reportForm').on('submit', function (e) {
+        e.preventDefault(); // Prevent default form submission
+
+        $.ajax({
+            url: '../../backend/submit_report.php',
+            type: 'POST',
+            data: $(this).serialize() + '&user_id=<?php echo $_SESSION['user_id']; ?>',
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    alert("Report submitted successfully!");
+                    $('#reportModal').modal('hide'); // Hide modal
+                    location.reload(); // Reload the page
+                } else {
+                    alert("Error: " + response.error);
+                }
+            },
+            error: function () {
+                alert("Something went wrong. Please try again.");
+            }
+        });
+    });
+});
+</script>
+
+                        
+                        
 
 
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -747,7 +826,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
 
                     
                 </div>
-            </div>
+     
     <?php
         }
     } else {
@@ -804,7 +883,8 @@ function initMap(latitude, longitude) {
 
     // Initialize Google Map
     const map = new google.maps.Map(document.getElementById("modalMap"), {
-        zoom: 15,
+       zoom: 15,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         center: propertyLocation,
     });
 
@@ -875,7 +955,8 @@ function viewDetails(propertyId) {
     if (!isNaN(latitude) && !isNaN(longitude)) {
         const propertyMap = new google.maps.Map(document.getElementById('modalGoogleMap'), {
             center: { lat: latitude, lng: longitude },
-            zoom: 15
+            zoom: 15,
+            mapTypeId: google.maps.MapTypeId.SATELLITE,
         });
 
         // Add marker for property location
@@ -1110,7 +1191,8 @@ setInterval(updateTime, 1000);
 
         window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
             center: caviteCenter,
-            zoom: 12,
+          zoom: 12,
+            mapTypeId: google.maps.MapTypeId.SATELLITE,
             restriction: {
                 latLngBounds: window.allowedBounds,
                 strictBounds: true

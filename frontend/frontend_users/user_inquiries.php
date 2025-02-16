@@ -145,7 +145,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                     while ($row = $result->fetch_assoc()) {
                         $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
                         $agentImage = $row['user_image'] ? "../../assets/profile_images/" . $row['user_image'] : "../../assets/profile_images/profile.jpg";
-                        $agentName = '<img src="' . $agentImage . '" alt="Agent Image" class="agent-profile-img"> ' . $row['fname'] . ' ' . $row['lname'];
+                        $agentName = '<img src="' . $agentImage . '" alt="Agent Image" class="agent-profile-img" style="width: 30px; height: 30px; border-radius: 50%;"> ' . $row['fname'] . ' ' . $row['lname'];
                         $agent = $row['fname'] . ' ' . $row['lname'];
                         $inquiryStatus = $row['inquiry_status']; 
                         if ($inquiryStatus === 'pending') {
@@ -209,19 +209,127 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         </div>
                     <?php } ?>
 
-                    <div class="admin-actions">
+                    <div class="admin-actions d-flex justify-content-center">
                     <button class="btn-view text-now" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View Details
                         </button>
                         <button class="<?= $buttonClass ?>">
                             <i class="fas fa-clock"></i> <?= $buttonText ?>
                         </button>
-                        <button class="btn-delete" onclick="deleteProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-trash"></i> Cancel Inquiry
-                        </button>
-                        <button class="btn-delete" onclick="reportAgent(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-trash"></i> Report Agent
-                        </button>
+                        <?php
+                            if ($inquiryStatus !== 'declined' && $inquiryStatus !== 'cancelled') {
+                                echo '<button class="btn-delete" onclick="deleteProperty(' . $row['property_id'] . ')">
+                                        <i class="fas fa-trash"></i> Cancel Inquiry
+                                    </button>';
+                            }
+                        ?>
+
+
+                    
+
+                      
+                       <!-- Report Button -->
+                       <?php
+                            $agent_id = $row['agent_id'];
+
+                            // Fetch report_status from users table
+                            $query = "SELECT report_status FROM users WHERE user_id = ?";
+                            $stmt = $conn->prepare($query);
+                            $stmt->bind_param("i", $agent_id);
+                            $stmt->execute();
+                            $stmt->bind_result($report_status);
+                            $stmt->fetch();
+                            $stmt->close();
+
+                            if ($report_status == 0) {
+                                // Show "Report Agent" button if not reported
+                                echo '<button class="btn-delete report-btn" data-toggle="modal" data-target="#reportModal" data-agent-id="' . $agent_id . '">
+                                        <i class="fas fa-trash"></i> Report Agent
+                                    </button>';
+                            } else {
+                                // Show "Reported" button if already reported
+                                echo '<button class="btn btn-secondary rounded fw-bold" disabled>Reported</button>';
+                            }
+                        ?>
+
+                        <?php
+                        $agent_id = $row['agent_id'];
+                        $agent_name = "Unknown Agent";
+
+                        $query = "SELECT fname, lname FROM users WHERE user_id = ?";
+                        $stmt = $conn->prepare($query);
+                        $stmt->bind_param("i", $agent_id);
+                        $stmt->execute();
+                        $result = $stmt->get_result();
+
+                        if ($result->num_rows > 0) {
+                            $agent = $result->fetch_assoc();
+                            $agent_name = $agent['fname'] . " " . $agent['lname'];
+                        }
+
+                        $stmt->close();
+                       ?>
+
+                        <!-- Bootstrap Modal -->
+                        <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="reportModalLabel">Report Agent</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                    <p>You are reporting: <strong><?php echo $agent_name; ?></strong></p>
+                                        <form id="reportForm">
+                                            <input type="hidden" name="agent_id" id="agent_id">
+                                            <div class="mb-3">
+                                                <label for="report_reason" class="form-label">Report Reason</label>
+                                                <textarea class="form-control" id="report_reason" name="report_reason" rows="4" required></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-danger d-flex mx-auto">Submit Report</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                            $(document).ready(function () {
+                                // Capture the agent ID when the modal is triggered
+                                $('.report-btn').on('click', function () {
+                                    var agentId = $(this).data('agent-id');
+                                    $('#agent_id').val(agentId);
+                                });
+
+                                // Handle form submission via AJAX
+                                $('#reportForm').on('submit', function (e) {
+                                    e.preventDefault(); // Prevent default form submission
+
+                                    $.ajax({
+                                        url: '../../backend/submit_report.php',
+                                        type: 'POST',
+                                        data: $(this).serialize() + '&user_id=<?php echo $_SESSION['user_id']; ?>',
+                                        dataType: 'json',
+                                        success: function (response) {
+                                            if (response.success) {
+                                                alert("Report submitted successfully!");
+                                                $('#reportModal').modal('hide'); // Hide modal
+                                                location.reload(); // Reload the page
+                                            } else {
+                                                alert("Error: " + response.error);
+                                            }
+                                        },
+                                        error: function () {
+                                            alert("Something went wrong. Please try again.");
+                                        }
+                                    });
+                                });
+                            });
+                        </script>
+
+
                     </div>
 
                     <?php if ($row['inquiry_status'] == 'accepted'): ?>
@@ -248,7 +356,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="chatModalLabel">Chat with <?php echo ($agent); ?></h5>
+                                    <h5 class="modal-title" id="chatModalLabel">Chat with <?php echo ($agentName); ?></h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -816,10 +924,24 @@ function updateProperty(propertyId) {
 }
 
 function deleteProperty(propertyId) {
-    if(confirm('Are you sure you want to delete this property?')) {
-        console.log('Deleting property:', propertyId);
+    if (confirm('Are you sure you want to cancel this inquiry?')) {
+        console.log('Cancelling inquiry for property:', propertyId);
+
+        // Make an AJAX request to update the status to 'cancelled'
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "../../backend/cancel_inquiry.php", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                // Handle the response (you can show a success message or update the UI)
+                alert("Inquiry has been cancelled.");
+                location.reload(); // Reload to reflect the changes
+            }
+        };
+        xhr.send("property_id=" + propertyId);
     }
 }
+
 
 function viewDetails(propertyId) {
     console.log('Viewing details for property:', propertyId);
@@ -996,6 +1118,7 @@ function contactAgent(userId) {
     window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
         center: caviteCenter,
         zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         restriction: {
             latLngBounds: window.allowedBounds,
             strictBounds: true

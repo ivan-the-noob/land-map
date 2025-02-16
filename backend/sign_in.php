@@ -28,6 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($result->num_rows > 0) {
             $user = $result->fetch_assoc();
 
+            // Check if the account is disabled
+            if ($user['disable_status'] >= 3) {
+                $errors['general'] = "Your account has been disabled.";
+                echo json_encode(['success' => false, 'errors' => $errors]);
+                exit; // Stop execution
+            }
+
             // Verify password
             if (password_verify($password, $user['password'])) {
                 if ($user['is_verified'] == 1) {
@@ -45,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         } elseif ($user['role_type'] == 'agent') {
                             echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/agent_page.php']);
                         } elseif ($user['role_type'] == 'user') {
-                            echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/user_page.php']);
+                            echo json_encode(['success' => true, 'redirect' => '../frontend/frontend_users/user_listing.php']);
                         } else {
                             echo json_encode(['success' => false, 'errors' => ['general' => 'Invalid role type.']]);
                         }

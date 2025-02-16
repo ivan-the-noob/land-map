@@ -47,12 +47,12 @@
                 <a href="../frontend_users/admin_properties.php" class="nav-link"><i class="typcn typcn-location-outline"></i> Land Properties</a>
             </li>
 
-            <li class="">
+            <!-- <li class="">
                 <a href="../frontend_users/agent_developers.php" class="nav-link"><i class="fas fa-building"></i> Developers</a>
-            </li>
+            </li> -->
 
             <li class="">
-                <a href="../frontend_users/admin_agents.php" class="nav-link"><i class="fas fa-user-tie"></i> Brokers</a>
+                <a href="../frontend_users/user_agents_admin.php" class="nav-link"><i class="fas fa-user-tie"></i> Brokers</a>
             </li>
 
             <li class="">

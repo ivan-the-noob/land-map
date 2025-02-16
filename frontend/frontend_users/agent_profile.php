@@ -14,7 +14,7 @@ if (!isset($_SESSION['role_type'])) {
     // If not logged in, set flag and message for modal
     $show_modal = true; // Show modal
     $error_message = 'You must be logged in to access this page.'; // Error message for not logged in
-} elseif ($_SESSION['role_type'] !== 'agent') {
+} elseif ($_SESSION['role_type'] !== 'user') {
     // If not agent, set flag and message for modal
     $show_modal = true; // Show modal
     $error_message = 'You do not have the necessary permissions to access this page.'; // Error message for permission issue
@@ -41,7 +41,7 @@ if (!isset($_SESSION['role_type'])) {
     <meta charset="utf-8"> <!-- Character encoding -->
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <!-- Responsive design -->
 
-    <title>Land Map | My Listings</title> <!-- Page title -->
+    <title>Land Map | Brokers</title> <!-- Page title -->
     <link rel="icon" href="../../assets/images/logo.png" type="image/x-icon"> <!-- Favicon -->
 
     <!-- vendor css -->
@@ -283,7 +283,7 @@ if (!isset($_SESSION['role_type'])) {
 
 <body>
     <div class="az-header">
-        <?php require '../../partials/nav_agent.php' ?> <!-- Include navigation for agent -->
+        <?php require '../../partials/nav_user.php' ?> <!-- Include navigation for agent -->
     </div>
 
     <div class="az-content az-content-dashboard">
@@ -291,8 +291,8 @@ if (!isset($_SESSION['role_type'])) {
             <div class="az-content-body">
                 <div class="az-dashboard-one-title">
                     <div>
-                        <h2 class="az-dashboard-title">Agent Land Listings</h2> <!-- Dashboard title -->
-                        <p class="az-dashboard-text">View Agent land property listings</p> <!-- Dashboard text -->
+                        <h2 class="az-dashboard-title">Brokers</h2> <!-- Dashboard title -->
+                        <p class="az-dashboard-text">View Agent Brokens </p> <!-- Dashboard text -->
                     </div>
                     <div class="az-content-header-right">
                         <!-- Time and Date -->
@@ -339,11 +339,7 @@ if (!isset($_SESSION['role_type'])) {
                     </div>
                 </div>
 
-                <div class="az-dashboard-nav">
-                    <nav class="nav">
-                            <h2 class="az-dashboard-title">Agent Name: <?php echo htmlspecialchars($agent_name); ?></h2> <!-- Tab for listed properties -->
-                    </nav>
-                </div>
+            
 
                 <div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
@@ -377,207 +373,122 @@ if (!isset($_SESSION['role_type'])) {
     $stmt->execute(); // Execute statement
     $result = $stmt->get_result(); // Get result
 
-    if ($result->num_rows > 0) { // Check if properties exist
-        while ($row = $result->fetch_assoc()) { // Fetch each property
-            $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg"; // Set image path
-            $agentName = $row['fname'] . ' ' . $row['lname']; // Get agent name
-            $isNew = $row['hours_since_created'] <= 24;
     ?>
-            <div class="property-card">
-                <div class="property-image">
-                    <?php if ($isNew) { ?>
-                        <div class="new-badge">NEW</div>
-                    <?php } ?>
-                    <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>"> <!-- Property image -->
-                    <div class="sale-badge">
-                        <?php echo $row['sale_or_lease'] == 'sale' ? 'FOR SALE' : 'FOR LEASE'; ?> <!-- Sale or lease badge -->
-                    </div>
-                    <div class="location-badge">
-                        <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($row['property_location']); ?> <!-- Location badge -->
-                    </div>
+           
+    
+</div>
+<?php
+    include '../../db.php'; 
+
+    $agent_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+    // Fetch agent details
+    $agent_query = $conn->prepare("SELECT * FROM users WHERE user_id = ?");
+    $agent_query->bind_param("i", $agent_id);
+    $agent_query->execute();
+    $agent_result = $agent_query->get_result();
+    $agent = $agent_result->fetch_assoc();
+
+    // Fetch properties with images for this agent
+    $properties_query = $conn->prepare("
+    SELECT p.*, pi.image_name 
+    FROM properties p
+    LEFT JOIN property_images pi ON p.property_id = pi.property_id
+    WHERE p.user_id = ?
+    ");
+    $properties_query->bind_param("i", $agent_id);
+    $properties_query->execute();
+    $properties_result = $properties_query->get_result();
+
+?>
+
+<div class="agent-details">
+<div class="card-body text-center">
+                  
+                    <img src="../../assets/profile_images/<?php echo !empty($agent['profile']) ? htmlspecialchars($agent['profile']) : '../../assets/images/default-profile.jpg'; ?>" style="width: 150px; height: 150px; border-radius: 50%;">
+                    <h3 class="mt-3"><?php echo htmlspecialchars($agent['fname'] . ' ' . $agent['lname']); ?></h3>
+                    <p><strong><i class="fas fa-envelope"></i> Email:</strong> <?php echo htmlspecialchars($agent['email']); ?></p>
+                    <p><strong><i class="fas fa-phone"></i> Phone:</strong> <?php echo !empty($agent['phone']) ? htmlspecialchars($agent['phone']) : 'Not provided'; ?></p>
+                    <p><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> <?php echo !empty($agent['location']) ? htmlspecialchars($agent['location']) : 'Tanza, Cavite'; ?></p>
+                    <p><strong><i class="fa fa-id-card"></i> PRC:</strong> <?php echo !empty($agent['prc_id']) ? htmlspecialchars($agent['prc_id']) : 'Not provided'; ?></p>
+                    <p><strong><i class="fa fa-address-card"></i> DHSP:</strong> <?php echo !empty($agent['dshp_id']) ? htmlspecialchars($agent['dshp_id']) : 'Not provided'; ?></p>
+                    <p><strong><i class="fas fa-briefcase"></i> Role:</strong> <?php echo ucfirst(htmlspecialchars($agent['role_type'])); ?></p>
                 </div>
+</div>
 
-                <div class="property-content">
-                    <h3 class="property-title">Property Name: <?php echo htmlspecialchars($row['property_name']); ?></h3> <!-- Property title -->
+<!-- Property Listings -->
+<h3>Properties Listed by <?php echo htmlspecialchars($agent['fname']); ?></h3>
+<div class="property-listings">
+<div class="container">
+    <div class="row">
+        <?php while ($row = $properties_result->fetch_assoc()) : ?>
+            <div class="col-md-5 mb-4 m-4"> <!-- Adjust column width if needed -->
+                <div class="property-card">
+                    <div class="property-image">
+                        <?php 
+                            $imagePath = !empty($row['image_name']) ? "../../assets/property_images/" . $row['image_name'] : "../../assets/property_images/default.jpg";
+                        ?>
+                        <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
+                        <div class="sale-badge">
+                            <?php echo $row['sale_or_lease'] == 'sale' ? 'FOR SALE' : 'FOR LEASE'; ?>
+                        </div>
+                        <div class="location-badge">
+                            <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($row['property_location']); ?>
+                        </div>
+                    </div>
                     
-                    <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price'] > 0) { ?>
-                        <div class="property-price">₱ <?php echo number_format($row['sale_price'], 2); ?></div> <!-- Sale price -->
-                    <?php } elseif ($row['sale_or_lease'] == 'lease' && $row['monthly_rent'] > 0) { ?>
-                        <div class="property-price">₱ <?php echo number_format($row['monthly_rent'], 2); ?> /monthly cost</div> <!-- Monthly rent -->
-                    <?php } ?>
-
-
-                    <div class="property-details">
-                        <?php if ($row['land_area']) { ?>
-                            <span><i class="fas fa-ruler-combined"> Land Area:</i> <?php echo number_format($row['land_area']); ?> sqm</span> <!-- Land area -->
-                        <?php } ?>
-                        <?php if ($row['property_type']) { ?>
-                            <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span> <!-- Land type -->
-                        <?php } ?>
-                    </div>
-
-                    <?php if ($row['property_description']) { ?>
-                        <div class="property-description"><i class="fas fa-land"> Land Description:</i>
-                            <?php echo substr(htmlspecialchars($row['property_description']), 0, 100) . '...'; ?> <!-- Property description -->
-                        </div>
-                    <?php } ?>
-
-                    <?php if ($row['another_info']) { ?><i class="fas fa-land"> Another Information:</i>
-                        <div class="promo-badge">
-                            <?php echo ucfirst($row['another_info']); ?>
-                        </div>
-                    <?php } ?>
-
-                    <?php if ($row['land_condition']) { ?><i class="fas fa-land"> Land Condition:</i>
-                        <div class="property-conditon">
-                            <?php echo ucfirst($row['land_condition']); ?>
-                        </div>
-                    <?php } ?>
-
-                    <div class="property-actions">
-                    <?php if ($row['added_date'] && $row['added_time']) { ?>
-                        <div class="property-timestamp">
-                            <i class="fas fa-clock"></i>
-                            <span>Added on <?php echo htmlspecialchars($row['added_date']); ?> at <?php echo htmlspecialchars($row['added_time']); ?></span>
-                        </div>
-                    <?php } ?>
-                    </div>
-
-                    <style>
-                        .property-timestamp {
-                            font-size: 0.9rem;
-                            color: #666;
-                            margin-top: 10px;
-                            padding-top: 10px;
-                            border-top: 1px solid #eee;
-                            display: flex;
-                            align-items: center;
-                            gap: 5px;
-                        }
+                    <div class="property-content">
+                        <h3 class="property-title">Property Name: <?php echo htmlspecialchars($row['property_name']); ?></h3>
                         
-                        .property-timestamp i {
-                            color: #999;
-                        }
-                    </style>
-
-                    <div class="property-actions">
-                        <button class="btn-view" onclick="openModal(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-eye"></i> View More Details
-                        </button>
-
-                        <!-- Modal -->
-                        <div id="propertyModal<?php echo $row['property_id']; ?>" class="modal">
-                            <div class="modal-content">
-                                <span class="close" onclick="closeModal(<?php echo $row['property_id']; ?>)">&times;</span>
-                                
-                                <div class="modal-header">
-                                    <h2><?php echo htmlspecialchars($row['property_name']); ?></h2> <!-- Modal header -->
-                                </div>
-
-                                <div class="modal-body">
-                                    <div class="property-details-section">
-                                        <h4 class="modal-section-title">Property Details</h4> <!-- Property details title -->
-                                        <div class="details-grid">
-                                            <div class="detail-item">
-                                                <i class="fas fa-map-marker-alt"></i>
-                                                <p><strong>Location:</strong> <?php echo htmlspecialchars($row['property_location']); ?></p> <!-- Property location -->
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-tag"></i>
-                                                <p><strong>Price:</strong> ₱<?php echo number_format($row['sale_or_lease'] == 'sale' ? $row['sale_price'] : $row['monthly_rent'], 2); ?></p> <!-- Property price -->
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-ruler-combined"></i>
-                                                <p><strong>Land Area:</strong> <?php echo number_format($row['land_area']); ?> sqm</p> <!-- Land area -->
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-home"></i>
-                                                <p><strong>Land Type:</strong> <?php echo htmlspecialchars($row['property_type']); ?></p> <!-- Land type -->
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-info-circle"></i>
-                                                <p><strong>Land Condition:</strong> <?php echo !empty($row['land_condition']) ? ucfirst($row['land_condition']) : 'N/A'; ?></p> <!-- Land condition -->
-                                            </div>
-                                            <div class="detail-item">
-                                                <i class="fas fa-plus-circle"></i>
-                                                <p><strong>Additional Info:</strong> <?php echo !empty($row['another_info']) ? ucfirst($row['another_info']) : 'N/A'; ?></p> <!-- Additional information -->
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="description-box">
-                                            <i class="fas fa-file-alt"></i>
-                                            <p><strong>Description:</strong> <?php echo htmlspecialchars($row['property_description']); ?></p> <!-- Property description -->
-                                        </div>
-                                    </div>
-
-                                    <div class="agent-details-section">
-                                        <h4 class="modal-section-title">Agent Information</h4> <!-- Agent information title -->
-                                        <div class="agent-profile">
-                                            <div class="agent-image">
-                                                <?php if ($row['user_image']) { ?>
-                                                    <img src="../../assets/images/profile/<?php echo $row['user_image']; ?>" alt="Agent Photo"> <!-- Agent image -->
-                                                <?php } else { ?>
-                                                    <img src="../../assets/images/default-avatar.png" alt="Default Agent Photo"> <!-- Default agent image -->
-                                                <?php } ?>
-                                            </div>
-                                            <div class="agent-info">
-                                                <p><strong>Name:</strong> <?php echo htmlspecialchars($agentName); ?></p> <!-- Agent name -->
-                                                <p><strong>Contact:</strong> <?php echo htmlspecialchars($row['contact_number'] ?? 'Not provided'); ?></p> <!-- Agent contact -->
-                                                <p><strong>Email:</strong> <?php echo htmlspecialchars($row['email'] ?? 'Not provided'); ?></p> <!-- Agent email -->
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer">
-                                    <button class="btn-contact" onclick="contactAgent(<?php echo $row['user_id']; ?>)">
-                                        <i class="fas fa-envelope"></i> Contact Agent
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <script>
-                            function openModal(propertyId) {
-                                document.getElementById('propertyModal' + propertyId).style.display = "block"; // Open modal
-                            }
-
-                            function closeModal(propertyId) {
-                                document.getElementById('propertyModal' + propertyId).style.display = "none"; // Close modal
-                            }
-                        </script>
-                    </div>
-
-                    <div class="admin-actions">
-                        <button class="btn-submit" onclick="submitProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-check"></i> Submit
-                        </button>
-                        <button class="btn-update" onclick="updateProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-edit"></i> Update
-                        </button>
-                        <button class="btn-delete" onclick="deleteProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-trash"></i> Archive
-                        </button>
-                    </div>
-
-                    <div class="agent-info">
-                        <?php if ($row['user_image']) { ?>
-                            <img src="../../assets/images/profile/<?php echo $row['user_image']; ?>" alt="Agent"> <!-- Agent image -->
+                        <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price'] > 0) { ?>
+                            <div class="property-price">₱ <?php echo number_format($row['sale_price'], 2); ?></div>
+                        <?php } elseif ($row['sale_or_lease'] == 'lease' && $row['monthly_rent'] > 0) { ?>
+                            <div class="property-price">₱ <?php echo number_format($row['monthly_rent'], 2); ?> /monthly cost</div>
                         <?php } ?>
-                        <span><i class="fas fa-user"> Agent Name:</i> <?php echo htmlspecialchars($agentName); ?></span> <!-- Agent name -->
+                        
+                        <div class="property-details">
+                            <?php if ($row['land_area']) { ?>
+                                <span><i class="fas fa-ruler-combined"></i> Land Area: <?php echo number_format($row['land_area']); ?> sqm</span>
+                            <?php } ?>
+                            <?php if ($row['property_type']) { ?>
+                                <span><i class="fas fa-home"></i> Land Type: <?php echo htmlspecialchars($row['property_type']); ?></span>
+                            <?php } ?>
+                        </div>
+                        
+                        <?php if ($row['property_description']) { ?>
+                            <div class="property-description">
+                                <i class="fas fa-file-alt"></i> Land Description: <?php echo substr(htmlspecialchars($row['property_description']), 0, 100) . '...'; ?>
+                            </div>
+                        <?php } ?>
+                        
+                        <?php if ($row['another_info']) { ?>
+                            <div class="promo-badge">
+                                <i class="fas fa-info-circle"></i> Another Information: <?php echo ucfirst($row['another_info']); ?>
+                            </div>
+                        <?php } ?>
+                        
+                        <?php if ($row['land_condition']) { ?>
+                            <div class="property-condition">
+                                <i class="fas fa-leaf"></i> Land Condition: <?php echo ucfirst($row['land_condition']); ?>
+                            </div>
+                        <?php } ?>
+                        
+                        <div class="property-actions">
+                            <button class="btn-view" onclick="openModal(<?php echo $row['property_id']; ?>)">
+                                <i class="fas fa-eye"></i> View More Details
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-    <?php
-        }
-    } else {
-        echo '<div class="no-properties">
-                <i class="fas fa-home"></i>
-                <p>No properties found</p> <!-- No properties message -->
-              </div>';
-    }
-    ?>
+        <?php endwhile; ?>
+    </div>
 </div>
+
+</div>
+
+
+
 
 <style>
 .property-list {
@@ -970,7 +881,8 @@ function contactAgent(userId) {
                                 container: 'agentPropertyMap', // Map container
                                 style: maptilersdk.MapStyle.HYBRID, // Map style
                                 geolocate: maptilersdk.GeolocationType.POINT, // Geolocation type
-                                zoom: 10, // Initial zoom level
+                                zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE, // Initial zoom level
                                 maxZoom: 16.2 // Max zoom level
                             });
 

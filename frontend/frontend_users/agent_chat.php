@@ -794,12 +794,16 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
 
 let propertyId, agentId, inquirerId; // Global variables
 
-function selectUser(userId, propId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice) {
-    console.log('User selected:', { userId, propId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice });
+function selectUser(userId, propId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice, monthlyRent) {
+    console.log('User selected:', { userId, propId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice, monthlyRent });
 
     propertyId = propId;
     inquirerId = userId;
     agentId = <?php echo $_SESSION['user_id']; ?>; // Get agent ID from session
+
+    salePrice = salePrice ? Number(salePrice) : 0;
+    monthlyRent = monthlyRent ? Number(monthlyRent) : 0;
+
 
     // Update chat details
     document.getElementById("chatPropertyName").innerText = propertyName;
@@ -807,13 +811,22 @@ function selectUser(userId, propId, propertyName, propertyType, propertyLocation
     document.getElementById("chatPropertyLocation").innerText = propertyLocation;
     document.getElementById("chatSaleOrLease").innerText = saleOrLease;
     document.getElementById("chatLandArea").innerText = landArea;
-    document.getElementById("chatSalePrice").innerText = new Intl.NumberFormat().format(salePrice); // Format price
+
+    // Show price based on sale or lease
+    if (saleOrLease.trim().toLowerCase() === "lease") {
+        document.getElementById("chatSalePrice").innerText = "" + new Intl.NumberFormat().format(monthlyRent);
+    } else if (saleOrLease.trim().toLowerCase() === "sale") {
+        document.getElementById("chatSalePrice").innerText = " " + new Intl.NumberFormat().format(salePrice);
+    } else {
+        document.getElementById("chatSalePrice").innerText = "N/A";
+    }
 
     // Show the header-chat section
     document.querySelector(".header-chat").style.display = "block";
 
     loadMessages(); // Load chat messages dynamically
 }
+
 
 
 function viewPropertyImages() {
@@ -1285,6 +1298,7 @@ setInterval(updateTime, 1000);
         style: maptilersdk.MapStyle.HYBRID,
         geolocate: maptilersdk.GeolocationType.POINT,
         zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         maxZoom: 16.2
     });
 

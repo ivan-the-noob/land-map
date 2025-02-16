@@ -1301,19 +1301,19 @@ function viewDetails(propertyId) {
                 });
             }
 
-            // Initialize map with property location
+            // Initialize Google Map with property location
             if (data.latitude && data.longitude) {
-                const propertyMap = new maptilersdk.Map({
-                    container: 'modalMap',
-                    style: maptilersdk.MapStyle.STREETS,
-                    center: [data.longitude, data.latitude],
+                const map = new google.maps.Map(document.getElementById('modalMap'), {
+                    center: { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) },
                     zoom: 15
                 });
 
                 // Add marker for property location
-                new maptilersdk.Marker()
-                    .setLngLat([data.longitude, data.latitude])
-                    .addTo(propertyMap);
+                new google.maps.Marker({
+                    position: { lat: parseFloat(data.latitude), lng: parseFloat(data.longitude) },
+                    map: map,
+                    title: 'Property Location'
+                });
             }
 
             // Set agent information
@@ -1356,6 +1356,7 @@ function viewDetails(propertyId) {
             alert('Error loading property details. Please try again.');
         });
 }
+
 
 function contactAgent(userId) {
     // Add your contact agent logic here
@@ -1529,6 +1530,7 @@ setInterval(updateTime, 1000);
         style: maptilersdk.MapStyle.HYBRID,
         geolocate: maptilersdk.GeolocationType.POINT,
         zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         maxZoom: 16.2
     });
 

@@ -80,7 +80,8 @@ $user_id = $_SESSION['user_id'];
 $sql = "SELECT n.notification, n.created_at, u.profile, n.user_id, n.is_seen
         FROM notifications n
         LEFT JOIN users u ON n.agent_id = u.user_id
-        WHERE n.user_id = ? OR n.user_id = 0
+        WHERE (n.user_id = ? OR n.user_id) 
+        AND n.role = 'user'
         ORDER BY n.created_at DESC";
 
 $stmt = $conn->prepare($sql);

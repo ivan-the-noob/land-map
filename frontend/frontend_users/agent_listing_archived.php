@@ -1099,7 +1099,8 @@ function contactAgent(userId) {
 
         window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
             center: caviteCenter,
-            zoom: 12,
+          zoom: 12,
+            mapTypeId: google.maps.MapTypeId.SATELLITE,
             restriction: {
                 latLngBounds: window.allowedBounds,
                 strictBounds: true
@@ -1702,7 +1703,8 @@ function contactAgent(userId) {
                                         // Initialize the map
                                         map = new google.maps.Map(document.getElementById("map"), {
                                             center: caviteCenter,
-                                            zoom: 12,
+                                          zoom: 12,
+            mapTypeId: google.maps.MapTypeId.SATELLITE,
                                             restriction: {
                                                 latLngBounds: allowedBounds,
                                                 strictBounds: true

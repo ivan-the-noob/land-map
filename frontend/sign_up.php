@@ -559,14 +559,16 @@
             success: function (response) {
                 $('#registrationForm #submitBtn').prop('disabled', false).text('Register');
                 if (response.success) {
-                    Swal.fire('Info', 'Registered.Check your email and please wait for admin to verify.', 'info');
+                    Swal.fire('Info', 'Registered. Check your email and please wait for admin verification.', 'info');
                 } else {
+                    console.error(response); // Log response to browser console
                     Swal.fire('Error!', response.message || 'Something went wrong!', 'error');
                 }
             },
-            error: function () {
+            error: function (xhr, status, error) {
                 $('#registrationForm #submitBtn').prop('disabled', false).text('Register');
-                Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
+                console.error(xhr.responseText); // Log full server response
+                Swal.fire('Error!', 'Something went wrong. Check the console for details.', 'error');
             }
         });
     });

@@ -45,19 +45,15 @@ $cms = $result->fetch_assoc();
                 <a href="../frontend_users/agent_developers.php" class="nav-link"><i class="fas fa-building"></i> Developers</a>
             </li>
             <li class="">
-                <a href="../frontend_users/agent_agents.php" class="nav-link"><i class="fas fa-user"></i> Brokers</a>
-            </li>
-            <li class="">
                 <a href="../frontend_users/agent_inquiries.php" class="nav-link"><i class="typcn typcn-calendar"></i> Land Inquiries</a>
             </li>
         </ul>
 
         <!--Navigation Bar Tail-->
-
     </div>
 
     <div class="az-header-right">
-    <a href="" class="az-header-search-link"><i class="fas fa-handshake"></i></a>
+    <a href="agent_crm.php" class="az-header-search-link"><i class="fas fa-handshake"></i></a>
         <a href="../frontend_users/agent_landproperties.php" class="az-header-search-link"><i class="fas fa-search"></i></a>
         <div class="az-header-message">
             <a href="../frontend_users/agent_chat.php"><i class="typcn typcn-messages"></i></a>
@@ -76,7 +72,7 @@ $sql = "SELECT n.notification, n.created_at, u.profile, n.user_id, n.is_seen
         FROM notifications n
         LEFT JOIN users u ON n.agent_id = u.user_id
         WHERE (n.user_id = ? OR n.user_id) 
-        AND n.role = 'user'
+        AND n.role = 'agent'
         ORDER BY n.created_at DESC";
 
 

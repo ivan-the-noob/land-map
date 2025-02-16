@@ -707,7 +707,9 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                         <!-- Add to List Button -->
                         <button class="btn btn-danger btn-sm" onclick="openAddToListModal(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-archive"></i> Add to List
+                            
                         </button>
+                         
 
                         <!-- Add to List Modal -->
                         <div class="modal fade" id="addToListModal" tabindex="-1" aria-labelledby="addToListModalLabel">
@@ -767,6 +769,9 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
 
 
                     </div>
+                    <hr>
+                    <strong>Agent:</strong> <?php echo htmlspecialchars($agentName); ?>
+                       
 
                   
                 </div>
@@ -1095,18 +1100,24 @@ function deleteProperty(propertyId) {
 }
 
 function viewDetails(propertyId) {
-    // Fetch property details from the server
     fetch(`../../backend/get_property_details.php?property_id=${propertyId}`)
         .then(response => response.json())
         .then(data => {
             // Populate modal with property details
-            document.getElementById('modalPropertyName').textContent = data.property_name;
-            document.getElementById('modalPropertyType').textContent = data.property_type;
-            document.getElementById('modalSaleType').textContent = data.sale_or_lease.toUpperCase();
-            document.getElementById('modalLocation').textContent = data.property_location;
-            document.getElementById('modalLandArea').textContent = data.land_area;
-            document.getElementById('modalLandCondition').textContent = data.land_condition || 'N/A';
-            document.getElementById('modalDescription').textContent = data.property_description;
+            document.getElementById('modalPropertyName').textContent = data.property_name || '';
+            document.getElementById('modalPropertyType').textContent = data.property_type || '';
+            document.getElementById('modalSaleType').textContent = data.sale_or_lease ? data.sale_or_lease.toUpperCase() : '';
+            document.getElementById('modalLocation').textContent = data.property_location || '';
+            document.getElementById('modalLandArea').textContent = data.land_area || '';
+            document.getElementById('modalPrice').textContent = data.price || '';
+            document.getElementById('modalLandCondition').textContent = data.land_condition || '';
+            document.getElementById('modalLeaseDuration').textContent = data.lease_duration || '';
+            document.getElementById('modalMonthlyRent').textContent = data.monthly_rent || '';
+            document.getElementById('modalAgentName').textContent = (data.agent_fname ? data.agent_fname + ' ' + data.agent_lname : '');
+            document.getElementById('modalDescription').textContent = data.property_description || '';
+
+            
+
 
             // Set price based on sale or lease type
             const price = data.sale_or_lease === 'sale' 
@@ -1116,64 +1127,49 @@ function viewDetails(propertyId) {
 
             // Populate features
             const featuresContainer = document.getElementById('modalFeatures');
-            featuresContainer.innerHTML = ''; // Clear existing features
+            featuresContainer.innerHTML = '';
             if (data.features) {
                 const features = data.features.split(',');
                 features.forEach(feature => {
                     const featureElement = document.createElement('div');
                     featureElement.className = 'feature-item';
-                    featureElement.innerHTML = `
-                        <i class="fas fa-check"></i>
-                        ${feature.trim()}
-                    `;
+                    featureElement.innerHTML = `<i class="fas fa-check"></i> ${feature.trim()}`;
                     featuresContainer.appendChild(featureElement);
                 });
             }
 
             // Populate image carousel
             const carouselInner = document.querySelector('.carousel-inner');
-            carouselInner.innerHTML = ''; // Clear existing images
+            carouselInner.innerHTML = '';
             if (data.images && data.images.length > 0) {
                 data.images.forEach((image, index) => {
                     const carouselItem = document.createElement('div');
                     carouselItem.className = `carousel-item ${index === 0 ? 'active' : ''}`;
-                    carouselItem.innerHTML = `
-                        <img src="../../assets/property_images/${image}" class="d-block w-100" alt="Property Image">
-                    `;
+                    carouselItem.innerHTML = `<img src="../../assets/property_images/${image}" class="d-block w-100" alt="Property Image">`;
                     carouselInner.appendChild(carouselItem);
                 });
             }
 
-            // Initialize map with property location
+            // **Initialize Google Map**
             if (data.latitude && data.longitude) {
-                const propertyMap = new maptilersdk.Map({
-                    container: 'modalMap',
-                    style: maptilersdk.MapStyle.STREETS,
-                    center: [data.longitude, data.latitude],
-                    zoom: 15
-                });
-
-                // Add marker for property location
-                new maptilersdk.Marker()
-                    .setLngLat([data.longitude, data.latitude])
-                    .addTo(propertyMap);
+                initGoogleMap(data.latitude, data.longitude);
             }
 
             // Set agent information
-            document.getElementById('modalAgentName').textContent = `${data.agent_fname} ${data.agent_lname}`;
-            document.getElementById('modalAgentImage').src = data.agent_image 
-                ? `../../assets/images/profile/${data.agent_image}`
-                : '../../assets/images/default-profile.jpg';
-            
+            document.getElementById('modalAgentName').textContent = 
+                data.agent_fname && data.agent_lname ? `${data.agent_fname} ${data.agent_lname}` : 'Unknown Agent';
+
+                console.log("Agent Image:", data.agent_image);
+                document.getElementById('modalAgentImage').src = data.agent_image 
+                    ? `../../assets/profile_images/${data.agent_image}`
+                    : '../../assets/images/default-profile.jpg';
+
             // Get the actions container
             const actionsContainer = document.getElementById('agentActions');
-            
-            // Clear previous actions
             actionsContainer.innerHTML = '';
-            
+
             // Check if the property belongs to the logged-in user
             if (data.user_id == <?php echo $_SESSION['user_id']; ?>) {
-                // Show edit and archive buttons for owner
                 actionsContainer.innerHTML = `
                     <button class="btn btn-warning btn-sm mr-2" onclick="editProperty(${propertyId})">
                         <i class="fas fa-edit"></i> Edit Property
@@ -1183,11 +1179,8 @@ function viewDetails(propertyId) {
                     </button>
                 `;
             } else {
-                // Show contact button for non-owners
                 actionsContainer.innerHTML = `
-                    <button class="btn btn-primary btn-sm" onclick="contactAgent(${data.user_id})">
-                        <i class="fas fa-envelope"></i> Contact Agent
-                    </button>
+                    
                 `;
             }
 
@@ -1199,6 +1192,35 @@ function viewDetails(propertyId) {
             alert('Error loading property details. Please try again.');
         });
 }
+
+
+// **Google Maps Initialization**
+function initGoogleMap(lat, lng) {
+    const map = new google.maps.Map(document.getElementById('modalMap'), {
+        center: { lat: parseFloat(lat), lng: parseFloat(lng) },
+       zoom: 15,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+        mapTypeControl: true, // Ensures map type options are visible
+        zoomControl: true, // Ensures zoom buttons appear
+        streetViewControl: true, // Ensures the walk icon is available
+        fullscreenControl: true, // Ensures fullscreen button appears
+        
+    });
+
+    new google.maps.Marker({
+        position: { lat: parseFloat(lat), lng: parseFloat(lng) },
+        map: map,
+        title: 'Property Location',
+        icon: {
+            url: '../../assets/images/land.png', // Replace with your custom marker image path
+            scaledSize: new google.maps.Size(32, 32), // Adjust size of the marker
+            origin: new google.maps.Point(0, 0), // Origin point of the image
+            anchor: new google.maps.Point(16, 32) // Anchor point for the marker
+        }
+    });
+}
+
+
 
 function contactAgent(userId) {
     // Add your contact agent logic here
@@ -1387,6 +1409,7 @@ setInterval(updateTime, 1000);
     window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
         center: caviteCenter,
         zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
         restriction: {
             latLngBounds: window.allowedBounds,
             strictBounds: true
@@ -1647,13 +1670,21 @@ google.maps.event.addDomListener(window, 'load', initMap);
                             <div class="col-md-6">
                                 <h5>Basic Information</h5>
                                 <ul class="list-unstyled">
+
                                     <li><strong>Location:</strong> <span id="modalLocation"></span></li>
                                     <li><strong>Land Area:</strong> <span id="modalLandArea"></span> sqm</li>
                                     <li><strong>Price:</strong> <span id="modalPrice"></span></li>
                                     <li><strong>Land Condition:</strong> <span id="modalLandCondition"></span></li>
+                                    <li><strong>Lease Duration:</strong> <span id="modalLeaseDuration"></span></li>
+                                    <li><strong>Monthly Rent:</strong> <span id="modalMonthlyRent"></span></li>
+                                    <li><strong>Property Description:</strong> <span id="modalDescription"></span></li>
                                 </ul>
+                                <script>
+                                    
+                                </script>
+
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 d-none">
                                 <h5>Features</h5>
                                 <div id="modalFeatures" class="features-list">
                                     <!-- Features will be dynamically added here -->
@@ -1661,7 +1692,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
                             </div>
                         </div>
 
-                        <div class="description-section mt-4">
+                        <div class="description-section mt-4 d-none">
                             <h5>Description</h5>
                             <p id="modalDescription"></p>
                         </div>
