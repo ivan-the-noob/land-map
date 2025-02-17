@@ -514,15 +514,14 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                     p.user_id AS agent_id,      
                                     ui.image_name AS user_image,
                                     (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
-                                    u_inq.report_status AS report_status,  -- Added report_status
-                      
-                                    FROM inquire iq
-                                    INNER JOIN properties p ON iq.property_id = p.property_id
-                                    INNER JOIN users u_agent ON p.user_id = u_agent.user_id  
-                                    INNER JOIN users u_inq ON iq.user_id = u_inq.user_id     
-                                    LEFT JOIN user_img ui ON u_inq.user_id = ui.user_id
-                                    WHERE p.user_id = ?
-                                    ORDER BY iq.created_at DESC";
+                                    u_inq.report_status AS report_status
+                                FROM inquire iq
+                                INNER JOIN properties p ON iq.property_id = p.property_id
+                                INNER JOIN users u_agent ON p.user_id = u_agent.user_id  
+                                INNER JOIN users u_inq ON iq.user_id = u_inq.user_id     
+                                LEFT JOIN user_img ui ON u_inq.user_id = ui.user_id
+                                WHERE p.user_id = ?
+                                ORDER BY iq.created_at DESC";
                     
                     
 
