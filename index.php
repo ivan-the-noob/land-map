@@ -285,13 +285,13 @@ function validatePrice(input) {
             <div class="owl-carousel owl-3-slider">
 
                 <div class="item">
-                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/properties'">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
                         <div class="media-text">
-                            <h3>Agricultural Land</h3>
+                            <h3>House and Lot</h3>
                             <span class="icon-room"></span>
                             <span class="location">Cavite</span>
                             <div class="price ml-auto">
-                                <span>₱520.00</span>
+                                
                             </div>
                         </div>
                         <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
@@ -299,13 +299,13 @@ function validatePrice(input) {
                 </div>
 
                 <div class="item">
-                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/properties'">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
                         <div class="media-text">
-                            <h3>Commercial Land</h3>
+                            <h3>Agricultural Farm</h3>
                             <span class="icon-room"></span>
                             <span class="location">Cavite</span>
                             <div class="price ml-auto">
-                                <span>₱520.00</span>
+                                
                             </div>
                         </div>
                         <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
@@ -313,60 +313,121 @@ function validatePrice(input) {
                 </div>
 
                 <div class="item">
-                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/properties'">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
+                        <div class="media-text">
+                            <h3>Commercial Lot</h3>
+                            <span class="icon-room"></span>
+                            <span class="location">Cavite</span>
+                            <div class="price ml-auto">
+                                
+                            </div>
+                        </div>
+                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
+                    </a>
+                </div>
+
+                <div class="item">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
                         <div class="media-text">
                             <h3>Residential Land</h3>
                             <span class="icon-room"></span>
                             <span class="location">Cavite</span>
                             <div class="price ml-auto">
-                                <span>₱520.00</span>
+                               
+                            </div>
+                        </div>
+                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
+                    </a>
+                </div>
+                
+                <div class="item">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
+                        <div class="media-text">
+                            <h3>Residential Farm</h3>
+                            <span class="icon-room"></span>
+                            <span class="location">Cavite</span>
+                            <div class="price ml-auto">
+                              
+                            </div>
+                        </div>
+                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
+                    </a>
+                </div>
+                
+                <div class="item">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
+                        <div class="media-text">
+                            <h3>Memorial Lot</h3>
+                            <span class="icon-room"></span>
+                            <span class="location">Cavite</span>
+                            <div class="price ml-auto">
+                                
+                            </div>
+                        </div>
+                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
+                    </a>
+                </div>
+                
+                <div class="item">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
+                        <div class="media-text">
+                            <h3>Raw Land</h3>
+                            <span class="icon-room"></span>
+                            <span class="location">Cavite</span>
+                            <div class="price ml-auto">
+                                
+                            </div>
+                        </div>
+                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
+                    </a>
+                </div>
+                
+                <div class="item">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
+                        <div class="media-text">
+                            <h3>Residential Land</h3>
+                            <span class="icon-room"></span>
+                            <span class="location">Cavite</span>
+                            <div class="price ml-auto">
+                               
+                            </div>
+                        </div>
+                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
+                    </a>
+                </div>
+                
+                <div class="item">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
+                        <div class="media-text">
+                            <h3>Residential Farm</h3>
+                            <span class="icon-room"></span>
+                            <span class="location">Cavite</span>
+                            <div class="price ml-auto">
+                               
+                            </div>
+                        </div>
+                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
+                    </a>
+                </div>
+                
+                <div class="item">
+                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/index_properties.php'">
+                        <div class="media-text">
+                            <h3>Memorial Lot</h3>
+                            <span class="icon-room"></span>
+                            <span class="location">Cavite</span>
+                            <div class="price ml-auto">
+                             
                             </div>
                         </div>
                         <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
                     </a>
                 </div>
 
-                <div class="item">
-                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/properties'">
-                        <div class="media-text">
-                            <h3>Industrial Land</h3>
-                            <span class="icon-room"></span>
-                            <span class="location">Cavite</span>
-                            <div class="price ml-auto">
-                                <span>₱520.00</span>
-                            </div>
-                        </div>
-                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
-                    </a>
-                </div>
+                
+                
 
-                <div class="item">
-                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/properties'">
-                        <div class="media-text">
-                            <h3>Recreational Land</h3>
-                            <span class="icon-room"></span>
-                            <span class="location">Cavite</span>
-                            <div class="price ml-auto">
-                                <span>₱520.00</span>
-                            </div>
-                        </div>
-                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
-                    </a>
-                </div>
-
-                <div class="item">
-                    <a class="media-thumb" href="assets/images/hero-slider-1.jpg" data-fancybox="gallery" onclick="window.location.href='/properties'">
-                        <div class="media-text">
-                            <h3>Mixed-Use Land</h3>
-                            <span class="icon-room"></span>
-                            <span class="location">Cavite</span>
-                            <div class="price ml-auto">
-                                <span>₱520.00</span>
-                            </div>
-                        </div>
-                        <img src="assets/images/hero-slider-1.jpg" alt="Image" class="img-fluid">
-                    </a>
-                </div>
+                
             </div>
         </div>
     </div>
@@ -392,7 +453,7 @@ function validatePrice(input) {
                             <div>
                                 <h3><a href="#">Agricultural Farm</a></h3>
                                 <div class="price ml-auto">
-                                    <span>₱520.00</span>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -404,13 +465,13 @@ function validatePrice(input) {
                                 class="img-fluid"></a>
                         <span class="d-flex align-items-center loc mb-2">
                             <span class="icon-room mr-3"></span>
-                            <span>Laguna</span>
+                            <span>Cavite</span>
                         </span>
                         <div class="d-flex align-items-center">
                             <div>
-                                <h3><a href="#">Commercial Lot</a></h3>
+                                <h3><a href="index_properties.php">Commercial Lot</a></h3>
                                 <div class="price ml-auto">
-                                    <span>₱520.00</span>
+            
                                 </div>
                             </div>
 
@@ -424,13 +485,13 @@ function validatePrice(input) {
                                 class="img-fluid"></a>
                         <span class="d-flex align-items-center loc mb-2">
                             <span class="icon-room mr-3"></span>
-                            <span>Batangas</span>
+                            <span>Cavite</span>
                         </span>
                         <div class="d-flex align-items-center">
                             <div>
-                                <h3><a href="#">Residential Land</a></h3>
+                                <h3><a href="index_properties.php">Residential Land</a></h3>
                                 <div class="price ml-auto">
-                                    <span>₱750.00</span>
+                                  
                                 </div>
                             </div>
 
@@ -445,14 +506,14 @@ function validatePrice(input) {
 
                         <span class="d-flex align-items-center loc mb-2">
                             <span class="icon-room mr-3"></span>
-                            <span>Quezon</span>
+                            <span>Cavite</span>
                         </span>
 
                         <div class="d-flex align-items-center">
                             <div>
                                 <h3><a href="#">Memorial Lot</a></h3>
                                 <div class="price ml-auto">
-                                    <span>₱520.00</span>
+                                  
                                 </div>
                             </div>
                         </div>
@@ -474,7 +535,7 @@ function validatePrice(input) {
                 <div class="col-md-12">
                     <h2 class="mb-2 text-white">Discover your ideal property with ease using our LandMap</h2>
                     <p class="mb-4 lead text-white text-white-opacity">Contact us today to start your land journey!</p>
-                    <p class="mb-0"><a href="booking.html"
+                    <p class="mb-0"><a href="index_properties.php"
                             class="btn btn-outline-white text-white btn-md font-weight-bold">Get in touch</a></p>
                 </div>
             </div>
