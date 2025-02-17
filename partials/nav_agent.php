@@ -168,48 +168,48 @@ $(document).ready(function() {
 }
 </style>
 
-
-        <div class="dropdown az-profile-menu">
-    <a href="#" class="az-img-user" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <img src="<?= $profileImageUser ?>" alt="User Profile">
-    </a>
-    <div class="dropdown-menu">
-        <div class="az-dropdown-header d-sm-none">
-            <a href="#" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
-        </div>
-        <h6 class="az-notification-title">Profile</h6>
-        <p class="az-notification-text">User Information</p>
-        <div class="az-header-profile">
-            <div class="az-img-user">
-                <img src="<?= $profileImageUser ?>"> 
-            </div><!-- az-img-user -->
-            <h6 class="text-nowrap"><?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Guest'; ?></h6>
-            <span><?php echo isset($_SESSION['role_type']) ? htmlspecialchars($_SESSION['role_type']) : 'No Role'; ?></span>
-            <span><?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : 'No Email'; ?></span>
-        </div><!-- az-header-profile -->
-
-        <a href="profile_agent.php" class="dropdown-item" style="display: flex; align-items: center; padding: 8px 15px; color: #1b2e4b; transition: all 0.2s ease;">
-            <i class="typcn typcn-cog-outline" style="margin-right: 10px; font-size: 18px;"></i>
-            <span>Account Settings</span>
-        </a>
-
-        <button id="signOutButton" class="dropdown-item" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; display: flex; align-items: center; padding: 8px 15px;" onclick="signOut()">
-            <i class="typcn typcn-power-outline" style="margin-right: 10px; color: #dc3545;"></i>
-            <span style="color: #dc3545;">Sign Out</span>
-        </button>
-    </div><!-- dropdown-menu -->
-</div>
-
-<script>
-    // Ensure the dropdown toggle functionality works with Bootstrap 4
-    $(document).ready(function() {
-        $('.az-img-user').dropdown();
-    });
-
-    function signOut() {
-        window.location.href = 'logout.php'; // Replace with your logout script
+<?php
+    if (!isset($_SESSION['user_id'])) {
+        $_SESSION['user_id'] = null;
     }
-</script>
+    $user_id = $_SESSION['user_id'];
+    $query = "SELECT profile FROM users WHERE user_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $stmt->bind_result($profileImageUser);
+    $stmt->fetch();
+    $stmt->close();
 
+    $profileImageUser = !empty($profileImageUser) ? "../../assets/profile_images/" . htmlspecialchars($profileImageUser) : "../assets/profile_images/profile.jpg";
+?>
+        <div class="dropdown az-profile-menu">
+        <div class="az-img-user"> <img src="<?= $profileImageUser ?>"></a>
+            <div class="dropdown-menu">
+                <div class="az-dropdown-header d-sm-none">
+                    <a href="" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
+                </div>
+                <h6 class="az-notification-title">Profile</h6>
+                <p class="az-notification-text">User Information</p>
+                <div class="az-header-profile">
+                    <div class="az-img-user">
+                    <img src="<?= $profileImageUser ?>"> 
+                    </div><!-- az-img-user -->
+                    <h6 class="text-nowrap"><?php echo isset($_SESSION['user_name']) ? htmlspecialchars($_SESSION['user_name']) : 'Guest'; ?></h6>
+                    <span><?php echo isset($_SESSION['role_type']) ? htmlspecialchars($_SESSION['role_type']) : 'No Role'; ?></span>
+                    <span><?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : 'No Email'; ?></span>
+                </div><!-- az-header-profile -->
+
+                <a href="profile_agent.php" class="dropdown-item" style="display: flex; align-items: center; padding: 8px 15px; color: #1b2e4b; transition: all 0.2s ease;">
+                    <i class="typcn typcn-cog-outline" style="margin-right: 10px; font-size: 18px;"></i>
+                    <span>Account Settings</span>
+                </a>
+
+                <button id="signOutButton" class="dropdown-item" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; display: flex; align-items: center; padding: 8px 15px;">
+                    <i class="typcn typcn-power-outline" style="margin-right: 10px; color: #dc3545;"></i>
+                    <span style="color: #dc3545;">Sign Out</span>
+                </button>
+            </div><!-- dropdown-menu -->
+        </div>
     </div><!-- az-header-right -->
 </div><!-- NAVBAR -->
