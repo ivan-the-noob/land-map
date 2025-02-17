@@ -150,7 +150,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
 
                                         // Fetch report_status for the agent
                                         $agent_id = $row['agent_id'];
-                                        $query = "SELECT report_status FROM users WHERE user_id = ?";
+                                        $query = "SELECT status FROM users WHERE user_id = ?";
                                         $stmt_report = $conn->prepare($query);
                                         $stmt_report->bind_param("i", $agent_id);
                                         $stmt_report->execute();
