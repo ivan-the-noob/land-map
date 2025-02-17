@@ -588,9 +588,9 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                     <?php } ?>
 
                     <div class="admin-actions d-flex justify-content-center">
-                        <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
+                        <!-- <button class="btn-view" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View Details
-                        </button>
+                        </button> -->
                         <?php if ($inquiryStatus === 'pending') { ?>
                         <button class="btn-success" onclick="openAcceptModal(<?= $row['property_id']; ?>)">
                             <i class="fas fa-check"></i> Accept Inquiry
@@ -599,20 +599,77 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                             <button class="btn-primary" disabled>
                                 <i class="fas fa-hourglass-half"></i> On-going
                             </button>
+                            <button class="btn btn-success" onclick="openSoldModal(<?= $row['property_id']; ?>)">
+                                <i class="fas fa-tags"></i> Mark as Sold
+                            </button>
+                            <!-- Sold Confirmation Modal -->
+                            <div class="modal fade" id="soldModal" tabindex="-1" aria-labelledby="soldModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="soldModalLabel">Confirm Sale</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Is this property sold?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn btn-success" id="confirmSoldBtn">Yes, Mark as Sold</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <script>
+
+                            function openSoldModal(propertyId) {
+                                selectedPropertyId = propertyId;
+                                $('#soldModal').modal('show');
+                            }
+
+                            $(document).ready(function () {
+                                $('#confirmSoldBtn').on('click', function () {
+                                    if (selectedPropertyId) {
+                                        $.ajax({
+                                            url: '../../backend/mark_sold.php',
+                                            type: 'POST',
+                                            data: { property_id: selectedPropertyId },
+                                            success: function (response) {
+                                                if (response.trim() === "success") {
+                                                    alert("Property marked as sold.");
+                                                    location.reload();
+                                                } else {
+                                                    alert("Failed to mark property as sold.");
+                                                }
+                                            },
+                                            error: function () {
+                                                alert("An error occurred.");
+                                            }
+                                        });
+                                        $('#soldModal').modal('hide');
+                                    }
+                                });
+                            });
+                        </script>
+
+
+                        <?php } elseif ($inquiryStatus === 'completed') { ?>
+                            <button class="btn btn-success">Sold</button>
                         <?php } else { ?>
                             <button class="btn-danger" disabled>
                                 <i class="fas fa-times"></i> Inquiry Declined
                             </button>
                         <?php } ?>
                        
-                        <?php if ($inquiryStatus !== 'cancelled') { ?>
+                        <?php if ($inquiryStatus !== 'cancelled' && $inquiryStatus !== 'completed') { ?>
                             <button class="btn-delete" onclick="openDeleteModal(<?= htmlspecialchars($row['property_id']); ?>)">
                                 <i class="fas fa-trash"></i> Cancel Inquiry
                             </button>
                             <?php } else { ?>
-                                <button class="btn btn-secondary" disabled>
-                                <i class="fas fa-ban"></i> Cancelled
-                            </button>
+                              
                         <?php } ?>
                         <?php 
                          if ($reportStatus == 0) {
@@ -620,7 +677,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                     <i class="fas fa-trash"></i> Report
                                   </button>';
                         } else {
-                            echo '<button class="btn btn-secondary rounded fw-bold" disabled>Reported</button>';
+                          
                         }
                 
                         ?>

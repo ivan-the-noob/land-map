@@ -222,11 +222,11 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
 
                       <!-- First Name -->
                       <input type="text" name="fname" id="fname" class="form-control mt-2" 
-                            value="<?= htmlspecialchars($user['fname']) ?>" placeholder="First Name">
+                            value="<?= htmlspecialchars($user['fname']) ?>" placeholder="First Name" readonly>
 
                       <!-- Last Name -->
                       <input type="text" name="lname" id="lname" class="form-control mt-2" 
-                            value="<?= htmlspecialchars($user['lname']) ?>" placeholder="Last Name">
+                            value="<?= htmlspecialchars($user['lname']) ?>" placeholder="Last Name" readonly>
 
                       <!-- Submit Button -->
                       <button type="submit" class="btn btn-primary mt-2">Update Profile</button>

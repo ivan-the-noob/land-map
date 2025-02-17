@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
 
     if ($stmt->execute()) {
         $notification = "You have a new message from a user.";
-        $role = "user"; 
+        $role = "agent"; 
 
         $notif_sql = "INSERT INTO notifications (user_id, agent_id, notification, role) VALUES (?, ?, ?, ?)";
         $notif_stmt = $conn->prepare($notif_sql);

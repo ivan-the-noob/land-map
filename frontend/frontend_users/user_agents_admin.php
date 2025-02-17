@@ -155,7 +155,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
 <body>
 
 <div class="az-header">
-    <?php require '../../partials/nav_user.php' ?>
+    <?php require '../../partials/nav_admin.php' ?>
 </div>
 
 <div class="az-content">

@@ -285,7 +285,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <div class="filter-item lease-options" style="display:none;">
                             <label for="leaseTermFilter">Lease Term:</label>
                             <select id="leaseTermFilter" class="form-control">
-                                <option value="">All Terms</option>
+                                <option value="all">All Terms</option>
                                 <option value="Short Term">Short Term (Less than 1 year)</option>
                                 <option value="Long Term">Long Term (More than 1 year)</option>
                             </select>
@@ -402,7 +402,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
     </div>
    
 
-<script>
+    <script>
 function applyFilters() {
     let selectedSaleType = document.getElementById("saleTypeFilter").value;
     let selectedLeaseTerm = document.getElementById("leaseTermFilter").value;
@@ -492,7 +492,6 @@ function applyFilters() {
                 return;
             }
         }
-
         if (minArea !== "" && landArea < parseFloat(minArea)) {
             return;
         }
@@ -513,30 +512,11 @@ function applyFilters() {
     });
 }
 
-function resetFilters() {
-    document.getElementById("saleTypeFilter").value = "all";
-    document.getElementById("leaseTermFilter").value = "all";
-    document.getElementById("monthlyRental").value = "";
-    document.getElementById("landTypeFilter").value = "all";
-    document.getElementById("propertyLocation").value = "all";
-    document.getElementById("landCondition").value = "all";
-    document.getElementById("minPrice").value = "";
-    document.getElementById("maxPrice").value = "";
-    document.getElementById("minArea").value = "";
-    document.getElementById("maxArea").value = "";
-
-    // Uncheck all additional info checkboxes
-    document.querySelectorAll("input[name='additionalInfo']").forEach(cb => cb.checked = false);
-
-    // Show all property cards
-    document.querySelectorAll(".property-card").forEach(card => card.style.display = "block");
-}
-
-// Attach event listener to reset button
-document.getElementById("resetFilters").addEventListener("click", resetFilters);
-
 document.getElementById("applyFilters").addEventListener("click", applyFilters);
 </script>
+
+
+
 
     
     
@@ -1976,6 +1956,80 @@ google.maps.event.addDomListener(window, 'load', initMap);
             zoom: 13
         });
     </script>
+
+<script>
+   function applyFilters() {
+    console.log("Filters applied!");
+}
+
+function resetFilters() {
+    // Reset all filters
+    document.getElementById("saleTypeFilter").value = "all";
+    document.getElementById("leaseTermFilter").value = "all";
+    document.getElementById("monthlyRental").value = "";
+    document.getElementById("landTypeFilter").value = "all";
+    document.getElementById("propertyLocation").value = "all";
+    document.getElementById("landCondition").value = "all";
+    document.getElementById("minPrice").value = "";
+    document.getElementById("maxPrice").value = "";
+    document.getElementById("minArea").value = "";
+    document.getElementById("maxArea").value = "";
+
+    // Uncheck all additional info checkboxes
+    document.querySelectorAll("input[name='additionalInfo']").forEach(cb => cb.checked = false);
+
+    // Show all property cards
+    document.querySelectorAll(".property-card").forEach(card => card.style.display = "block");
+
+    // Remove URL parameters without reloading
+    const newUrl = window.location.pathname; // Get URL without parameters
+    history.replaceState(null, "", newUrl); // Update URL
+}
+
+// Attach event listener to reset button
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+
+
+// Attach event listener to reset button
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("saleTypeFilter")) {
+        document.getElementById("saleTypeFilter").value = params.get("saleTypeFilter");
+    }
+
+    if (params.has("landTypeFilter")) {
+        document.getElementById("landTypeFilter").value = params.get("landTypeFilter");
+    }
+
+    if (params.has("propertyLocation")) {
+        document.getElementById("propertyLocation").value = params.get("propertyLocation");
+    }
+
+    if (params.has("min_price")) {
+        document.getElementById("minPrice").value = params.get("min_price");
+    }
+
+    if (params.has("max_price")) {
+        document.getElementById("maxPrice").value = params.get("max_price");
+    }
+
+    if (
+        params.has("saleTypeFilter") || 
+        params.has("landTypeFilter") || 
+        params.has("propertyLocation") || 
+        params.has("min_price") || 
+        params.has("max_price")
+    ) {
+        document.getElementById("applyFilters").click();
+    }
+});
+
+
+  
+</script>
 
     <!--create property form part-->
     <script>

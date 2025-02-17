@@ -398,7 +398,27 @@ setInterval(updateDateTime, 1000);
     </script>
 
     <!--Signout process--->
-    <script>
+    <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content"> <!-- This is the white container -->
+                <div class="modal-body text-center">
+                    <!-- Custom Sign Out Icon with Animation -->
+                    <div class="signout-icon-wrapper">
+                        <i class="fas fa-sign-out-alt signout-icon"></i>
+                    </div>
+                    <p class="signout-modal-message">Are you sure you want to sign out?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmSignOutButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+ <script>
         // Show the sign-out confirmation modal when the Sign Out button is clicked
         document.getElementById('signOutButton').addEventListener('click', function () {
             $('#signOutModal').modal('show');  // Show the modal

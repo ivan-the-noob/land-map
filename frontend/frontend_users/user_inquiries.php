@@ -165,6 +165,9 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         } elseif ($inquiryStatus === 'accepted') {
                                             $buttonClass = 'btn-success';
                                             $buttonText = 'Inquiry Accepted';
+                                        } elseif ($inquiryStatus === 'completed') {
+                                            $buttonClass = 'btn-success';
+                                            $buttonText = 'Sold';
                                         } else { 
                                             $buttonClass = 'btn-danger';
                                             $buttonText = 'Inquiry Declined';
@@ -228,7 +231,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                             <i class="fas fa-clock"></i> <?= $buttonText ?>
                         </button>
                         <?php
-                            if ($inquiryStatus !== 'declined' && $inquiryStatus !== 'cancelled') {
+                            if ($inquiryStatus !== 'declined' && $inquiryStatus !== 'cancelled' && $inquiryStatus !== 'completed') {
                                 echo '<button class="btn-delete" onclick="deleteProperty(' . $row['property_id'] . ')">
                                         <i class="fas fa-trash"></i> Cancel Inquiry
                                     </button>';
@@ -243,14 +246,14 @@ elseif ($_SESSION['role_type'] !== 'user') {
                        <?php
                            
 
-                            if ($report_status == 0) {
+                             if ($report_status == 0 && $inquiryStatus !== 'completed') {
                                 // Show "Report Agent" button if not reported
                                 echo '<button class="btn-delete report-btn" data-toggle="modal" data-target="#reportModal" data-agent-id="' . $agent_id . '">
                                         <i class="fas fa-trash"></i> Report Agent
                                     </button>';
                             } else {
                                 // Show "Reported" button if already reported
-                                echo '<button class="btn btn-secondary rounded fw-bold" disabled>Reported</button>';
+                               
                             }
                         ?>
 

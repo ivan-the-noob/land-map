@@ -222,11 +222,11 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
 
                       <!-- First Name -->
                       <input type="text" name="fname" id="fname" class="form-control mt-2" 
-                            value="<?= htmlspecialchars($user['fname']) ?>" placeholder="First Name">
+                            value="<?= htmlspecialchars($user['fname']) ?>" placeholder="First Name" readonly>
 
                       <!-- Last Name -->
                       <input type="text" name="lname" id="lname" class="form-control mt-2" 
-                            value="<?= htmlspecialchars($user['lname']) ?>" placeholder="Last Name">
+                            value="<?= htmlspecialchars($user['lname']) ?>" placeholder="Last Name" readonly>
 
                       <!-- Submit Button -->
                       <button type="submit" class="btn btn-primary mt-2">Update Profile</button>
@@ -374,6 +374,52 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
 
                 </div>
             </div>
+
+             <!-- Sign Out Confirmation Modal -->
+    <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content"> <!-- This is the white container -->
+                <div class="modal-body text-center">
+                    <!-- Custom Sign Out Icon with Animation -->
+                    <div class="signout-icon-wrapper">
+                        <i class="fas fa-sign-out-alt signout-icon"></i>
+                    </div>
+                    <p class="signout-modal-message">Are you sure you want to sign out?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmSignOutButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+        // Show the sign-out confirmation modal when the Sign Out button is clicked
+        document.getElementById('signOutButton').addEventListener('click', function() {
+            $('#signOutModal').modal('show'); // Show the modal
+        });
+
+        // Confirm sign out (destroy session and redirect to login page)
+        document.getElementById('confirmSignOutButton').addEventListener('click', function() {
+            // Make a request to sign_out.php to destroy the session
+            fetch('../../backend/sign_out.php', {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // If sign out is successful, redirect to login page
+                        window.location.href = '../../frontend/sign_in.php'; // Adjust the login page URL as needed
+                    } else {
+                        alert('Error: Could not sign out.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
 
 
         

@@ -269,39 +269,111 @@ if (isset($_SESSION['user_id'])) {
                                             </div>
                                         </a>
                                     </div>
-                                    <div class="col-md-3">
-                                        <a href="messages.php" class="text-decoration-none">
-                                            <div class="card bg-success text-white hover-card">
-                                                <div class="card-body text-center">
-                                                    <i class="fas fa-comments fa-2x mb-2"></i>
-                                                    <h6 class="card-title">Active messages CRM</h6>
-                                                    <h4>2</h4>
+                                    <?php
+                                        include '../../db.php';
+
+                                        $user_id = $_SESSION['user_id']; 
+
+                                        // Query for completed inquiries (accepted)
+                                        $sql_completed = "
+                                            SELECT COUNT(*) AS total_completed 
+                                            FROM inquire i
+                                            JOIN properties p ON i.property_id = p.property_id
+                                            WHERE i.status = 'accepted' 
+                                            AND p.user_id = ?";
+
+                                        $stmt_completed = $conn->prepare($sql_completed);
+                                        $stmt_completed->bind_param("i", $user_id);
+                                        $stmt_completed->execute();
+                                        $result_completed = $stmt_completed->get_result();
+                                        $row_completed = $result_completed->fetch_assoc();
+                                        $total_completed = $row_completed['total_completed'];
+
+                                        // Query for archived properties
+                                        $sql_archived = "SELECT COUNT(*) AS total_archived FROM properties WHERE is_archive = 1 AND user_id = ?";
+                                        $stmt_archived = $conn->prepare($sql_archived);
+                                        $stmt_archived->bind_param("i", $user_id);
+                                        $stmt_archived->execute();
+                                        $result_archived = $stmt_archived->get_result();
+                                        $row_archived = $result_archived->fetch_assoc();
+                                        $total_archived = $row_archived['total_archived'];
+
+                                        // Query for deactivated listings (is_archive = 0)
+                                        $sql_deactivated = "SELECT COUNT(*) AS total_deactivated FROM properties WHERE is_archive = 0 AND user_id = ?";
+                                        $stmt_deactivated = $conn->prepare($sql_deactivated);
+                                        $stmt_deactivated->bind_param("i", $user_id);
+                                        $stmt_deactivated->execute();
+                                        $result_deactivated = $stmt_deactivated->get_result();
+                                        $row_deactivated = $result_deactivated->fetch_assoc();
+                                        $total_deactivated = $row_deactivated['total_deactivated'];
+
+                                        // Query for Sold properties (status = 'Completed')
+                                        $sql_sold = "
+                                            SELECT COUNT(*) AS total_sold 
+                                            FROM inquire i
+                                            JOIN properties p ON i.property_id = p.property_id
+                                            WHERE i.status = 'completed' 
+                                            AND p.user_id = ?";
+
+                                        $stmt_sold = $conn->prepare($sql_sold);
+                                        $stmt_sold->bind_param("i", $user_id);
+                                        $stmt_sold->execute();
+                                        $result_sold = $stmt_sold->get_result();
+                                        $row_sold = $result_sold->fetch_assoc();
+                                        $total_sold = $row_sold['total_sold'];
+                                        ?>
+
+                                        <div class="col-md-3">
+                                            <a href="messages.php" class="text-decoration-none">
+                                                <div class="card bg-success text-white hover-card">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-comments fa-2x mb-2"></i>
+                                                        <h6 class="card-title">Active messages CRM</h6>
+                                                        <h4><?php echo $total_completed; ?></h4>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <a href="active_listings.php" class="text-decoration-none">
-                                            <div class="card bg-info text-white hover-card">
-                                                <div class="card-body text-center">
-                                                    <i class="fas fa-list fa-2x mb-2"></i>
-                                                    <h6 class="card-title">Active Listings</h6>
-                                                    <h4>2</h4>
+                                            </a>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <a href="listings.php" class="text-decoration-none">
+                                                <div class="card bg-warning text-white hover-card">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-archive fa-2x mb-2"></i>
+                                                        <h6 class="card-title">Deactivated Listings</h6>
+                                                        <h4><?php echo $total_archived; ?></h4>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </a>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <a href="inactive_listings.php" class="text-decoration-none">
-                                            <div class="card bg-secondary text-white hover-card">
-                                                <div class="card-body text-center">
-                                                    <i class="fas fa-clock fa-2x mb-2"></i>
-                                                    <h6 class="card-title">Deactivated Listings</h6>
-                                                    <h4>2</h4>
+                                            </a>
+                                        </div>
+
+                                        <div class="col-md-3">
+                                            <a href="inactive_listings.php" class="text-decoration-none">
+                                                <div class="card bg-secondary text-white hover-card">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-clock fa-2x mb-2"></i>
+                                                        <h6 class="card-title">Active Listings</h6>
+                                                        <h4><?php echo $total_deactivated; ?></h4>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </a>
-                                    </div>
+                                            </a>
+                                        </div>
+
+                                        <!-- New Sold properties card -->
+                                        <div class="col-md-3 mt-1">
+                                            <a href="sold_listings.php" class="text-decoration-none">
+                                                <div class="card bg-info text-white hover-card">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-check fa-2x mb-2"></i>
+                                                        <h6 class="card-title">Sold Properties</h6>
+                                                        <h4><?php echo $total_sold; ?></h4>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+
+
+
                                 </div>
 
                                 <style>

@@ -252,6 +252,11 @@
                                             </tbody>
                                         </table>
 
+                                        
+                                     
+
+ 
+
                                         <script>
                                        $(document).ready(function () {
                                         // AJAX Request to Update Agent
@@ -306,6 +311,78 @@
                                     });
 
                                         </script>
+                                        
+
+<!--Unauthorized modal-->
+<script>
+        $(document).ready(function () {
+            var showModal = <?php echo $show_modal ? 'true' : 'false'; ?>;
+            var errorMessage = <?php echo json_encode($error_message); ?>;
+
+            if (showModal) {
+                $('#warningMessage').text(errorMessage); // Set the error message dynamically
+                $('#warningModal').modal({
+                    backdrop: 'static',  // Prevent closing when clicking outside
+                    keyboard: false      // Prevent closing when pressing the escape key
+                });
+                $('#warningModal').modal('show'); // Show the modal
+            }
+
+            // Close the modal and redirect to login when the "Sign In" button is clicked
+            $('#warningCloseButton').click(function () {
+                $('#warningModal').modal('hide');
+                window.location.href = '../../index.php';  // Redirect to the login page
+            });
+        });
+    </script>
+
+    <!--Signout process--->
+    <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content"> <!-- This is the white container -->
+                <div class="modal-body text-center">
+                    <!-- Custom Sign Out Icon with Animation -->
+                    <div class="signout-icon-wrapper">
+                        <i class="fas fa-sign-out-alt signout-icon"></i>
+                    </div>
+                    <p class="signout-modal-message">Are you sure you want to sign out?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmSignOutButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+ <script>
+        // Show the sign-out confirmation modal when the Sign Out button is clicked
+        document.getElementById('signOutButton').addEventListener('click', function () {
+            $('#signOutModal').modal('show');  // Show the modal
+        });
+
+        // Confirm sign out (destroy session and redirect to login page)
+        document.getElementById('confirmSignOutButton').addEventListener('click', function () {
+            // Make a request to sign_out.php to destroy the session
+            fetch('../../backend/sign_out.php', {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // If sign out is successful, redirect to login page
+                        window.location.href = '../../index.php'; // Redirect to login page
+                    } else {
+                        alert('Error: Could not sign out.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
 
 
                                         <!-- Edit Modal -->
