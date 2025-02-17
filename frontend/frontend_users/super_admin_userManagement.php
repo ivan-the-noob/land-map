@@ -304,7 +304,7 @@ $conn->close();
                         success: function (response) {
                             if (response.success) {
                                 // Redirect to the login page or home page after successful logout
-                                window.location.href = '../../frontend/sign_in.php'; // Adjust the URL to your login page
+                                window.location.href = '../../index.php'; // Adjust the URL to your login page
                             } else {
                                 // Handle any potential errors here (if needed)
                                 Swal.fire({

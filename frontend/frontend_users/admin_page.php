@@ -496,7 +496,7 @@ $viewerPercentage = ($totalUsers > 0) ? round(($totalViewers / $totalUsers) * 10
             // Close the modal and redirect to login when the "Sign In" button is clicked
             $('#warningCloseButton').click(function () {
                 $('#warningModal').modal('hide');
-                window.location.href = '../../frontend/sign_in.php';  // Redirect to the login page
+                window.location.href = '../../index.php';  // Redirect to the login page
             });
         });
     </script>

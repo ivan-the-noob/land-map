@@ -647,7 +647,7 @@ elseif ($_SESSION['role_type'] !== 'agent') {
             // Close the modal when the "Close" button is clicked
             $('#warningCloseButton').click(function () {
                 $('#warningModal').modal('hide');
-                window.location.href = '../../frontend/sign_in.php';  // Optionally redirect to the login page after closing the modal
+                window.location.href = '../../index.php';  // Optionally redirect to the login page after closing the modal
             });
         });
     </script>

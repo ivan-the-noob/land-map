@@ -1952,7 +1952,7 @@ setInterval(updateTime, 1000);
             // Close the modal and redirect to login when the "Sign In" button is clicked
             $('#warningCloseButton').click(function() {
                 $('#warningModal').modal('hide');
-                window.location.href = '../../frontend/sign_in.php'; // Redirect to the login page
+                window.location.href = '../../index.php'; // Redirect to the login page
             });
         });
     </script>
@@ -1974,7 +1974,7 @@ setInterval(updateTime, 1000);
                 .then(data => {
                     if (data.success) {
                         // If sign out is successful, redirect to login page
-                        window.location.href = '../../frontend/sign_in.php'; // Adjust the login page URL as needed
+                        window.location.href = '../../index.php'; // Adjust the login page URL as needed
                     } else {
                         alert('Error: Could not sign out.');
                     }

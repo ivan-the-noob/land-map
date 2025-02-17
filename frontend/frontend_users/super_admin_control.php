@@ -246,7 +246,7 @@ $conn->close();
                             success: function (response) {
                                 if (response.success) {
                                     // Redirect to the login page after successful logout
-                                    window.location.href = '../../frontend/sign_in.php';
+                                    window.location.href = '../../index.php';
                                 } else {
                                     Swal.fire({
                                         title: 'Error',
