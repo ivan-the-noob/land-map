@@ -119,46 +119,57 @@ elseif ($_SESSION['role_type'] !== 'user') {
                             <h3 class="mb-1 mr-5">My Post Land Properties</h3>
                             <div class="property-list">
                                 
-            <?php
-                require '../../db.php';
+                            <?php
+                                require '../../db.php';
 
-                $user_id = $_SESSION['user_id']; 
+                                $user_id = $_SESSION['user_id']; 
 
-                $sql = "SELECT p.*, 
-                u.fname, u.lname,
-                ui.image_name AS user_image,
-                iq.status AS inquiry_status,
-                p.user_id AS agent_id, 
-                (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
-                FROM properties p
-                LEFT JOIN users u ON p.user_id = u.user_id
-                LEFT JOIN user_img ui ON u.user_id = ui.user_id
-                LEFT JOIN inquire iq ON p.property_id = iq.property_id AND iq.user_id = ?
-                WHERE iq.property_id IS NOT NULL";
+                                $sql = "SELECT p.*, 
+                                        u.fname, u.lname,
+                                        ui.image_name AS user_image,
+                                        iq.status AS inquiry_status,
+                                        p.user_id AS agent_id, 
+                                        (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
+                                        FROM properties p
+                                        LEFT JOIN users u ON p.user_id = u.user_id
+                                        LEFT JOIN user_img ui ON u.user_id = ui.user_id
+                                        LEFT JOIN inquire iq ON p.property_id = iq.property_id AND iq.user_id = ?
+                                        WHERE iq.property_id IS NOT NULL";
 
-                $stmt = $conn->prepare($sql);
-                $stmt->bind_param("i", $user_id);
-                $stmt->execute();
-                $result = $stmt->get_result();
+                                $stmt = $conn->prepare($sql);
+                                $stmt->bind_param("i", $user_id);
+                                $stmt->execute();
+                                $result = $stmt->get_result();
 
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
-                        $agentImage = $row['user_image'] ? "../../assets/profile_images/" . $row['user_image'] : "../../assets/profile_images/profile.jpg";
-                        $agentName = '<img src="' . $agentImage . '" alt="Agent Image" class="agent-profile-img" style="width: 30px; height: 30px; border-radius: 50%;"> ' . $row['fname'] . ' ' . $row['lname'];
-                        $agent = $row['fname'] . ' ' . $row['lname'];
-                        $inquiryStatus = $row['inquiry_status']; 
-                        if ($inquiryStatus === 'pending') {
-                            $buttonClass = 'btn-update';
-                            $buttonText = 'Inquiry Pending';
-                        } elseif ($inquiryStatus === 'accepted') {
-                            $buttonClass = 'btn-success';
-                            $buttonText = 'Inquiry Accepted';
-                        } else { 
-                            $buttonClass = 'btn-danger';
-                            $buttonText = 'Inquiry Declined';
-                        }
-                ?>
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
+                                        $agentImage = $row['user_image'] ? "../../assets/profile_images/" . $row['user_image'] : "../../assets/profile_images/profile.jpg";
+                                        $agentName = $row['fname'] . ' ' . $row['lname'];
+                                        $inquiryStatus = $row['inquiry_status']; 
+
+                                        // Fetch report_status for the agent
+                                        $agent_id = $row['agent_id'];
+                                        $query = "SELECT report_status FROM users WHERE user_id = ?";
+                                        $stmt_report = $conn->prepare($query);
+                                        $stmt_report->bind_param("i", $agent_id);
+                                        $stmt_report->execute();
+                                        $stmt_report->bind_result($report_status);
+                                        $stmt_report->fetch();
+                                        $stmt_report->close();
+
+                                        // Set button class and text based on inquiry status
+                                        if ($inquiryStatus === 'pending') {
+                                            $buttonClass = 'btn-update';
+                                            $buttonText = 'Inquiry Pending';
+                                        } elseif ($inquiryStatus === 'accepted') {
+                                            $buttonClass = 'btn-success';
+                                            $buttonText = 'Inquiry Accepted';
+                                        } else { 
+                                            $buttonClass = 'btn-danger';
+                                            $buttonText = 'Inquiry Declined';
+                                        }
+                                ?>
             <div class="property-card">
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
@@ -230,16 +241,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                       
                        <!-- Report Button -->
                        <?php
-                            $agent_id = $row['agent_id'];
-
-                            // Fetch report_status from users table
-                            $query = "SELECT report_status FROM users WHERE user_id = ?";
-                            $stmt = $conn->prepare($query);
-                            $stmt->bind_param("i", $agent_id);
-                            $stmt->execute();
-                            $stmt->bind_result($report_status);
-                            $stmt->fetch();
-                            $stmt->close();
+                           
 
                             if ($report_status == 0) {
                                 // Show "Report Agent" button if not reported
@@ -252,23 +254,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                             }
                         ?>
 
-                        <?php
-                        $agent_id = $row['agent_id'];
-                        $agent_name = "Unknown Agent";
-
-                        $query = "SELECT fname, lname FROM users WHERE user_id = ?";
-                        $stmt = $conn->prepare($query);
-                        $stmt->bind_param("i", $agent_id);
-                        $stmt->execute();
-                        $result = $stmt->get_result();
-
-                        if ($result->num_rows > 0) {
-                            $agent = $result->fetch_assoc();
-                            $agent_name = $agent['fname'] . " " . $agent['lname'];
-                        }
-
-                        $stmt->close();
-                       ?>
+                      
 
                         <!-- Bootstrap Modal -->
                         <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
@@ -281,7 +267,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                    <p>You are reporting: <strong><?php echo $agent_name; ?></strong></p>
+                                    <p>You are reporting: <strong><?php echo $agentName; ?></strong></p>
                                         <form id="reportForm">
                                             <input type="hidden" name="agent_id" id="agent_id">
                                             <div class="mb-3">
