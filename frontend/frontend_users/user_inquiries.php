@@ -116,7 +116,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <div id="dashboard" class="tab-pane">
                             <!-- Post new land property -->
                              
-                            <h3 class="mb-1 mr-5">My Land Inquiries</h3>
+                            <h3 class="mb-1 mr-5">My Post Land Properties</h3>
                             <div class="property-list">
                                 
                             <?php
@@ -1649,7 +1649,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
             // Close the modal and redirect to login when the "Sign In" button is clicked
             $('#warningCloseButton').click(function() {
                 $('#warningModal').modal('hide');
-                window.location.href = '../../index.php'; // Redirect to the login page
+                window.location.href = '../../frontend/sign_in.php'; // Redirect to the login page
             });
         });
     </script>
@@ -1671,7 +1671,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
                 .then(data => {
                     if (data.success) {
                         // If sign out is successful, redirect to login page
-                        window.location.href = '../../index.php'; // Adjust the login page URL as needed
+                        window.location.href = '../../frontend/sign_in.php'; // Adjust the login page URL as needed
                     } else {
                         alert('Error: Could not sign out.');
                     }

@@ -277,7 +277,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                     <div class="filter-item">
                             <label for="saleTypeFilter">Sale Type:</label>
                             <select id="saleTypeFilter" class="form-control">
-                                <option value="">All Types</option>
+                                <option value="all">All Types</option>
                                 <option value="For Sale">For Sale</option>
                                 <option value="For Lease">For Lease</option>
                             </select>

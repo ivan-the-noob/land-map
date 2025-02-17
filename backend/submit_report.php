@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     $user_id = $_SESSION['user_id']; // User reporting
-    $agent_id = isset($_POST['agent_id']) ? intval($_POST['agent_id']) : 0;
+    $agent_id = isset($_POST['inquirer_id']) ? intval($_POST['inquirer_id']) : 0;
     $report_reason = isset($_POST['report_reason']) ? trim($_POST['report_reason']) : '';
 
     if (empty($agent_id)) {
