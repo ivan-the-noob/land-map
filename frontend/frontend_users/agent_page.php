@@ -334,6 +334,17 @@ if (isset($_SESSION['user_id'])) {
                                                 </div>
                                             </a>
                                         </div>
+                                        <div class="col-md-3">
+                                            <a href="inactive_listings.php" class="text-decoration-none">
+                                                <div class="card bg-secondary text-white hover-card">
+                                                    <div class="card-body text-center">
+                                                        <i class="fas fa-clock fa-2x mb-2"></i>
+                                                        <h6 class="card-title">Active Listings</h6>
+                                                        <h4><?php echo $total_deactivated; ?></h4>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
 
                                         <div class="col-md-3">
                                             <a href="listings.php" class="text-decoration-none">
@@ -347,17 +358,7 @@ if (isset($_SESSION['user_id'])) {
                                             </a>
                                         </div>
 
-                                        <div class="col-md-3">
-                                            <a href="inactive_listings.php" class="text-decoration-none">
-                                                <div class="card bg-secondary text-white hover-card">
-                                                    <div class="card-body text-center">
-                                                        <i class="fas fa-clock fa-2x mb-2"></i>
-                                                        <h6 class="card-title">Active Listings</h6>
-                                                        <h4><?php echo $total_deactivated; ?></h4>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
+                                      
 
                                         <!-- New Sold properties card -->
                                         <div class="col-md-3 mt-1">
