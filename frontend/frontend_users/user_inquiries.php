@@ -135,7 +135,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         LEFT JOIN user_img ui ON u.user_id = ui.user_id
                                         LEFT JOIN inquire iq ON p.property_id = iq.property_id AND iq.user_id = ?
                                         WHERE iq.property_id IS NOT NULL
-                                        ORDER BY created_at DESC;
+                                        ORDER BY iq.created_at DESC;
                                         "
                                 ;
 
