@@ -535,7 +535,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                     $inquiryStatus = $row['iq_status']; 
                                     $propertyName = $row['property_name'];
                                     $inquirerName = $row['inquirer_fname'] . ' ' . $row['inquirer_lname']; 
-                                    $reportStatus = $row['status']; 
+                                    $reportStatus = $row['report_status']; 
                                             
                                     $imagePath = !empty($row['property_image']) ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";        
                             ?>
