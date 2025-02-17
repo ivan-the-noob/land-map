@@ -439,7 +439,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
 
 <body>
     <div class="az-header">
-        <?php require '../../partials/nav_agent.php' ?>
+        <?php require '../../partials/nav_agents.php' ?>
     </div>
 
     <div class="az-content az-content-dashboard">
