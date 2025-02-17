@@ -1175,187 +1175,175 @@ setInterval(updateTime, 1000);
 
 
 <script>
-    window.map = null;
-    window.allowedBounds = null;
-    let infoWindows = []; // Store all InfoWindows
-    let showInfo = false; // Track InfoWindow visibility
+                       window.map = null;
+                        window.allowedBounds = null;
+                        let infoWindows = [];
+                        let showInfo = true;
 
-    function initMap() {
-        const caviteCenter = { lat: 14.2794, lng: 120.8786 };
+                        function initMap() {
+    const caviteCenter = { lat: 14.2794, lng: 120.8786 };
 
-        window.allowedBounds = new google.maps.LatLngBounds(
-            { lat: 14.1325, lng: 120.6750 },
-            { lat: 14.5050, lng: 121.0000 }
-        );
+    window.allowedBounds = new google.maps.LatLngBounds(
+        { lat: 14.1325, lng: 120.6750 },
+        { lat: 14.5050, lng: 121.0000 }
+    );
 
-        window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
-            center: caviteCenter,
-          zoom: 12,
-            mapTypeId: google.maps.MapTypeId.SATELLITE,
-            restriction: {
-                latLngBounds: window.allowedBounds,
-                strictBounds: true
-            },
-            mapTypeControl: true // Enable map/satellite toggle
-        });
+    window.map = new google.maps.Map(document.getElementById("agentPropertyMaps"), { 
+        center: caviteCenter,
+        zoom: 10,
+        mapTypeId: google.maps.MapTypeId.SATELLITE,
+        restriction: {
+            latLngBounds: window.allowedBounds,
+            strictBounds: true
+        },
+        mapTypeControl: true
+    });
 
-        fetch('../../backend/get_properties.php')
-            .then(response => response.json())
-            .then(properties => {
-                if (!Array.isArray(properties)) {
-                    console.error("Invalid data format:", properties);
-                    return;
-                }
-     
-                properties.forEach(property => {
-                    const { latitude, longitude, property_name, property_type, sale_price, sale_or_lease } = property;
+    const streetView = window.map.getStreetView();
 
-                    if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
-                        console.warn(`Skipping property: ${property_name} (Invalid coordinates)`);
-                        return;
-                    }
+    fetch('../../backend/get_properties.php')
+    .then(response => response.json())
+    .then(properties => {
+        if (!Array.isArray(properties)) {
+            console.error("Invalid data format:", properties);
+            return;
+        }
 
-                    const propertyLocation = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
+        properties.forEach(property => {
+            const { latitude, longitude, property_name, property_type, sale_price, sale_or_lease, image_name, property_location, land_area } = property;
 
-                    if (!window.allowedBounds.contains(propertyLocation)) {
-                        console.warn(`Skipping property: ${property_name} (Out of Cavite bounds)`);
-                        return;
-                    }
+            if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
+                console.warn(`Skipping property: ${property_name} (Invalid coordinates)`);
+                return;
+            }
 
-                    // Determine the correct status (For Sale / For Lease)
-                    let statusText = "N/A";
-                    if (sale_or_lease) {
-                        statusText = sale_or_lease.toLowerCase() === 'lease' ? 'For Lease' :
-                                     sale_or_lease.toLowerCase() === 'sale' ? 'For Sale' : 'N/A';
-                    }
+            const propertyLocation = new google.maps.LatLng(parseFloat(latitude), parseFloat(longitude));
 
-                    // Create a marker
-                    const marker = new google.maps.Marker({
-                        position: propertyLocation,
-                        map: window.map,
-                        title: property_name
-                    });
+            if (!window.allowedBounds.contains(propertyLocation)) {
+                console.warn(`Skipping property: ${property_name} (Out of Cavite bounds)`);
+                return;
+            }
 
-                    // Create an InfoWindow without a close button
-                    const infoWindow = new google.maps.InfoWindow({
-                        content: `<div style="white-space: nowrap;">
-                                    <img src="../../assets/property_images/${property.image_name}" alt="${property.property_name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;"><br>
-                                    <strong>${property_name}</strong><br>
-                                    <b>Type:</b> ${property_type || 'N/A'}<br>
-                                    <b>Status:</b> ${statusText}<br>
-                                    <b>Price:</b> ₱${sale_price ? parseInt(sale_price).toLocaleString("en-PH") : 'N/A'}
-                                </div>`,
-                        disableAutoPan: true // Prevents auto-panning when opened
-                    });
+            let statusText = sale_or_lease ? (sale_or_lease.toLowerCase() === 'lease' ? 'For Lease' :
+                                            sale_or_lease.toLowerCase() === 'sale' ? 'For Sale' : 'N/A') : 'N/A';
 
-                    // Remove or hide the close button from the InfoWindow when it's opened
-                    google.maps.event.addListener(infoWindow, 'domready', function () {
-                        // Target all close buttons and hide them
-                        const closeButtons = document.querySelectorAll('.gm-ui-hover-effect');
-                        closeButtons.forEach(button => {
-                            button.style.display = 'none'; // Hide each close button
-                        });
-                    });
+            let imageUrl = image_name ? `../../assets/property_images/${image_name}` : 'https://via.placeholder.com/150';
 
-                    // Store InfoWindow for toggling
-                    infoWindows.push({ marker, infoWindow });
+            const homeIcon = {
+                url: "../../assets/images/land.png", 
+                scaledSize: new google.maps.Size(40, 40), 
+                origin: new google.maps.Point(0, 0), 
+                anchor: new google.maps.Point(20, 40) 
+            };
 
-                    // Open InfoWindow only if "Show Info" is enabled
-                    if (showInfo) {
-                        infoWindow.open(window.map, marker);
-                    }
-
-                    // Open InfoWindow when marker is clicked
-                    marker.addListener("click", () => {
-                        if (showInfo) {
-                            infoWindow.close(); // Close the InfoWindow if it's currently open
-                        } else {
-                            infoWindow.open(window.map, marker); // Open the InfoWindow
-                        }
-                    });
-                });
-            })
-            .catch(error => console.error("Error fetching properties:", error));
-
-        // Add "Show Info" toggle button next to Maps/Satellite toggle
-        const showInfoControl = document.createElement("button");
-        showInfoControl.textContent = "Show All";
-        showInfoControl.classList.add("show-info-btn");
-
-        // Apply styles
-        showInfoControl.style.fontSize = "14px"; // Bigger text
-        showInfoControl.style.fontWeight = "bold";
-        showInfoControl.style.margin = "8px"; // Adjust spacing
-        showInfoControl.style.padding = "12px 20px"; // Bigger button
-        showInfoControl.style.background = "#fff"; // White background
-        showInfoControl.style.border = "1px solid #ccc"; // Border
-        showInfoControl.style.cursor = "pointer";
-        showInfoControl.style.borderRadius = "5px"; // Rounded corners
-        showInfoControl.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)"; // Add slight shadow
-
-        showInfoControl.addEventListener("click", () => {
-            showInfo = !showInfo; // Toggle state
-            infoWindows.forEach(({ marker, infoWindow }) => {
-                if (showInfo) {
-                    infoWindow.open(window.map, marker); // Open all InfoWindows
-                } else {
-                    infoWindow.close(); // Close all InfoWindows
-                }
+            const marker = new google.maps.Marker({
+                position: propertyLocation,
+                map: window.map,
+                title: property_name,
+                icon: homeIcon
             });
 
-            // Toggle the button text between "Show All" and "Hide All"
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div style="white-space: nowrap; text-align: center;">
+                        <img src="${imageUrl}" alt="${property_name}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 5px;"><br>
+                        <strong>${property_name}</strong><br>
+                        <b>Location:</b> ${property_location || 'N/A'}<br>
+                        <b>Type:</b> ${property_type || 'N/A'}<br>
+                        <b>Status:</b> ${statusText}<br>
+                        <div class="d-flex justify-content-center mx-auto align-items-center">
+                        <b>Price:</b> ₱${sale_price ? parseInt(sale_price).toLocaleString("en-PH") : 'N/A'}
+                        | ${land_area ? land_area + " sqm" : 'N/A'}</div>
+                    </div>`,
+                disableAutoPan: true
+            });
+
+            infoWindows.push({ marker, infoWindow });
+
+            marker.addListener("click", () => {
+                infoWindows.forEach(({ infoWindow }) => infoWindow.close()); 
+                infoWindow.open(window.map, marker);
+
+                // Move to Street View and place marker inside it
+                streetView.setPosition(propertyLocation);
+                streetView.setVisible(true);
+            });
+        });
+    })
+    .catch(error => console.error("Error fetching properties:", error));
+
+    const showInfoControl = document.createElement("button");
+    showInfoControl.textContent = "Show all info";
+    showInfoControl.classList.add("show-info-btn");
+
+    showInfoControl.style.fontSize = "14px"; 
+    showInfoControl.style.fontWeight = "bold";
+    showInfoControl.style.margin = "8px"; 
+    showInfoControl.style.padding = "12px 20px"; 
+    showInfoControl.style.background = "#fff";
+    showInfoControl.style.border = "1px solid #ccc"; 
+    showInfoControl.style.cursor = "pointer";
+    showInfoControl.style.borderRadius = "5px";
+    showInfoControl.style.boxShadow = "0 2px 4px rgba(0,0,0,0.2)"; 
+
+    showInfoControl.addEventListener("click", () => {
+        showInfo = !showInfo;
+        infoWindows.forEach(({ marker, infoWindow }) => {
             if (showInfo) {
-                showInfoControl.textContent = "Hide All";
+                infoWindow.open(window.map, marker);
             } else {
-                showInfoControl.textContent = "Show All";
+                infoWindow.close();
             }
         });
+    });
 
-        // Add the button to the map, positioning it on the left near Map/Satellite toggle
-        window.map.controls[google.maps.ControlPosition.TOP_LEFT].push(showInfoControl);
-    }
+    window.map.controls[google.maps.ControlPosition.TOP_LEFT].push(showInfoControl);
+}
 
-    // ✅ Ensures `initMap()` runs correctly
-    google.maps.event.addDomListener(window, 'load', initMap);
+google.maps.event.addDomListener(window, 'load', initMap);
 
-    window.toggleMap = function() {
-        const mapPanel = document.getElementById('mapPanel');
-        if (mapPanel) {
-            mapPanel.classList.toggle('active'); 
-        }
 
-        if (window.map) {
-            setTimeout(() => {
-                google.maps.event.trigger(window.map, 'resize');
-            }, 300);
-        }
-    };
+                        google.maps.event.addDomListener(window, 'load', initMap);
 
-    window.toggleFullscreen = function() {
-        const mapPanel = document.getElementById('mapPanel');
-        const fullscreenIcon = document.querySelector('.map-control-btn i.fa-expand, .map-control-btn i.fa-compress');
+                        window.toggleMap = function() {
+                            const mapPanel = document.getElementById('mapPanel');
+                            if (mapPanel) {
+                                mapPanel.classList.toggle('active'); 
+                            }
 
-        if (mapPanel) {
-            mapPanel.classList.toggle('fullscreen'); 
+                            if (window.map) {
+                                setTimeout(() => {
+                                    google.maps.event.trigger(window.map, 'resize');
+                                }, 300);
+                            }
+                        };
 
-            if (fullscreenIcon) {
-                if (mapPanel.classList.contains('fullscreen')) {
-                    fullscreenIcon.classList.remove('fa-expand');
-                    fullscreenIcon.classList.add('fa-compress');
-                } else {
-                    fullscreenIcon.classList.remove('fa-compress');
-                    fullscreenIcon.classList.add('fa-expand');
-                }
-            }
+                        window.toggleFullscreen = function() {
+                            const mapPanel = document.getElementById('mapPanel');
+                            const fullscreenIcon = document.querySelector('.map-control-btn i.fa-expand, .map-control-btn i.fa-compress');
 
-            if (window.map) {
-                setTimeout(() => {
-                    google.maps.event.trigger(window.map, 'resize');
-                }, 300);
-            }
-        }
-    };
-</script>
+                            if (mapPanel) {
+                                mapPanel.classList.toggle('fullscreen'); 
+
+                                if (fullscreenIcon) {
+                                    if (mapPanel.classList.contains('fullscreen')) {
+                                        fullscreenIcon.classList.remove('fa-expand');
+                                        fullscreenIcon.classList.add('fa-compress');
+                                    } else {
+                                        fullscreenIcon.classList.remove('fa-compress');
+                                        fullscreenIcon.classList.add('fa-expand');
+                                    }
+                                }
+
+                                if (window.map) {
+                                    setTimeout(() => {
+                                        google.maps.event.trigger(window.map, 'resize');
+                                    }, 300);
+                                }
+                            }
+                        };
+
+                    </script>
 
 <!-- start of footer -->
 <div class="modal-footer">
