@@ -501,7 +501,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                 <div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
-                            <h3 class="mb-1 mr-5">All Land Properties</h3>
+                            <h3 class="mb-1 mr-5">All Land Inquiries</h3>
                             <div class="property-list">
                                 
                             <?php
@@ -514,7 +514,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                     p.user_id AS agent_id,      
                                     ui.image_name AS user_image,
                                     (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
-                                    u_inq.report_status AS report_status
+                                    u_inq.status AS status
                                 FROM inquire iq
                                 INNER JOIN properties p ON iq.property_id = p.property_id
                                 INNER JOIN users u_agent ON p.user_id = u_agent.user_id  

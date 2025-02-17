@@ -116,7 +116,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <div id="dashboard" class="tab-pane">
                             <!-- Post new land property -->
                              
-                            <h3 class="mb-1 mr-5">My Post Land Properties</h3>
+                            <h3 class="mb-1 mr-5">My Land Inquiries</h3>
                             <div class="property-list">
                                 
                             <?php
