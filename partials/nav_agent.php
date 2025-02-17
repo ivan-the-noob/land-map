@@ -184,7 +184,7 @@ $(document).ready(function() {
     $profileImageUser = !empty($profileImageUser) ? "../../assets/profile_images/" . htmlspecialchars($profileImageUser) : "../assets/profile_images/profile.jpg";
 ?>
         <div class="dropdown az-profile-menu">
-        <div class="az-img-user"> <img src="<?= $profileImageUser ?>"></a>
+        <a href="" class="az-img-user"> <img src="<?= $profileImageUser ?>"></a>
             <div class="dropdown-menu">
                 <div class="az-dropdown-header d-sm-none">
                     <a href="" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
