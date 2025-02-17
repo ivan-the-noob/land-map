@@ -134,7 +134,10 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         LEFT JOIN users u ON p.user_id = u.user_id
                                         LEFT JOIN user_img ui ON u.user_id = ui.user_id
                                         LEFT JOIN inquire iq ON p.property_id = iq.property_id AND iq.user_id = ?
-                                        WHERE iq.property_id IS NOT NULL";
+                                        WHERE iq.property_id IS NOT NULL
+                                        ORDER BY created_at DESC;
+                                        "
+                                ;
 
                                 $stmt = $conn->prepare($sql);
                                 $stmt->bind_param("i", $user_id);
