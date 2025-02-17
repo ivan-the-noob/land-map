@@ -168,21 +168,7 @@ $(document).ready(function() {
 }
 </style>
 
-<?php
-    if (!isset($_SESSION['user_id'])) {
-        $_SESSION['user_id'] = null;
-    }
-    $user_id = $_SESSION['user_id'];
-    $query = "SELECT profile FROM users WHERE user_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $stmt->bind_result($profileImageUser);
-    $stmt->fetch();
-    $stmt->close();
 
-    $profileImageUser = !empty($profileImageUser) ? "../../assets/profile_images/" . htmlspecialchars($profileImageUser) : "../assets/profile_images/profile.jpg";
-?>
         <div class="dropdown az-profile-menu">
     <a href="#" class="az-img-user" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <img src="<?= $profileImageUser ?>" alt="User Profile">
