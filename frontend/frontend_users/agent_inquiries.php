@@ -501,7 +501,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                 <div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
-                            <h3 class="mb-1 mr-5">All Land Properties</h3>
+                            <h3 class="mb-1 mr-5">All Inquiries Land Properties</h3>
                             <div class="property-list">
                                 
                             <?php
