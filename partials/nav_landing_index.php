@@ -16,8 +16,8 @@
 
 			<ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu mx-auto">
 				<li class=""><a href="../index.php">Home</a></li>
-				<li class=""><a href="../landMap_V6/frontend/properties.php">Properties</a></li>
-				<li class=""><a href="../landMap_V6/frontend/contact_us.php">Contact Us</a></li>
+				<li class=""><a href="">Properties</a></li>
+				<li class=""><a href="">Contact Us</a></li>
 			</ul>
 
 			<div class="site-auth-buttons d-none d-lg-block">

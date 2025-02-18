@@ -672,6 +672,7 @@ if (!isset($_SESSION['role_type'])) {
                                             <label class="form-label">Monthly Rental Cost</label>
                                             <input type="number" class="form-control" name="monthlyRentalCost" value="<?php echo $row['monthly_rent']; ?>">
                                         </div>
+                                       
 
                                         <div class="mb-3">
                                             <label class="form-label">Description</label>
@@ -1439,6 +1440,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
                                                 placeholder="Enter land area in sqm" required>
                                             <small id="landAreaValidationMessage" class="text-danger"></small>
                                         </div>
+                                     
 
                                     
 
@@ -1468,6 +1470,23 @@ google.maps.event.addDomListener(window, 'load', initMap);
                                                     </div>
                                                     <small id="rentValidationMessage" class="text-danger"></small>
                                                 </div>
+                                                <div class="form-group col-md-6">
+                                                <label for="developers">Select Developers</label>
+                                                <select class="form-control" id="developers" name="developer">
+                                                    <option value="">Select Developers</option>
+                                                    <option value="AYALA LAND">AYALA LAND</option>
+                                                    <option value="SMDC">SMDC</option>
+                                                    <option value="VISTALAND">VISTALAND</option>
+                                                    <option value="CAMELLA HOMES">CAMELLA HOMES</option>
+                                                    <option value="PRO-FRIENDS">PRO-FRIENDS</option>
+                                                    <option value="DMCI">DMCI</option>
+                                                    <option value="FILINVEST LAND">FILINVEST LAND</option>
+                                                    <option value="SM PRIME HOLDINGS">SM PRIME HOLDINGS</option>
+                                                    <option value="ROBINSON LAND CORPORATION">ROBINSON LAND CORPORATION</option>
+                                                    <option value="FIDERAL LANDS">FIDERAL LANDS</option>
+                                                    <option value="CENTURY PROPERTIES GROUP">CENTURY PROPERTIES GROUP</option>
+                                                </select>
+                                            </div>
                                             </div>
                                             
 
@@ -1513,6 +1532,24 @@ google.maps.event.addDomListener(window, 'load', initMap);
                                                         <option value="fsbo">For Sale by Owner</option>
                                                     </select>
                                                 </div>
+                                                <div class="form-group col-md-6">
+                                                <label for="developers">Select Developers</label>
+                                                <select class="form-control" id="developers" name="developer">
+                                                    <option value="">Select Developers</option>
+                                                    <option value="Developer CORPORATION">Developer CORPORATION</option>
+                                                    <option value="AYALA LAND">AYALA LAND</option>
+                                                    <option value="SMDC">SMDC</option>
+                                                    <option value="VISTALAND">VISTALAND</option>
+                                                    <option value="CAMELLA HOMES">CAMELLA HOMES</option>
+                                                    <option value="PRO-FRIENDS">PRO-FRIENDS</option>
+                                                    <option value="DMCI">DMCI</option>
+                                                    <option value="FILINVEST LAND">FILINVEST LAND</option>
+                                                    <option value="SM PRIME HOLDINGS">SM PRIME HOLDINGS</option>
+                                                    <option value="ROBINSON LAND CORPORATION">ROBINSON LAND CORPORATION</option>
+                                                    <option value="FIDERAL LANDS">FIDERAL LANDS</option>
+                                                    <option value="CENTURY PROPERTIES GROUP">CENTURY PROPERTIES GROUP</option>
+                                                </select>
+                                            </div>
                                             </div>
                                         </div>
                                     </div>

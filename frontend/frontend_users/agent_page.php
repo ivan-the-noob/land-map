@@ -334,7 +334,7 @@ if (isset($_SESSION['user_id'])) {
                                                 </div>
                                             </a>
                                         </div>
-                                        <div class="col-md-3">
+                                          <div class="col-md-3">
                                             <a href="inactive_listings.php" class="text-decoration-none">
                                                 <div class="card bg-secondary text-white hover-card">
                                                     <div class="card-body text-center">
@@ -345,7 +345,6 @@ if (isset($_SESSION['user_id'])) {
                                                 </div>
                                             </a>
                                         </div>
-
                                         <div class="col-md-3">
                                             <a href="listings.php" class="text-decoration-none">
                                                 <div class="card bg-warning text-white hover-card">

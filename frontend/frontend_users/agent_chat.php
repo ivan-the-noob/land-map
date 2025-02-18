@@ -686,12 +686,13 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                     require '../../db.php';
                     $agent_id = $_SESSION['user_id']; 
                     $sql = "SELECT DISTINCT iq.user_id, u.fname, u.lname, u.profile, iq.property_id, 
-                                p.property_name, p.property_type, p.property_location, p.sale_or_lease, p.land_area, p.sale_price 
-                            FROM inquire iq
-                            INNER JOIN users u ON iq.user_id = u.user_id 
-                            INNER JOIN properties p ON iq.property_id = p.property_id
-                            WHERE iq.property_id IN (SELECT property_id FROM properties WHERE user_id = ?) 
-                            AND iq.status = 'accepted'";
+                        p.property_name, p.property_type, p.property_location, p.sale_or_lease, 
+                        p.land_area, p.sale_price, p.monthly_rent
+                    FROM inquire iq
+                    INNER JOIN users u ON iq.user_id = u.user_id 
+                    INNER JOIN properties p ON iq.property_id = p.property_id
+                    WHERE iq.property_id IN (SELECT property_id FROM properties WHERE user_id = ?) 
+                    AND iq.status = 'accepted'";
 
                     $stmt = $conn->prepare($sql);
                     $stmt->bind_param("i", $agent_id);
@@ -702,18 +703,20 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         $user_image = !empty($row['profile']) ? '../../assets/profile_images/' . $row['profile'] : '../../uploads/profile.png';
 
                         echo '<button class="user-btn d-flex align-items-center p-2 rounded chat-user" 
-                        onclick="selectUser(' . $row['user_id'] . ', ' . $row['property_id'] . ', \'' . 
-                        htmlspecialchars($row['property_name'], ENT_QUOTES) . '\', \'' . 
-                        htmlspecialchars($row['property_type'], ENT_QUOTES) . '\', \'' . 
-                        htmlspecialchars($row['property_location'], ENT_QUOTES) . '\', \'' . 
-                        htmlspecialchars($row['sale_or_lease'], ENT_QUOTES) . '\', ' . 
-                        $row['land_area'] . ', ' . $row['sale_price'] . ')">
-                    <img src="' . $user_image . '" alt="User" class="chat-user-img">
-                    <div class="chat-user-text">
-                        <span class="chat-user-name">' . htmlspecialchars($row['fname'] . ' ' . $row['lname']) . '</span>
-                        <span class="chat-user-subtext">Click to chat</span>
-                    </div>
-                </button>';
+                            onclick="selectUser(' . $row['user_id'] . ', ' . $row['property_id'] . ', \'' . 
+                            htmlspecialchars($row['property_name'], ENT_QUOTES) . '\', \'' . 
+                            htmlspecialchars($row['property_type'], ENT_QUOTES) . '\', \'' . 
+                            htmlspecialchars($row['property_location'], ENT_QUOTES) . '\', \'' . 
+                            htmlspecialchars($row['sale_or_lease'], ENT_QUOTES) . '\', ' . 
+                            $row['land_area'] . ', ' . $row['sale_price'] . ', ' . 
+                            ($row['monthly_rent'] ?: 0) . ')"> 
+                            <img src="' . $user_image . '" alt="User" class="chat-user-img">
+                            <div class="chat-user-text">
+                                <span class="chat-user-name">' . htmlspecialchars($row['fname'] . ' ' . $row['lname']) . '</span>
+                                <span class="chat-user-subtext">Click to chat</span>
+                            </div>
+                            </button>';
+
                     }
                 ?>
 
@@ -801,9 +804,8 @@ function selectUser(userId, propId, propertyName, propertyType, propertyLocation
     inquirerId = userId;
     agentId = <?php echo $_SESSION['user_id']; ?>; // Get agent ID from session
 
-    salePrice = salePrice ? Number(salePrice) : 0;
-    monthlyRent = monthlyRent ? Number(monthlyRent) : 0;
-
+    let salePriceNum = parseFloat(salePrice) || 0;
+    let rentPriceNum = parseFloat(monthlyRent) || 0;
 
     // Update chat details
     document.getElementById("chatPropertyName").innerText = propertyName;
@@ -814,9 +816,9 @@ function selectUser(userId, propId, propertyName, propertyType, propertyLocation
 
     // Show price based on sale or lease
     if (saleOrLease.trim().toLowerCase() === "lease") {
-        document.getElementById("chatSalePrice").innerText = "" + new Intl.NumberFormat().format(monthlyRent);
+        document.getElementById("chatSalePrice").innerText = "" + new Intl.NumberFormat().format(rentPriceNum);
     } else if (saleOrLease.trim().toLowerCase() === "sale") {
-        document.getElementById("chatSalePrice").innerText = " " + new Intl.NumberFormat().format(salePrice);
+        document.getElementById("chatSalePrice").innerText = "" + new Intl.NumberFormat().format(salePriceNum);
     } else {
         document.getElementById("chatSalePrice").innerText = "N/A";
     }
@@ -826,6 +828,7 @@ function selectUser(userId, propId, propertyName, propertyType, propertyLocation
 
     loadMessages(); // Load chat messages dynamically
 }
+
 
 
 

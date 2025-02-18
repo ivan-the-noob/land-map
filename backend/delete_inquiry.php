@@ -2,18 +2,18 @@
 require '../db.php';
 session_start();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'])) {
-    $property_id = intval($_POST['property_id']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inquiry_id'])) {
+    $inquiry_id = intval($_POST['inquiry_id']);
 
-    if (!$property_id) {
-        echo "error: invalid property ID";
+    if (!$inquiry_id) {
+        echo "error: invalid inquiry ID";
         exit;
     }
 
     // Check if inquiry exists
-    $check_sql = "SELECT * FROM inquire WHERE property_id = ?";
+    $check_sql = "SELECT * FROM inquire WHERE id = ?";
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("i", $property_id);
+    $check_stmt->bind_param("i", $inquiry_id);
     $check_stmt->execute();
     $result = $check_stmt->get_result();
 
@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'])) {
 
     try {
         // Update the inquiry status instead of deleting
-        $sql_inquire = "UPDATE inquire SET status = 'cancelled' WHERE property_id = ?";
+        $sql_inquire = "UPDATE inquire SET status = 'cancelled' WHERE id = ?";
         $stmt_inquire = $conn->prepare($sql_inquire);
-        $stmt_inquire->bind_param("i", $property_id);
+        $stmt_inquire->bind_param("i", $inquiry_id);
         $stmt_inquire->execute();
 
         // Optional: Delete related messages (if required)

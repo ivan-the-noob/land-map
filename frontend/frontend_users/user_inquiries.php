@@ -337,7 +337,8 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                     '<?= htmlspecialchars($row['property_location'], ENT_QUOTES); ?>', 
                                     '<?= htmlspecialchars($row['sale_or_lease'], ENT_QUOTES); ?>', 
                                     <?= $row['land_area']; ?>, 
-                                    <?= $row['sale_price']; ?>
+                                    <?= $row['sale_price']; ?>,
+                                    <?= $row['monthly_rent']; ?>
                                 )">
                                 <i class="fas fa-user"></i> Message Agent
                             </button>
@@ -360,7 +361,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         <p class="mb-1"><strong>Location:</strong> <span id="chatPropertyLocation"></span></p>
                                         <p class="mb-1"><strong>Sale/Lease:</strong> <span id="chatSaleOrLease"></span></p>
                                         <p class="mb-1"><strong>Land Area:</strong> <span id="chatLandArea"></span> sqm</p>
-                                        <p class="mb-1"><strong>Price:</strong> ₱<span id="chatSalePrice"></span></p>
+                                        <p class="mb-1"><strong id="chatPriceLabel">Price:</strong> ₱<span id="chatSalePrice"></span></p>
                                          <button class="btn btn-primary mt-2" onclick="viewPropertyImages()">View Images</button>
                                     </div>
                                     <!-- Chat Messages -->
@@ -797,8 +798,8 @@ elseif ($_SESSION['role_type'] !== 'user') {
 
 let propertyId, agentId;
 
-function openChatModal(propId, agtId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice) {
-    console.log("Opening chat for:", { propId, agtId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice });
+function openChatModal(propId, agtId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice, monthlyRent) {
+    console.log("Opening chat for:", { propId, agtId, propertyName, propertyType, propertyLocation, saleOrLease, landArea, salePrice, monthlyRent });
 
     propertyId = propId;
     agentId = agtId;
@@ -809,7 +810,19 @@ function openChatModal(propId, agtId, propertyName, propertyType, propertyLocati
     document.getElementById("chatPropertyLocation").innerText = propertyLocation;
     document.getElementById("chatSaleOrLease").innerText = saleOrLease;
     document.getElementById("chatLandArea").innerText = landArea;
-    document.getElementById("chatSalePrice").innerText = new Intl.NumberFormat().format(salePrice);
+
+    // Get price elements
+    let priceLabel = document.getElementById("chatPriceLabel");
+    let priceValue = document.getElementById("chatSalePrice");
+
+    // Change text dynamically based on Sale/Lease
+    if (saleOrLease.toLowerCase() === "lease") {
+        priceLabel.innerText = "Monthly Rent:";
+        priceValue.innerText = new Intl.NumberFormat().format(monthlyRent);
+    } else {
+        priceLabel.innerText = "Price:";
+        priceValue.innerText = new Intl.NumberFormat().format(salePrice);
+    }
 
     // Open the modal
     $('#chatModal').modal('show');
@@ -817,6 +830,8 @@ function openChatModal(propId, agtId, propertyName, propertyType, propertyLocati
     // Load previous messages
     loadMessages();
 }
+
+
 
 // Auto-refresh messages every 3 seconds
 setInterval(loadMessages, 3000);
@@ -1129,7 +1144,7 @@ function contactAgent(userId) {
         }
 
         properties.forEach(property => {
-            const { latitude, longitude, property_name, property_type, sale_price, sale_or_lease, image_name, property_location, land_area } = property;
+            const { latitude, longitude, property_name, property_type, sale_price, monthly_rent, sale_or_lease, image_name, property_location, land_area } = property;
 
             if (!latitude || !longitude || isNaN(latitude) || isNaN(longitude)) {
                 console.warn(`Skipping property: ${property_name} (Invalid coordinates)`);

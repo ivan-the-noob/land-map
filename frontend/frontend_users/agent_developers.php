@@ -22,7 +22,7 @@ try {
                 ELSE 'offline'
               END as current_status 
               FROM users 
-              WHERE role_type = 'admin'";
+              WHERE role_type = 'agent'";
     $result = $conn->query($query);
     
     if ($result) {
@@ -67,7 +67,7 @@ elseif ($_SESSION['role_type'] !== 'agent') {
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Land Map | CRM</title>
+    <title>Land Map | Profile</title>
     <link rel="icon" href="../../assets/images/logo.png" type="image/x-icon">
 
     <!-- Vendor CSS -->
@@ -155,31 +155,18 @@ elseif ($_SESSION['role_type'] !== 'agent') {
 <body>
 
 <div class="az-header">
-    <?php require '../../partials/nav_admin.php' ?>
+    <?php require '../../partials/nav_agent.php' ?>
 </div>
 
-<?php
-// Fetch user details from the 'users' table
-$user_id = $_SESSION['user_id'];
 
-$query = "SELECT fname, lname, profile FROM users WHERE user_id = ?";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
-// Set default profile image if none exists
-$profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $user['profile'] : "../img/faces/default.jpg";
-?>
 
 <div class="az-content">
     <div class="container">
         <div class="az-content-body">
             <div class="az-dashboard-one-title">
                 <div>
-                    <h2 class="az-dashboard-title">ADMIN CRM</h2>
-                    <p class="az-dashboard-text"></p>
+                    <h2 class="az-dashboard-title">Developers</h2>
+                    <p class="az-dashboard-text">Update Information</p>
                 </div>
                 
                 <!-- Time and Date -->
@@ -205,67 +192,119 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                 </div>
             </div>
             <!-- end time and date -->
-            <div class="crm">
-                <table class="table table-striped table-bordered">
-                    <thead class="table-dark">
-                    <tr>
-                        <th class="text-white">Name</th>
-                        <th class="text-white">Land Type</th>
-                        <th class="text-white">Status</th>
-                        <th class="text-white">Location</th>
-                        <th class="text-white">Land Area</th>
-                        <th class="text-white">List Type</th>
-                        <th class="text-white">Price </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        require '../../db.php'; 
-                        
-                        $query = "
-                        SELECT 
-                            CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, '')) AS Name,
-                            COALESCE(p.property_type, 'N/A') AS LandType,
-                            COALESCE(i.status, 'N/A') AS Status,
-                            p.sale_or_lease,
-                            p.property_location,
-                            p.land_area,
-                            CASE 
-                                WHEN p.sale_or_lease = 'lease' THEN p.monthly_rent
-                                WHEN p.sale_or_lease = 'sale' THEN p.sale_price
-                                ELSE 'N/A' 
-                            END AS PriceOrRent,
-                            i.created_at
-                        FROM inquire i
-                        LEFT JOIN users u ON i.user_id = u.user_id
-                        LEFT JOIN properties p ON i.property_id = p.property_id
-                        ORDER BY i.created_at DESC
-                    ";
-                    
 
-                        $result = mysqli_query($conn, $query);
+            <div class="row">
+                <!-- Card 2 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/ayala.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">AYALA LAND</h5>
+                        </div>
+                    </div>
+                </div>
 
-                        if ($result) {
-                            while ($row = mysqli_fetch_assoc($result)) {
-                                echo "<tr>
-                                        <td>{$row['Name']}</td>
-                                        <td>{$row['LandType']}</td>
-                                        <td>{$row['Status']}</td>
-                                        <td>{$row['property_location']}</td>
-                                        <td>{$row['land_area']}</td>
-                                        <td>{$row['sale_or_lease']}</td>
-                                        <td>{$row['PriceOrRent']}</td>
-                                    </tr>";
-                            }
-                        } else {
-                            echo "<tr><td colspan='7'>No data found</td></tr>";
-                        }
-                        ?>
-                    </tbody>
-                </table>
-</div>
+                <!-- Card 3 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/smdc.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">SMDC</h5>
+                        </div>
+                    </div>
+                </div>
 
-    
+                <!-- Card 4 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/vistaland.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">VISTALAND</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/camella.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">CAMELLA HOMES</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/profriends.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">PRO-FRIENDS</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/dm.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">DMCI</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 8 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/filinvest.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">FILINVEST LAND</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 9 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/prime.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">SM PRIME HOLDINGS</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 10 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/robinson.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">ROBINSON LAND CORPORATION</h5>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Card 12 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/fideral.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">FIDERAL LANDS</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 13 -->
+                <div class="col-md-4">
+                    <div class="card m-1 rounded" style="width: 100%;">
+                        <img src="../../assets/developers/century.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">CENTURY PROPERTIES GROUP</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
 
@@ -333,33 +372,51 @@ setInterval(updateDateTime, 1000);
     </script>
 
     <!--Signout process--->
+     <!-- Sign Out Confirmation Modal -->
+     <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="signout-icon-wrapper">
+                        <i class="fas fa-sign-out-alt signout-icon"></i>
+                    </div>
+                    <p class="signout-modal-message">Are you sure you want to sign out?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmSignOutButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  <!--Signout process--->
     <script>
         // Show the sign-out confirmation modal when the Sign Out button is clicked
-        document.getElementById('signOutButton').addEventListener('click', function () {
-            $('#signOutModal').modal('show');  // Show the modal
+        document.getElementById('signOutButton').addEventListener('click', function() {
+            $('#signOutModal').modal('show');
         });
 
         // Confirm sign out (destroy session and redirect to login page)
-        document.getElementById('confirmSignOutButton').addEventListener('click', function () {
+        document.getElementById('confirmSignOutButton').addEventListener('click', function() {
             // Make a request to sign_out.php to destroy the session
             fetch('../../backend/sign_out.php', {
                 method: 'GET'
             })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // If sign out is successful, redirect to login page
-                        window.location.href = '../../index.php'; // Redirect to login page
-                    } else {
-                        alert('Error: Could not sign out.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // If sign out is successful, redirect to login page
+                    window.location.href = '../../index.php';
+                } else {
+                    alert('Error: Could not sign out.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
         });
     </script>
-
     <!--Time Update-->
     <script>
         // Function to update the current time every second

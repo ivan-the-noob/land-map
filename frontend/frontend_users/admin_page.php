@@ -232,7 +232,6 @@ $viewerPercentage = ($totalUsers > 0) ? round(($totalViewers / $totalUsers) * 10
                 <nav class="nav">
                     <a class="nav-link active" data-toggle="tab" href="#overview">Overview</a>
                     <a class="nav-link" data-toggle="tab" href="#landTypes">Land Types</a>
-                    <a class="nav-link" data-toggle="tab" href="#reports">Reports</a>
                     <a class="nav-link" data-toggle="tab" href="#reports"></a>
                 </nav>
             </div>
@@ -265,10 +264,22 @@ $viewerPercentage = ($totalUsers > 0) ? round(($totalViewers / $totalUsers) * 10
                                             <label class="mg-b-0">Total Agents</label>
                                             <h2><?php echo $totalAgents; ?></h2>
                                         </div>
-                                        <div>
-                                            <label class="mg-b-0">Property Views</label>
-                                            <h2><?php echo $totalViews; ?></h2>
-                                        </div>
+                                        <?php 
+                                            require '../../db.php';
+
+                                            $sql = "SELECT COUNT(*) AS totalViews FROM views";
+                                            $result = $conn->query($sql);
+                                            $row = $result->fetch_assoc();
+                                            $totalViewss = $row['totalViews']; 
+
+                                            $conn->close();
+                                            ?>
+
+                                            <div>
+                                                <label class="mg-b-0">Property Views</label>
+                                                <h2><?php echo $totalViewss; ?></h2>
+                                            </div>
+
                                         <div>
                                             <label class="mg-b-0">Listed Properties</label>
                                             <h2><?php echo $totalProperties; ?></h2>
@@ -401,10 +412,42 @@ $viewerPercentage = ($totalUsers > 0) ? round(($totalViewers / $totalUsers) * 10
                         <div class="card-header">
                             <h6 class="card-title">Land Types Management</h6>
                         </div>
-                        <div class="card-body">
-                            <!-- Add your land types content here -->
-                            <p>Land types management content will go here.</p>
-                        </div>
+                        <?php 
+                            require '../../db.php';
+
+                            // Query to count properties and sum views based on property type
+                            $sql = "SELECT p.property_type, 
+                            COUNT(p.property_id) AS count, 
+                            COALESCE(SUM(v.view_count), 0) AS total_views
+                            FROM properties p
+                            LEFT JOIN (
+                                SELECT property_id, COUNT(*) AS view_count FROM views GROUP BY property_id
+                            ) v ON p.property_id = v.property_id
+                            GROUP BY p.property_type
+                            ORDER BY total_views DESC";
+
+                            $result = $conn->query($sql);
+                            ?>
+
+                            <div class="card-body">
+                                <div class="row">
+                                    <?php while ($row = $result->fetch_assoc()): ?>
+                                        <div class="col-md-4">
+                                            <div class="card p-3 mb-3 shadow">
+                                                <h5 class="card-title"><?php echo htmlspecialchars($row['property_type']); ?></h5>
+                                                <p class="card-text">Total: <?php echo $row['count']; ?></p>
+                                                <p>Views: <?php echo $row['total_views']; ?></p>
+                                            </div>
+                                        </div>
+                                    <?php endwhile; ?>
+                                </div>
+                            </div>
+
+                            <?php
+                            $conn->close();
+                            ?>
+
+
                     </div>
                 </div>
 
@@ -421,18 +464,7 @@ $viewerPercentage = ($totalUsers > 0) ? round(($totalViewers / $totalUsers) * 10
                     </div>
                 </div>
 
-                <!-- Reports Tab -->
-                <div class="tab-pane fade" id="reports">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title">Reports</h6>
-                        </div>
-                        <div class="card-body">
-                            <!-- Add your reports content here -->
-                            <p>Reports content will go here.</p>
-                        </div>
-                    </div>
-                </div>
+               
             </div>
         </div>
     </div>

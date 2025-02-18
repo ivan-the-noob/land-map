@@ -508,20 +508,24 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                 require '../../db.php';
                                 $agent_id = $_SESSION['user_id']; 
 
-                                $sql = "SELECT iq.status AS iq_status, p.*, 
-                                    u_inq.fname AS inquirer_fname, u_inq.lname AS inquirer_lname, 
-                                    iq.user_id AS inquirer_id,  
-                                    p.user_id AS agent_id,      
-                                    ui.image_name AS user_image,
-                                    (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
-                                    u_inq.report_status AS report_status
-                                FROM inquire iq
-                                INNER JOIN properties p ON iq.property_id = p.property_id
-                                INNER JOIN users u_agent ON p.user_id = u_agent.user_id  
-                                INNER JOIN users u_inq ON iq.user_id = u_inq.user_id     
-                                LEFT JOIN user_img ui ON u_inq.user_id = ui.user_id
-                                WHERE p.user_id = ?
-                                ORDER BY iq.created_at DESC";
+                                $sql = "SELECT 
+                                iq.id AS inquiry_id, iq.status AS iq_status, 
+                                p.*, 
+                                u_inq.fname AS inquirer_fname, 
+                                u_inq.lname AS inquirer_lname, 
+                                iq.user_id AS inquirer_id,  
+                                p.user_id AS agent_id,      
+                                ui.image_name AS user_image,
+                                (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+                                u_inq.report_status AS report_status
+                            FROM inquire iq
+                            INNER JOIN properties p ON iq.property_id = p.property_id
+                            INNER JOIN users u_agent ON p.user_id = u_agent.user_id  
+                            INNER JOIN users u_inq ON iq.user_id = u_inq.user_id     
+                            LEFT JOIN user_img ui ON u_inq.user_id = ui.user_id
+                            WHERE p.user_id = ?
+                            ORDER BY iq.created_at DESC";
+                    
                     
                     
 
@@ -536,6 +540,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                     $propertyName = $row['property_name'];
                                     $inquirerName = $row['inquirer_fname'] . ' ' . $row['inquirer_lname']; 
                                     $reportStatus = $row['report_status']; 
+                                    
                                             
                                     $imagePath = !empty($row['property_image']) ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";        
                             ?>
@@ -592,9 +597,10 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                             <i class="fas fa-eye"></i> View Details
                         </button> -->
                         <?php if ($inquiryStatus === 'pending') { ?>
-                        <button class="btn-success" onclick="openAcceptModal(<?= $row['property_id']; ?>)">
-                            <i class="fas fa-check"></i> Accept Inquiry
-                        </button>        
+                            <button class="btn-success" onclick="openAcceptModal(<?= $row['inquiry_id']; ?>)">
+                                <i class="fas fa-check"></i> Accept Inquiry
+                            </button>
+      
                         <?php } elseif ($inquiryStatus === 'accepted') { ?>
                             <button class="btn-primary" disabled>
                                 <i class="fas fa-hourglass-half"></i> On-going
@@ -665,7 +671,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <?php } ?>
                        
                         <?php if ($inquiryStatus !== 'cancelled' && $inquiryStatus !== 'completed') { ?>
-                            <button class="btn-delete" onclick="openDeleteModal(<?= htmlspecialchars($row['property_id']); ?>)">
+                            <button class="btn-delete" onclick="openDeleteModal(<?= htmlspecialchars($row['inquiry_id']); ?>)">
                                 <i class="fas fa-trash"></i> Cancel Inquiry
                             </button>
                             <?php } else { ?>
@@ -751,34 +757,35 @@ $(document).ready(function () {
 
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                         <script>
-                        function openDeleteModal(propertyId) {
-                            $("#confirmDeleteBtn").attr("data-property-id", propertyId);
-                            $("#deleteInquiryModal").modal("show");
-                        }
+                            function openDeleteModal(inquiryId) {
+                                $("#confirmDeleteBtn").attr("data-inquiry-id", inquiryId);
+                                $("#deleteInquiryModal").modal("show");
+                            }
 
-                        $(document).ready(function () {
-                            $("#confirmDeleteBtn").click(function () {
-                                let propertyId = $(this).attr("data-property-id");
+                            $(document).ready(function () {
+                                $("#confirmDeleteBtn").click(function () {
+                                    let inquiryId = $(this).attr("data-inquiry-id");
 
-                                $.ajax({
-                                    url: "../../backend/delete_inquiry.php",
-                                    type: "POST",
-                                    data: { property_id: propertyId },
-                                    success: function (response) {
-                                        if (response.trim() === "success") {
-                                            alert("Inquiry cancelled successfully!");
-                                            location.reload(); // Reload page to reflect changes
-                                        } else {
-                                            alert("Error: " + response);
+                                    $.ajax({
+                                        url: "../../backend/delete_inquiry.php",
+                                        type: "POST",
+                                        data: { inquiry_id: inquiryId },  // Change property_id to inquiry_id
+                                        success: function (response) {
+                                            if (response.trim() === "success") {
+                                                alert("Inquiry cancelled successfully!");
+                                                location.reload(); // Reload page to reflect changes
+                                            } else {
+                                                alert("Error: " + response);
+                                            }
+                                        },
+                                        error: function () {
+                                            alert("Failed to cancel inquiry. Please try again.");
                                         }
-                                    },
-                                    error: function () {
-                                        alert("Failed to cancel inquiry. Please try again.");
-                                    }
+                                    });
                                 });
                             });
-                        });
                         </script>
+
 
                         </div>
                        
@@ -846,23 +853,27 @@ $(document).ready(function () {
 
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                         <script>
-                            let selectedPropertyId = null;
+                            let selectedInquiryId = null;
 
-                            function openAcceptModal(propertyId) {
-                                selectedPropertyId = propertyId;
+                            function openAcceptModal(inquiryId) {
+                                selectedInquiryId = inquiryId;
                                 $('#acceptInquiryModal').modal('show');
                             }
 
                             $(document).ready(function () {
                                 $('#confirmAcceptBtn').on('click', function () {
-                                    if (selectedPropertyId) {
+                                    if (selectedInquiryId) {
                                         $.ajax({
                                             url: '../../backend/accept_inquiry.php',
                                             type: 'POST',
-                                            data: { property_id: selectedPropertyId },
+                                            data: { id: selectedInquiryId }, 
                                             success: function (response) {
-                                                if (response.trim() === "success") {
+                                                let trimmedResponse = response.trim();
+
+                                                if (trimmedResponse === "success") {
                                                     window.location.href = "agent_chat.php"; 
+                                                } else if (trimmedResponse === "You have existing clients, you can only talk to one person per property.") {
+                                                    alert(trimmedResponse);
                                                 } else {
                                                     alert("Failed to accept inquiry.");
                                                 }
@@ -876,6 +887,7 @@ $(document).ready(function () {
                                 });
                             });
                         </script>
+
 
 
                     </div>

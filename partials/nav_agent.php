@@ -41,9 +41,9 @@ $cms = $result->fetch_assoc();
             <li class="">
                 <a href="../frontend_users/agent_landproperties.php" class="nav-link"><i class="typcn typcn-location-outline"></i> Land Properties</a>
             </li>
-            <!-- <li class="">
+            <li class="">
                 <a href="../frontend_users/agent_developers.php" class="nav-link"><i class="fas fa-building"></i> Developers</a>
-            </li> -->
+            </li>
             <li class="">
                 <a href="../frontend_users/agent_inquiries.php" class="nav-link"><i class="typcn typcn-calendar"></i> Land Inquiries</a>
             </li>

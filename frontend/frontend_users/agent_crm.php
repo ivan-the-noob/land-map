@@ -210,26 +210,39 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
        <div class="crm">
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
-                    <tr>
-                        <th class="text-white">Name</th>
-                        <th class="text-white">Land Type</th>
-                        <th class="text-white">Status</th>
-                    </tr>
+                <tr>
+                    <th class="text-white">Name</th>
+                    <th class="text-white">Land Type</th>
+                    <th class="text-white">Status</th>
+                    <th class="text-white">Location</th>
+                    <th class="text-white">Land Area</th>
+                    <th class="text-white">List Type</th>
+                    <th class="text-white">Price </th>
+                </tr>
                 </thead>
                 <tbody>
                     <?php
                     require '../../db.php'; 
                     
                     $query = "
-                        SELECT 
-                            CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, '')) AS Name,
-                            COALESCE(p.property_type, 'N/A') AS LandType,
-                            COALESCE(i.status, 'N/A') AS Status
-                        FROM inquire i
-                        LEFT JOIN users u ON i.user_id = u.user_id
-                        LEFT JOIN properties p ON i.property_id = p.property_id
-                    ";
-
+                    SELECT 
+                        CONCAT(COALESCE(u.fname, ''), ' ', COALESCE(u.lname, '')) AS Name,
+                        COALESCE(p.property_type, 'N/A') AS LandType,
+                        COALESCE(i.status, 'N/A') AS Status,
+                        p.sale_or_lease,
+                        p.property_location,
+                        p.land_area,
+                        CASE 
+                            WHEN p.sale_or_lease = 'lease' THEN p.monthly_rent
+                            WHEN p.sale_or_lease = 'sale' THEN p.sale_price
+                            ELSE 'N/A' 
+                        END AS PriceOrRent,
+                        i.created_at
+                    FROM inquire i
+                    LEFT JOIN users u ON i.user_id = u.user_id
+                    LEFT JOIN properties p ON i.property_id = p.property_id
+                    ORDER BY i.created_at DESC
+                ";
                 
 
                     $result = mysqli_query($conn, $query);
@@ -240,10 +253,14 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                                     <td>{$row['Name']}</td>
                                     <td>{$row['LandType']}</td>
                                     <td>{$row['Status']}</td>
+                                    <td>{$row['property_location']}</td>
+                                    <td>{$row['land_area']}</td>
+                                    <td>{$row['sale_or_lease']}</td>
+                                    <td>{$row['PriceOrRent']}</td>
                                 </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='3'>No data found</td></tr>";
+                        echo "<tr><td colspan='7'>No data found</td></tr>";
                     }
                     ?>
                 </tbody>

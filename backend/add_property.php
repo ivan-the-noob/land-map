@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $user_id = $_SESSION['user_id']; // Retrieve the logged-in user's ID
 
     // Check if all required fields exist
-    $requiredFields = ['propertyName', 'propertyType', 'saleOrLease', 'landArea', 'propertyDescription', 'latitude', 'longitude'];
+    $requiredFields = ['propertyName', 'propertyType', 'saleOrLease', 'landArea', 'propertyDescription', 'latitude', 'longitude', 'developer'];
     foreach ($requiredFields as $field) {
         if (!isset($_POST[$field]) || empty(trim($_POST[$field]))) {
             echo json_encode(['status' => 'error', 'message' => "Missing required field: $field"]);
@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $salePrice = isset($_POST['salePrice']) ? $_POST['salePrice'] : null;
     $anotherInfo = isset($_POST['anotherInfo']) ? $_POST['anotherInfo'] : null;
     $propertyDescription = $_POST['propertyDescription'];
+    $developer = $_POST['developer'];  // Collect the developer field
 
     // Latitude & Longitude validation
     if (!is_numeric($_POST['latitude']) || !is_numeric($_POST['longitude'])) {
@@ -44,19 +45,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $latitude = floatval($_POST['latitude']);
     $longitude = floatval($_POST['longitude']);
 
-    // Set appropriate values based on listing type
-   
-  
+    $requiredFields = ['propertyName', 'propertyType', 'saleOrLease', 'landArea', 'propertyDescription', 'latitude', 'longitude', 'developer'];
+    foreach ($requiredFields as $field) {
+        if (!isset($_POST[$field]) || empty(trim($_POST[$field]))) {
+            echo json_encode(['status' => 'error', 'message' => "Missing required field: $field"]);
+            exit;
+        }
+    }
 
-    // Insert the property into the properties table
-    $sql = "INSERT INTO properties (property_name, property_location, property_type, sale_or_lease, land_area, lease_duration, monthly_rent, land_condition, sale_price, another_info, property_description, latitude, longitude, user_id) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    // Insert the property into the properties table, including developer
+    $sql = "INSERT INTO properties (property_name, property_location, property_type, sale_or_lease, land_area, lease_duration, monthly_rent, land_condition, sale_price, another_info, property_description, latitude, longitude, user_id, developer) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param('ssssisssssssdd', 
+        $stmt->bind_param('ssssisssssssdds', 
             $propertyName, $propertyLocation, $propertyType, $saleOrLease, 
             $landArea, $leaseDuration, $monthlyRent, $landCondition, 
-            $salePrice, $anotherInfo, $propertyDescription, $latitude, $longitude, $user_id
+            $salePrice, $anotherInfo, $propertyDescription, $latitude, $longitude, $user_id, $developer
         );
 
         if ($stmt->execute()) {
@@ -121,3 +126,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     ]);
     exit;
 }
+?>

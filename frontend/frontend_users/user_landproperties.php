@@ -531,18 +531,38 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
     <?php
     require '../../db.php';
 
+    // $sql = "SELECT p.*, 
+    //         u.fname, u.lname,
+    //         ui.image_name as user_image,
+    //         (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+    //         DATE_FORMAT(p.created_at, '%M %d, %Y') as formatted_date,
+    //         DATE_FORMAT(p.created_at, '%h:%i %p') as formatted_time,
+    //         DATEDIFF(CURRENT_DATE, p.created_at) as days_since_added
+    //         FROM properties p 
+    //         LEFT JOIN users u ON p.user_id = u.user_id
+    //         LEFT JOIN user_img ui ON u.user_id = ui.user_id
+    //         WHERE p.is_archive = 0
+    //         ORDER BY p.property_id DESC";
+    
     $sql = "SELECT p.*, 
-            u.fname, u.lname,
-            ui.image_name as user_image,
-            (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
-            DATE_FORMAT(p.created_at, '%M %d, %Y') as formatted_date,
-            DATE_FORMAT(p.created_at, '%h:%i %p') as formatted_time,
-            DATEDIFF(CURRENT_DATE, p.created_at) as days_since_added
-            FROM properties p 
-            LEFT JOIN users u ON p.user_id = u.user_id
-            LEFT JOIN user_img ui ON u.user_id = ui.user_id
-            WHERE p.is_archive = 0
-            ORDER BY p.property_id DESC";
+        u.fname, 
+        u.lname,
+        ui.image_name AS user_image,
+        (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+        DATE_FORMAT(p.created_at, '%M %d, %Y') AS formatted_date,
+        DATE_FORMAT(p.created_at, '%h:%i %p') AS formatted_time,
+        DATEDIFF(CURRENT_DATE, p.created_at) AS days_since_added,
+        COUNT(v.id) AS total_views  -- Count views per property
+    FROM properties p
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN user_img ui ON u.user_id = ui.user_id
+    LEFT JOIN views v ON p.property_id = v.property_id  -- Join views table
+    WHERE p.is_archive = 0
+    GROUP BY p.property_id  -- Ensure correct grouping
+    ORDER BY p.property_id DESC";
+
+
+    
 
     $result = $conn->query($sql);
 
@@ -588,6 +608,9 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                 <div class="property-content">
                     <div class="property-header">
                         <h3 class="property-title">Property Name: <?php echo htmlspecialchars($row['property_name']); ?></h3>
+                    </div>
+                    <div class="property-header">
+                        <h3 class="property-title text-muted" style="font-size: 12px;">Views:  <?php echo htmlspecialchars($row['total_views']); ?></h3>
                     </div>
                     
                     <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price'] > 0) { ?>
@@ -689,6 +712,59 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                             <i class="fas fa-archive"></i> Add to List
                             
                         </button>
+                        <button class="btn btn-warning btn-sm text-white" onclick="openReportModal(<?php echo $row['property_id']; ?>)">
+                            <i class="fas fa-flag"></i> Report Property
+                        </button>
+                        <div class="modal fade" id="reportPropertyModal" tabindex="-1" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Report Property</h5>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="reportPropertyForm">
+                                            <input type="hidden" id="report_property_id" name="property_id">
+                                            <label>Reason for Report:</label>
+                                            <textarea class="form-control" name="report_reason" required></textarea>
+                                            <br>
+                                            <button type="submit" class="btn btn-danger d-flex justify-content-center mx-auto">Submit Report</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script>
+                           function openReportModal(propertyId) {
+                                $('#report_property_id').val(propertyId);
+                                $('#reportPropertyModal').modal('show');
+                            }
+
+                            $(document).ready(function() {
+                                $("#reportPropertyModal").on("shown.bs.modal", function() {
+                                    $("#reportPropertyForm").off("submit").on("submit", function(e) {
+                                        e.preventDefault();
+                                        
+                                        $.ajax({
+                                            url: "../../backend/report_property.php",
+                                            type: "POST",
+                                            data: $(this).serialize(),
+                                            dataType: "json",
+                                            success: function(response) {
+                                                if (response.success) {
+                                                    alert("Property reported successfully.");
+                                                    $('#reportPropertyModal').modal('hide');
+                                                } else {
+                                                    alert(response.error);
+                                                }
+                                            }
+                                        });
+                                    });
+                                });
+                            });
+
+
+                        </script>
                          
 
                         <!-- Add to List Modal -->
@@ -1080,6 +1156,27 @@ function deleteProperty(propertyId) {
 }
 
 function viewDetails(propertyId) {
+    fetch("../../backend/track_view.php", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `property_id=${propertyId}`
+    })
+    .then(response => response.text()) // Get raw text first
+    .then(text => {
+        console.log("Raw Response:", text); // Log what the server sends
+        return JSON.parse(text); // Try parsing manually
+    })
+    .then(data => {
+        console.log("View Tracking Response:", data);
+    })
+    .catch(error => {
+        console.error("JSON Parsing Error:", error);
+    });
+
+
+    // Fetch property details
     fetch(`../../backend/get_property_details.php?property_id=${propertyId}`)
         .then(response => response.json())
         .then(data => {
@@ -1095,9 +1192,6 @@ function viewDetails(propertyId) {
             document.getElementById('modalMonthlyRent').textContent = data.monthly_rent || '';
             document.getElementById('modalAgentName').textContent = (data.agent_fname ? data.agent_fname + ' ' + data.agent_lname : '');
             document.getElementById('modalDescription').textContent = data.property_description || '';
-
-            
-
 
             // Set price based on sale or lease type
             const price = data.sale_or_lease === 'sale' 
@@ -1130,7 +1224,7 @@ function viewDetails(propertyId) {
                 });
             }
 
-            // **Initialize Google Map**
+            // Initialize Google Map if coordinates exist
             if (data.latitude && data.longitude) {
                 initGoogleMap(data.latitude, data.longitude);
             }
@@ -1139,10 +1233,9 @@ function viewDetails(propertyId) {
             document.getElementById('modalAgentName').textContent = 
                 data.agent_fname && data.agent_lname ? `${data.agent_fname} ${data.agent_lname}` : 'Unknown Agent';
 
-                console.log("Agent Image:", data.agent_image);
-                document.getElementById('modalAgentImage').src = data.agent_image 
-                    ? `../../assets/profile_images/${data.agent_image}`
-                    : '../../assets/images/default-profile.jpg';
+            document.getElementById('modalAgentImage').src = data.agent_image 
+                ? `../../assets/profile_images/${data.agent_image}`
+                : '../../assets/images/default-profile.jpg';
 
             // Get the actions container
             const actionsContainer = document.getElementById('agentActions');
@@ -1158,10 +1251,6 @@ function viewDetails(propertyId) {
                         <i class="fas fa-archive"></i> Archive Property
                     </button>
                 `;
-            } else {
-                actionsContainer.innerHTML = `
-                    
-                `;
             }
 
             // Show the modal
@@ -1172,6 +1261,7 @@ function viewDetails(propertyId) {
             alert('Error loading property details. Please try again.');
         });
 }
+
 
 
 // **Google Maps Initialization**
