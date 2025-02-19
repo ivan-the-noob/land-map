@@ -50,9 +50,6 @@
 <body class="az-body">
 
     <div class="az-signin-wrapper">
-        <a href="../index.php" class="back-button">
-            <i class="fas fa-arrow-left"></i> Back
-        </a>
         <div class="az-card-signin">
             <a href="../index.php">
                 <img src="../assets/images/logo.png" alt="LandMap Logo" class="logo-img"

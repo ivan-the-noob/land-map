@@ -40,9 +40,6 @@
 </head>
 
 <body class="az-body">
-    <a href="../index.php" class="back-button">
-        <i class="fas fa-arrow-left"></i> Back
-    </a>
     <div class="az-signup-wrapper">
         <div class="az-column-signup-left"
             style="background-image: url(); background-size: cover; background-position: center; padding: 20px;">
