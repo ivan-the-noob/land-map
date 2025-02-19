@@ -2,8 +2,8 @@
 require '../db.php';
 session_start();
 
-// Set MySQL session time zone to Philippine Time (UTC+8)
-$conn->query("SET time_zone = '+08:00'");
+date_default_timezone_set('Asia/Manila'); // Set timezone to Philippine Time
+$created_at = date('Y-m-d H:i:s'); // Get current date-time as string
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST['agent_id'], $_POST['message'])) {
     $property_id = $_POST['property_id'];
@@ -16,19 +16,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
         exit;
     }
 
-    // Insert message (created_at is auto-handled)
-    $sql = "INSERT INTO messages (property_id, user_id, agent_id, message) VALUES (?, ?, ?, ?)";
+    // Insert message with PHP-generated timestamp
+    $sql = "INSERT INTO messages (property_id, user_id, agent_id, message, created_at) VALUES (?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iiis", $property_id, $user_id, $agent_id, $message);
+    $stmt->bind_param("iiiss", $property_id, $user_id, $agent_id, $message, $created_at);
 
     if ($stmt->execute()) {
         $notification = "You have a new message from a user.";
         $role = "agent"; 
 
-        // Insert notification (created_at is auto-handled)
-        $notif_sql = "INSERT INTO notifications (user_id, agent_id, notification, role) VALUES (?, ?, ?, ?)";
+        // Insert notification with PHP-generated timestamp
+        $notif_sql = "INSERT INTO notifications (user_id, agent_id, notification, role, created_at) VALUES (?, ?, ?, ?, ?)";
         $notif_stmt = $conn->prepare($notif_sql);
-        $notif_stmt->bind_param("iiss", $user_id, $agent_id, $notification, $role);
+        $notif_stmt->bind_param("iisss", $user_id, $agent_id, $notification, $role, $created_at);
         $notif_stmt->execute();
 
         echo "success";
