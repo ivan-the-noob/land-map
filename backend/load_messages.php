@@ -41,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
             ? '<img src="' . $profileImage . '" alt="Profile" class="profile-img" style="width: 40px; height: 40px; border-radius: 50%; margin: 0;">' 
             : '<div style="width: 40px;"></div>'; 
 
-        $messageTime = date('H:i', strtotime($row['created_at']));
+            $messageTime = date('h:i A', strtotime($row['created_at']));
+
 
         echo '<div class="chat-message d-flex ' . $isUser . '" style="gap: 5px; align-items: flex-start;">' . 
                 $showProfile . 
