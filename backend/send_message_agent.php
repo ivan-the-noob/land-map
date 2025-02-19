@@ -2,6 +2,9 @@
 require '../db.php';
 session_start();
 
+date_default_timezone_set('Asia/Manila'); // Set timezone to Philippine Time
+$created_at = date('Y-m-d h:i A'); // Get current date-time in 12-hour format with AM/PM
+
 // Check if the necessary POST data is available
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST['user_id'], $_POST['agent_id'], $_POST['message'])) {
     
@@ -18,18 +21,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
         exit;
     }
 
-    // Insert message into the database
-    $sql = "INSERT INTO messages (property_id, user_id, agent_id, message, role_type) VALUES (?, ?, ?, ?, ?)";
+    // Insert message into the database with created_at timestamp
+    $sql = "INSERT INTO messages (property_id, user_id, agent_id, message, role_type, created_at) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iiiss", $property_id, $user_id, $agent_id, $message, $role_type);
+    $stmt->bind_param("iiisss", $property_id, $user_id, $agent_id, $message, $role_type, $created_at);
 
     // Check if the insertion was successful
     if ($stmt->execute()) {
-        // Insert notification for the user
+        // Insert notification for the user with created_at timestamp
         $notification_msg = "You have a new message from an agent.";
-        $notif_sql = "INSERT INTO notifications (user_id, agent_id, notification) VALUES (?, ?, ?)";
+        $notif_sql = "INSERT INTO notifications (user_id, agent_id, notification, created_at) VALUES (?, ?, ?, ?)";
         $notif_stmt = $conn->prepare($notif_sql);
-        $notif_stmt->bind_param("iis", $user_id, $agent_id, $notification_msg);
+        $notif_stmt->bind_param("iiss", $user_id, $agent_id, $notification_msg, $created_at);
         $notif_stmt->execute();
 
         echo "success"; // Message and notification inserted successfully
