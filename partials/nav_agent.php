@@ -106,7 +106,7 @@ $unseenCount = $row['unseen_count'];
             <a href="#" class="az-header-arrow"><i class="icon ion-md-arrow-back"></i></a>
         </div>
         <h6 class="az-notification-title">Notifications</h6>
-        <div class="az-notification-list">
+        <div class="az-notification-list" style="max-height: 300px; overflow-y: auto;">
             <?php if (!empty($notifications)): ?>
                 <?php foreach ($notifications as $notif): ?>
                     <?php 

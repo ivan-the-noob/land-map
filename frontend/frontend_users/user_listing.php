@@ -503,15 +503,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         
                     </div>
 
-                    <div class="agent-info">
-                        <?php if ($row['user_image']) { ?>
-                            <img src="../../assets/images/profile/<?php echo $row['user_image']; ?>" alt="Agent">
-                        <?php } ?>
-                        <span><i class="fas fa-user"> Agent Name:</i> <?php echo htmlspecialchars($agentName); ?></span>
-                        <button class="btn-contact" onclick="contactAgent(<?php echo $row['user_id']; ?>)">
-                            <i class="fas fa-user"></i> Message Agent
-                        </button>
-                    </div>
+                   
                 </div>
             </div>
     <?php
