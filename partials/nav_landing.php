@@ -14,16 +14,13 @@
 					class="text-primary">Map</span>
 			</a>
 
-			<ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu mx-auto">
-				<li class=""><a href="../index.php">Home</a></li>
-				<li class=""><a href="../landMap_V6/frontend/properties.php">Properties</a></li>
+			<ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu mx-auto site-auth-buttons d-none d-lg-block">
+				<li class=""><a href="../landMapLatest">Home</a></li>
+				<li class=""><a href="../landMapLatest/index_properties.php">Properties</a></li>
 				<li class=""><a href="../landMap_V6/frontend/contact_us.php">Contact Us</a></li>
+				<li class=""><a href="./frontend/sign_up.php" class="btn btn-primary signup-hover">Sign Up</a></li>
+				<li class=""><a href="./frontend/sign_in.php" class="btn btn-light signin-hover">Sign In</a></li>
 			</ul>
-
-			<div class="site-auth-buttons d-none d-lg-block">
-				<a href="./frontend/sign_up.php" class="btn btn-primary signup-hover">Sign Up</a>
-				<a href="./frontend/sign_in.php" class="btn btn-light signin-hover">Sign In</a>
-			</div>
 
 			<a href="#"
 				class="burger ml-auto float-right site-menu-toggle js-menu-toggle d-inline-block d-lg-none light"

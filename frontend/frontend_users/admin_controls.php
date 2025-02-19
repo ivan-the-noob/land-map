@@ -75,169 +75,61 @@
                         <div class="table-responsive">
                             <table class="table table-striped user-list">
                                 <tbody>
+                                    <?php
+                                    require '../../db.php'; // Include your database connection file
                                     
+                                    // Fetch all users
+                                    $query = "SELECT * FROM users WHERE role_type = 'user'";
+                                    $result = $conn->query($query);
+                                    ?>
                                     <div class="main-box clearfix" id="user-tables">
                                         <h3>User List</h3>
                                         <div class="table-responsive d-flex ">
-                                        <table class="table table-striped user-list">
-                                            <thead class="thead-light">
-                                                <tr>
-                                                    <th>User</th>
-                                                    <th>Role</th>
-                                                    <th class="text-center">Status</th>
-                                                    <th>Email</th>
-                                                    <th class="text-center">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php
-                                               $query = "SELECT user_id, profile, fname, lname, role_type, is_verified, email FROM users WHERE role_type = 'user'";
-
-                                                $result = $conn->query($query);
-
-                                                if ($result->num_rows > 0): 
-                                                    while ($user = $result->fetch_assoc()): ?>
-                                                        <tr>
-                                                            <td>
-                                                                <img src="../../assets/profile_images/<?= htmlspecialchars($user['profile']) ?>" alt="" style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
-                                                                <a href="#" class="user-link text-dark"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></a>
-                                                            </td>
-                                                            <td><?= htmlspecialchars($user['role_type']) ?></td>
-                                                            <td class="text-center">
-                                                                <span class="badge badge-<?= $user['is_verified'] == 1 ? 'success' : 'secondary' ?>">
-                                                                    <?= $user['is_verified'] == 1 ? 'Active' : 'Inactive' ?>
-                                                                </span>
-                                                            </td>
-                                                            <td><a class="text-dark" href="mailto:<?= htmlspecialchars($user['email']) ?>"><?= htmlspecialchars($user['email']) ?></a></td>
-                                                            <td class="text-center">
-                                                                <!-- Edit Button -->
-                                                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal<?= $user['user_id'] ?>">
-                                                                    <i class="fas fa-pencil-alt"></i>
-                                                                </button>
-                                                                
-                                                                <!-- Edit Modal -->
-                                                                <div class="modal fade" id="editUserModal<?= $user['user_id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
-                                                                    <div class="modal-dialog" role="document">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h5 class="modal-title">Edit User</h5>
-                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                    <span aria-hidden="true">&times;</span>
-                                                                                </button>
-                                                                            </div>
-                                                                            <div class="modal-body">
-                                                                                <form class="editUserForm">
-                                                                                    <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
-
-                                                                                    <div class="form-group">
-                                                                                        <label>First Name</label>
-                                                                                        <input type="text" class="form-control" name="fname" value="<?= htmlspecialchars($user['fname']) ?>">
-                                                                                    </div>
-
-                                                                                    <div class="form-group">
-                                                                                        <label>Last Name</label>
-                                                                                        <input type="text" class="form-control" name="lname" value="<?= htmlspecialchars($user['lname']) ?>">
-                                                                                    </div>
-
-                                                                                    <div class="form-group">
-                                                                                        <label>Email</label>
-                                                                                        <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($user['email']) ?>">
-                                                                                    </div>
-
-                                                                                    <button type="submit" class="btn btn-primary">Save changes</button>
-                                                                                </form>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Delete Button -->
-                                                                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal<?= $user['user_id'] ?>">
-                                                                    <i class="fas fa-trash-alt"></i>
-                                                                </button>
-
-                                                                <!-- Delete Modal -->
-                                                                <div class="modal fade" id="deleteUserModal<?= $user['user_id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
-                                                                    <div class="modal-dialog" role="document">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h5 class="modal-title">Confirm Deletion</h5>
-                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                    <span aria-hidden="true">&times;</span>
-                                                                                </button>
-                                                                            </div>
-                                                                            <div class="modal-body">Are you sure you want to delete this user?</div>
-                                                                            <div class="modal-footer">
-                                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                                <button type="button" class="btn btn-danger confirmUserDelete" data-user_id="<?= $user['user_id'] ?>">Delete</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endwhile; 
-                                                else: ?>
+                                            <table class="table table-striped user-list">
+                                                <thead class="thead-light">
                                                     <tr>
-                                                        <td colspan="5" class="text-center">No users found.</td>
+                                                        <th>User</th>
+                                                        <th>Role</th>
+                                                        <th class="text-center">Status</th>
+                                                        <th>Email</th>
+                                                        <th class="text-center">Actions</th>
                                                     </tr>
-                                                <?php endif; ?>
-                                            </tbody>
-                                        </table>
-
-                                        <script>
-                                        $(document).ready(function () {
-                                            $('.editUserForm').submit(function (e) {
-                                                e.preventDefault();
-                                                var form = $(this);
-                                                $.ajax({
-                                                    url: '../../backend/update_user.php',
-                                                    type : 'POST',
-                                                    data: form.serialize(),
-                                                    success: function (response) {
-                                                        if (response.trim() === 'success') {
-                                                            alert('User updated successfully!');
-                                                            $('.modal').modal('hide');
-                                                            setTimeout(function () {
-                                                              location.reload(true);
-
-                                                            }, 500);
-                                                        } else {
-                                                            alert('Update failed: ' + response);
-                                                        }
-                                                    },
-                                                    error: function () {
-                                                        alert('An error occurred while updating.');
-                                                    }
-                                                });
-                                            });
-
-                                            $('.confirmUserDelete').click(function () {
-                                                var userId = $(this).data('user_id');
-                                                $.ajax({
-                                                    url: '../../backend/delete_user.php',
-                                                    type: 'POST',
-                                                    data: { user_id: userId },
-                                                    success: function (response) {
-                                                        if (response.trim() === 'success') {
-                                                            alert('User deleted successfully!');
-                                                            $('.modal').modal('hide');
-                                                            setTimeout(function () {
-                                                                location.reload(true);
-
-                                                            }, 500);
-                                                        } else {
-                                                            alert('Delete failed: ' + response);
-                                                        }
-                                                    },
-                                                    error: function () {
-                                                        alert('An error occurred while deleting.');
-                                                    }
-                                                });
-                                            });
-                                        });
-                                        </script>
-
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($result->num_rows > 0): 
+                                                        while ($user = $result->fetch_assoc()): ?>
+                                                            <tr>
+                                                                <td>
+                                                                    <img src="<?= htmlspecialchars($user['avatar']) ?>" alt=""
+                                                                        style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
+                                                                    <a href="#"
+                                                                        class="user-link text-dark"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></a>
+                                                                </td>
+                                                                <td><?= htmlspecialchars($user['role_type']) ?></td>
+                                                                <td class="text-center">
+                                                                    <span
+                                                                        class="badge badge-<?= $user['is_verified'] == 1 ? 'success' : 'secondary' ?>">
+                                                                        <?= $user['is_verified'] == 1 ? 'Active' : 'Inactive' ?>
+                                                                    </span>
+                                                                </td>
+                                                                <td><a class="text-dark"
+                                                                        href="mailto:<?= htmlspecialchars($user['email']) ?>"><?= htmlspecialchars($user['email']) ?></a>
+                                                                </td>
+                                                                <td class="text-center">
+                                                                    <a href="#" class="table-link"><i class="fas fa-search-plus"></i></a>
+                                                                    <a href="#" class="table-link"><i class="fas fa-pencil-alt"></i></a>
+                                                                    <a href="#" class="table-link text-danger"><i
+                                                                            class="fas fa-trash-alt"></i></a>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endwhile; 
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">No users found.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
                                         </div>
                                        
                                     </div><!-- main-box -->
@@ -249,7 +141,6 @@
                                         <table class="table table-striped agent-list">
                                             <thead class="thead-light">
                                                 <tr>
-                                                    <th>Profile</th>
                                                     <th>First Name</th>
                                                     <th>Last Name</th>
                                                     <th>Email</th>
@@ -260,13 +151,12 @@
                                             </thead>
                                             <tbody>
                                                 <?php
-                                                $query = "SELECT profile, user_id, fname, lname, email, mobile, location FROM users WHERE role_type = 'agent'";
+                                                $query = "SELECT user_id, fname, lname, email, mobile, location FROM users WHERE role_type = 'agent'";
                                                 $result = $conn->query($query);
 
                                                 if ($result->num_rows > 0):
                                                     while ($agent = $result->fetch_assoc()): ?>
                                                         <tr>
-                                                        <td><img src="../../assets/profile_images/<?= htmlspecialchars($agent['profile']) ?>" alt="" style="width: 30px; height: 30px; border-radius: 50%;"></td>
                                                             <td><?= htmlspecialchars($agent['fname']) ?></td>
                                                             <td><?= htmlspecialchars($agent['lname']) ?></td>
                                                             <td><a class="text-dark" href="mailto:<?= htmlspecialchars($agent['email']) ?>">
@@ -657,7 +547,7 @@
                                         </div>
                                     </div>
                                     <div class="main-box clearfix" id="reports-section" style="display:none;">
-                                        <h3>Reports</h3>
+                                    <h3>Reports</h3>
                                         <div class="table-responsive">
                                             <table class="table table-striped reports-list">
                                                 <thead class="thead-light">
@@ -845,7 +735,7 @@
                                     });
 
                                         </script>
-                                        </div>
+                                    </div>
 
 
 

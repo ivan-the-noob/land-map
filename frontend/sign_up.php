@@ -140,108 +140,125 @@
                 </form>
 
                 <form id="registrationForm" enctype="multipart/form-data" style="display: none">
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input name="first_name" type="text" class="form-control" placeholder="Enter your first name" style="text-transform: capitalize;">
-                        <span class="error-message" id="first_name_error" style="color:red;"></span>
+                    <div class="form-group d-flex">
+                        <div class="mr-2" style="flex: 1;">
+                            <label>First Name</label>
+                            <input name="first_name" type="text" class="form-control" placeholder="Enter your first name" style="text-transform: capitalize;" required>
+                            <span class="error-message" id="first_name_error" style="color:red;"></span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Last Name</label>
+                            <input name="last_name" type="text" class="form-control" placeholder="Enter your last name" style="text-transform: capitalize;" required>
+                            <span class="error-message" id="last_name_error" style="color:red;"></span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input name="last_name" type="text" class="form-control" placeholder="Enter your last name" style="text-transform: capitalize;">
-                        <span class="error-message" id="last_name_error" style="color:red;"></span>
+                    <div class="form-group d-flex">
+                        <div class="mr-2" style="flex: 1;">
+                            <label>Location</label>
+                            <input name="location" type="text" class="form-control" placeholder="Enter your location" style="text-transform: capitalize;" required>
+                            <span class="error-message" id="location_error" style="color:red;"></span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Email</label>
+                            <input name="email" type="email" class="form-control" placeholder="Enter your email" required>
+                            <span class="error-message" id="email_error" style="color:red;"></span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input name="email" type="email" class="form-control" placeholder="Enter your email">
-                        <span class="error-message" id="email_error" style="color:red;"></span>
+                    <div class="form-group d-flex">
+                        <div class="mr-2" style="flex: 1;">
+                            <label>Password</label>
+                            <input name="password" type="password" class="form-control" placeholder="Enter your password" required>
+                            <span class="error-message" id="password_error" style="color:red;"></span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Confirm Password</label>
+                            <input name="confirm_password" type="password" class="form-control" placeholder="Confirm your password" required>
+                            <span class="error-message" id="confirm_password_error" style="color:red;"></span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input name="password" type="password" class="form-control" placeholder="Enter your password">
-                        <span class="error-message" id="password_error" style="color:red;"></span>
-                    </div>
-                    <div class="form-group">
-                        <label>Confirm Password</label>
-                        <input name="confirm_password" type="password" class="form-control" placeholder="Confirm your password">
-                        <span class="error-message" id="confirm_password_error" style="color:red;"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Mobile Number</label>
-                        <input name="mobile" type="text" class="form-control" placeholder="Enter your mobile number">
-                        <span class="error-message" id="mobile_error" style="color:red;"></span>
+                    <div class="form-group d-flex">
+                        <div class="mr-2" style="flex: 1;">
+                            <label>Mobile Number</label>
+                            <input name="mobile" type="text" class="form-control" placeholder="Enter your mobile number" required>
+                            <span class="error-message" id="mobile_error" style="color:red;"></span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Profile Image</label>
+                            <input name="profile_image" type="file" class="form-control" required>
+                            <span class="error-message" id="profile_image_error" style="color:red;"></span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Location</label>
-                        <input name="location" type="text" class="form-control" placeholder="Enter your location" style="text-transform: capitalize;">
-                        <span class="error-message" id="location_error" style="color:red;"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Profile Image</label>
-                        <input name="profile_image" type="file" class="form-control">
-                        <span class="error-message" id="profile_image_error" style="color:red;"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Primary ID Type</label>
-                        <select name="primary_id_type" class="form-control">
-                            <option value="">Select Primary ID</option>
-                            <option value="passport">PH Passport</option>
-                            <option value="sss">SSS ID</option>
-                            <option value="gsis">GSIS ID</option>
-                            <option value="drivers_license">Driver's License</option>
-                            <option value="nbi">NBI Clearance</option>
-                            <option value="voters_id">Voter's ID</option>
-                            <option value="voters_cert">Voter's Certificate</option>
-                        </select>
-                        <span class="error-message" id="primary_id_type_error" style="color:red;"></span>
-                    </div>
-
-
-
-                    <div class="form-group">
-                        <label>Primary ID Number</label>
-                        <input name="primary_id_number" type="text" class="form-control" placeholder="Enter your primary ID number">
-                        <span class="error-message" id="primary_id_number_error" style="color:red;"></span>
+                    <div class="form-group d-flex">
+                        <div class="mr-2" style="flex: 1;">
+                            <label>Primary ID Type</label>
+                            <select name="primary_id_type" class="form-control" required>
+                                <option value="">Select Primary ID</option>
+                                <option value="passport">PH Passport</option>
+                                <option value="sss">SSS ID</option>
+                                <option value="gsis">GSIS ID</option>
+                                <option value="drivers_license">Driver's License</option>
+                                <option value="nbi">NBI Clearance</option>
+                                <option value="voters_id">Voter's ID</option>
+                                <option value="voters_cert">Voter's Certificate</option>
+                            </select>
+                            <span class="error-message" id="primary_id_type_error" style="color:red;"></span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Primary ID Number</label>
+                            <input name="primary_id_number" type="text" class="form-control" placeholder="Enter your primary ID number" required>
+                            <span class="error-message" id="primary_id_number_error" style="color:red;"></span>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Primary ID Image</label>
-                        <input name="primary_id_image" type="file" class="form-control">
+                        <input name="primary_id_image" type="file" class="form-control" required>
                         <span class="error-message" id="primary_id_image_error" style="color:red;"></span>
                     </div>
 
-                    <div class="form-group">
-                        <label>Secondary ID Type</label>
-                        <select id="secondary_id_type" name="secondary_id_type" class="form-control" required>
-                            <option value="">Select Secondary ID</option>
-                            <option value="philhealth">PhilHealth ID</option>
-                            <option value="national">National ID</option>
-                            <option value="postal">Postal ID (2015 onwards)</option>
-                            <option value="company">Company ID</option>
-                        </select>
-                        <span class="error-message" id="secondary_id_type_error" style="color:red;"></span>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Secondary ID Number</label>
-                        <input name="secondary_id_number" type="text" class="form-control" placeholder="Enter your secondary ID number">
-                        <span class="error-message" id="secondary_id_number_error" style="color:red;"></span>
+                    <div class="form-group d-flex">
+                        <div class="mr-2" style="flex: 1;">
+                            <label>Secondary ID Type</label>
+                            <select id="secondary_id_type" name="secondary_id_type" class="form-control" required>
+                                <option value="">Select Secondary ID</option>
+                                <option value="philhealth">PhilHealth ID</option>
+                                <option value="national">National ID</option>
+                                <option value="postal">Postal ID (2015 onwards)</option>
+                                <option value="company">Company ID</option>
+                                <option value="other">Other ID</option>
+                            </select>
+                            <span class="error-message" id="secondary_id_type_error" style="color:red;"></span>
+                        </div>
+                        <div style="flex: 1;">
+                            <label>Secondary ID Number</label>
+                            <input name="secondary_id_number" type="text" class="form-control" placeholder="Enter your secondary ID number" required>
+                            <span class="error-message" id="secondary_id_number_error" style="color:red;"></span>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>Secondary ID Image</label>
-                        <input name="secondary_id_image" type="file" class="form-control">
+                        <input name="secondary_id_image" type="file" class="form-control" required>
                         <span class="error-message" id="secondary_id_image_error" style="color:red;"></span>
                     </div>
 
+                    <div class="az-signup-footer" style="margin-bottom: 20px;">
+                        <div class="custom-control custom-checkbox" style="cursor: pointer;">
+                            <input type="checkbox" class="custom-control-input" id="terms" name="terms" required style="cursor: pointer;">
+                            <label class="custom-control-label" for="terms" style="cursor: pointer;">I agree to the <a href="#"
+                                    data-toggle="modal" data-target="#termsModal">Terms and Conditions</a></label>
+                            <span class="error-message" id="terms_error" style="color:red;"></span>
+                        </div>
+                    </div>
+                    
                     <button type="submit" id="submitBtn" class="btn btn-primary btn-block">Register</button>
                 </form>
+
+                
 
 
 
