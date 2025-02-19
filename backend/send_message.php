@@ -3,7 +3,7 @@ require '../db.php';
 session_start();
 
 date_default_timezone_set('Asia/Manila'); // Set timezone to Philippine Time
-$created_at = date('Y-m-d H:i:s'); // Get current date-time as string
+$created_at = date('Y-m-d h:i A'); // Get current date-time in 12-hour format with AM/PM
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST['agent_id'], $_POST['message'])) {
     $property_id = $_POST['property_id'];
