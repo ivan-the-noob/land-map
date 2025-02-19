@@ -595,6 +595,7 @@ if (!isset($_SESSION['role_type'])) {
                         <button class="btn-update" data-toggle="modal" data-target="#updateModal<?php echo $row['property_id']; ?>">
                             <i class="fas fa-edit"></i> Update
                         </button>
+                      
 
                         <div class="modal fade" id="updateModal<?php echo $row['property_id']; ?>" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
@@ -670,19 +671,104 @@ if (!isset($_SESSION['role_type'])) {
 
                                         <div class="mb-3">
                                             <label class="form-label">Monthly Rental Cost</label>
-                                            <input type="number" class="form-control" name="monthlyRentalCost" value="<?php echo $row['monthly_rent']; ?>">
+                                            <input type="number" class="form-control" name="monthlyRentalCost" value="<?php echo $row['monthly_rent']; ?>">       
                                         </div>
-                                       
-
                                         <div class="mb-3">
                                             <label class="form-label">Description</label>
                                             <textarea class="form-control" name="description"><?php echo htmlspecialchars($row['property_description']); ?></textarea>
                                         </div>
-
+                                        <div class="card">
+                                        <div class="card-body">
+                                        <small class=" btn btn-info rounded text-white mb-2">
+                                            <strong><i class="fas fa-info-circle"></i> Tip:</strong> The first image will be the main image. Rearrange them by removing and adding images.
+                                        </small>
                                         <div class="mb-3">
-                                            <label class="form-label">Images</label>
-                                            <input type="file" class="form-control" name="images[]" multiple>
+                                            <label class="form-label">Upload more Image</label>
+                                            <input type="file" class="form-control" name="image_name[]" multiple>
                                         </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Existing Images</label>
+                                            <div class="row">
+                                                <?php
+                                                $propertyId = $row['property_id']; // Ensure this comes from the correct property row
+                                                $imgQuery = "SELECT image_id, image_name FROM property_images WHERE property_id = ? ORDER BY image_id ASC";
+                                                $imgStmt = $conn->prepare($imgQuery);
+                                                $imgStmt->bind_param("i", $propertyId);
+                                                $imgStmt->execute();
+                                                $imgResult = $imgStmt->get_result();
+                                                $index = 1; // Start numbering from 1
+
+                                                if ($imgResult->num_rows > 0) {
+                                                    while ($imgRow = $imgResult->fetch_assoc()) {
+                                                        $imgPath = "../../assets/property_images/" . $imgRow['image_name'];
+                                                        $imageId = $imgRow['image_id'];
+                                                ?>
+                                                        <div class="col-md-6 mb-2">
+                                                            <div class="card position-relative">
+                                                                <!-- Numbering Icon (Top Left) -->
+                                                                <span class="badge badge-primary position-absolute" style="top: 5px; left: 5px; font-size: 14px; padding: 5px 10px;">
+                                                                    <?php echo $index; ?>
+                                                                </span>
+
+                                                                <img src="<?php echo htmlspecialchars($imgPath); ?>" class="card-img-top img-fluid" style="height: 150px; object-fit: cover;">
+                                                                
+                                                                <!-- Delete Icon Button (Top Right) -->
+                                                                <button class="btn btn-danger btn-sm delete-image" data-imageid="<?php echo $imageId; ?>" data-imagename="<?php echo $imgRow['image_name']; ?>" style="position: absolute; top: 5px; right: 5px;">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                <?php
+                                                        $index++; // Increment the image index
+                                                    }
+                                                } else {
+                                                    echo "<p>No images available</p>";
+                                                }
+                                                ?>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        </div>
+
+                                        <script>
+                                         $(document).ready(function () {
+                                                $(document).off("click", ".delete-image").on("click", ".delete-image", function () {
+                                                    let button = $(this);
+                                                    let imageId = button.attr("data-imageid");
+                                                    let imageName = button.attr("data-imagename");
+                                                    let card = button.closest(".col-md-6");
+
+                                                    if (confirm("Are you sure you want to delete this image?")) {
+                                                        $.ajax({
+                                                            url: "../../backend/delete_image.php",
+                                                            type: "POST",
+                                                            data: { image_id: imageId, image_name: imageName },
+                                                            dataType: "json",
+                                                            success: function (response) {
+                                                                if (response.success) {
+                                                                    card.fadeOut(300, function () { $(this).remove(); });
+                                                                } else {
+                                                                    alert("Error: " + response.error);
+                                                                }
+                                                            },
+                                                            error: function (xhr, status, error) {
+                                                                alert("AJAX Error: " + xhr.responseText);
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            });
+
+
+
+
+                                        </script>
+
+
+
+
+
+
 
 
 
@@ -797,6 +883,18 @@ if (!isset($_SESSION['role_type'])) {
 </div>
 
 <style>
+    .badge-primary {
+    background-color: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
 .property-list {
     display: grid; /* Use grid layout */
     grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); /* Responsive columns */
