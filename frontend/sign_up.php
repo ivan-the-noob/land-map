@@ -121,9 +121,9 @@
 
                     <div class="az-signup-footer" style="margin-bottom: 20px;">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input" id="terms" name="terms" required>
+                            <input type="checkbox" class="custom-control-input"  name="terms" required>
                             <label class="custom-control-label" for="terms">I agree to the <a href="#"
-                                    data-toggle="modal" data-target="#termsModal">Terms and Conditions</a></label>
+                                    data-toggle="modal" data-target="#termsModal">Terms and Conditionss</a></label>
                             <span class="error-message" id="terms_error" style="color:red;"></span>
                         </div>
                     </div>
@@ -247,7 +247,7 @@
                         <div class="custom-control custom-checkbox" style="cursor: pointer;">
                             <input type="checkbox" class="custom-control-input" id="terms" name="terms" required style="cursor: pointer;">
                             <label class="custom-control-label" for="terms" style="cursor: pointer;">I agree to the <a href="#"
-                                    data-toggle="modal" data-target="#termsModal">Terms and Conditions</a></label>
+                                    data-toggle="modal" data-target="#termsModal">Terms and Conditionss</a></label>
                             <span class="error-message" id="terms_error" style="color:red;"></span>
                         </div>
                     </div>

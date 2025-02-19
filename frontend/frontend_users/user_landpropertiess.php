@@ -785,7 +785,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
     
     
 
-                <div class="tab-content mt-4">
+    <div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
                             <!-- Post new land property -->
@@ -793,7 +793,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                             <div class="property-list">
                                 
     <?php
-    require '../../db.php';
+    require 'db.php';
 
     $sql = "SELECT p.*, 
             u.fname, u.lname,
@@ -811,7 +811,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
 
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
-            $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
+            $imagePath = $row['property_image'] ? "assets/property_images/" . $row['property_image'] : "assets/images/default-property.jpg";
             $agentName = $row['fname'] . ' ' . $row['lname'];
             
             // Calculate if the property is less than 7 days old
@@ -820,7 +820,22 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
             $daysDifference = floor(($currentDate - $createdDate) / (60 * 60 * 24));
             $isNew = ($row['days_since_added'] <= 7);
     ?>
-            <div class="property-card">
+          <div class="property-card" 
+        data-sale-type="<?php echo ($row['sale_or_lease'] == 'sale') ? 'For Sale' : 'For Lease'; ?>" 
+        data-lease-term="<?php echo ($row['lease_duration'] == 'short_term') ? 'Short Term' : 'Long Term'; ?>"
+        data-monthly-rent="<?php echo $row['monthly_rent']; ?>"
+        data-land-type="<?php echo htmlspecialchars($row['property_type']); ?>" 
+        data-location="<?php echo htmlspecialchars($row['property_location']); ?>"
+        data-sale-price="<?php echo htmlspecialchars($row['sale_price']); ?>"
+        data-land-condition="<?php echo htmlspecialchars($row['land_condition']); ?>"
+        data-land-area="<?php echo htmlspecialchars($row['land_area']); ?>"
+        data-another-info="<?php echo htmlspecialchars($row['another_info']); ?>">
+
+
+
+
+
+
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">
@@ -853,24 +868,37 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                             <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span>
                         <?php } ?>
                         <?php if (!empty($row['sale_or_lease'])) { ?>
-                            <span><i class="fas fa-tag">Land Type: </i>
+                            <span><i class="fas fa-tag">Lease Type </i>
                                 <?php 
                                     echo $row['sale_or_lease'] === 'sale' ? 'For Sale' : ($row['sale_or_lease'] === 'lease' ? 'For Lease' : htmlspecialchars($row['sale_or_lease'])); 
                                 ?>
                             </span>
                         <?php } ?>
+                        <?php if ($row['sale_or_lease'] === 'lease' && !empty($row['lease_duration'])) { 
+                            $lease_label = ($row['lease_duration'] === 'short_term') ? 'Short Term' : 'Long Term';
+                        ?>
+                            <span><i class="fas fa-file-contract">Lease Term: </i> <?php echo $lease_label; ?></span>
+                        <?php } ?>
 
+                        <?php if ($row['sale_or_lease'] === 'lease' && !empty($row['monthly_rent'])) { ?>
+                            <span class="d-none"><i class="fas fa-money-bill-wave"></i> Monthly Rent: <?php echo $row['monthly_rent']; ?></span>
+                        <?php } ?>
+                        <?php if ($row['sale_or_lease'] === 'sale' && !empty($row['land_condition'])) { ?>
+                            <span><i class="fas fa-check-circle">Land Condition</i> <?php echo $row['land_condition']; ?></span>
+                        <?php } ?>
+                        <?php if (!empty($row['property_type'])) { ?>
+                            <span class="d-none"><i class="fas fa-map-marker-alt">Property Location</i> <?php echo $row['property_type']; ?></span>
+                        <?php } ?>
+                        <?php if (!empty($row['property_location'])) { ?>
+                            <span class="d-none"><i class="fas fa-map-marker-alt">Property Location</i> <?php echo $row['property_location']; ?></span>
+                        <?php } ?>
+
+                       
                     </div>
 
                     <?php if ($row['property_description']) { ?>
                         <div class="property-description"><i class="fas fa-land"> Land Description:</i>
                             <?php echo substr(htmlspecialchars($row['property_description']), 0, 100) . '...'; ?>
-                        </div>
-                    <?php } ?>
-
-                    <?php if ($row['land_condition']) { ?>
-                        <div class="property-conditon">
-                            <span><i class="fas fa-check-circle"></i> Land Condition: <?php echo ucfirst($row['land_condition']); ?></span>
                         </div>
                     <?php } ?>
 
@@ -890,13 +918,11 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                     </div>
 
                     <div class="property-actions">
-                        <button class="btn btn-primary btn-sm" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
+                        <a href="frontend/sign_in.php"><button class="btn btn-primary btn-sm">
                             <i class="fas fa-eye"></i> View
-                        </button>
+                        </button></a>
                         
-                        <button class="btn btn-info btn-sm" onclick="openInquireModal(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-question-circle"></i> Inquire
-                        </button>
+                      
                         <div class="modal fade" id="inquireModal" tabindex="-1" role="dialog" aria-labelledby="inquireModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered" role="document">
                                 <div class="modal-content">
@@ -920,9 +946,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
 
                         <div id="floatingMessage" class="floating-message"></div>
 
-                        <button class="btn btn-danger btn-sm" onclick="archiveProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-archive"></i> Add to List
-                        </button>
+                       
                     </div>
 
                   
@@ -937,6 +961,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
               </div>';
     }
     ?>
+
 </div>
 
 <style>

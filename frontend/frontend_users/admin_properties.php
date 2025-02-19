@@ -267,22 +267,30 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         </div>
                     </div>
                 </div>
-                    <h5>Filters</h5>
+                <h5>Filters</h5>
                     <div class="filter-row">
-                    <div class="filter-item">
+                        <?php
+                        $selectedSaleType = isset($_GET['saleTypeFilter']) ? $_GET['saleTypeFilter'] : 'all';
+                        $selectedLandType = isset($_GET['landTypeFilter']) ? $_GET['landTypeFilter'] : 'all';
+                        $selectedLocation = isset($_GET['propertyLocation']) ? $_GET['propertyLocation'] : 'all';
+                        $minPrice = isset($_GET['min_price']) ? intval($_GET['min_price']) : 0;
+                        $maxPrice = isset($_GET['max_price']) ? intval($_GET['max_price']) : 1000000000;
+                        ?>
+
+                        <div class="filter-item">
                             <label for="saleTypeFilter">Sale Type:</label>
                             <select id="saleTypeFilter" class="form-control">
-                                <option value="all">All Types</option>
-                                <option value="sale">For Sale</option>
-                                <option value="lease">For Lease</option>
+                                <option value="all" <?= ($selectedSaleType == 'all') ? 'selected' : '' ?>>All Types</option>
+                                <option value="For Sale" <?= ($selectedSaleType == 'For Sale') ? 'selected' : '' ?>>For Sale</option>
+                                <option value="For Lease" <?= ($selectedSaleType == 'For Lease') ? 'selected' : '' ?>>For Lease</option>
                             </select>
                         </div>
                         <div class="filter-item lease-options" style="display:none;">
                             <label for="leaseTermFilter">Lease Term:</label>
                             <select id="leaseTermFilter" class="form-control">
                                 <option value="all">All Terms</option>
-                                <option value="short term">Short Term (Less than 1 year)</option>
-                                <option value="long term">Long Term (More than 1 year)</option>
+                                <option value="Short Term">Short Term (Less than 1 year)</option>
+                                <option value="Long Term">Long Term (More than 1 year)</option>
                             </select>
                         </div>
                         <div class="filter-item lease-options" style="display:none;">
@@ -307,59 +315,44 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         <script>
                             document.getElementById('saleTypeFilter').addEventListener('change', function() {
                                 const saleOptions = document.querySelectorAll('.sale-options');
-                                saleOptions.forEach(option => {
-                                    option.style.display = this.value === 'sale' ? 'block' : 'none';
-                                });
-                            });
-                        </script>
-                        <script>
-                            document.getElementById('saleTypeFilter').addEventListener('change', function() {
                                 const leaseOptions = document.querySelectorAll('.lease-options');
-                                leaseOptions.forEach(option => {
-                                    option.style.display = this.value === 'lease' ? 'block' : 'none';
-                                });
-                            });
-                        </script>
-                        <div class="filter-item">
-                            <label for="landTypeFilter">Land Type:</label>
-                            <select id="landTypeFilter" class="form-control">
-                                <option value="all">All Types</option>
-                                <option value="house and lot">House and Lot</option>
-                                <option value="agricultural farm">Agricultural Farm</option>
-                                <option value="commercial lot">Commercial Lot</option>
-                                <option value="raw land">Raw Land</option>
-                                <option value="residential land">Residential Land</option>
-                                <option value="residential farm">Residential Farm</option>
-                                <option value="memorial lot">Memorial Lot</option>
-                            </select>
-                        </div>
-                        <div class="filter-item">
-                            <label for="locationFilter">Location:</label>
-                            <select name="propertyLocation" class="form-control" id="propertyLocation">
-                                            <?php include '../../backend/filter_places.php';?>
-                                        </select>
-                        </div>
-                        <script>
-                            document.getElementById('propertyLocation').addEventListener('change', function() {
-                                const selectedValue = this.value;
-                                const selectedCity = selectedValue.split(',')[0]; // Get city name before comma
-                                const barangayOptions = document.querySelectorAll('optgroup[label^="Barangays"]');
-                                
-                                barangayOptions.forEach(optgroup => {
-                                    optgroup.style.display = 'none';
-                                    const cityInLabel = optgroup.label.split('-')[1].trim(); // Get city name after dash
-                                    if (cityInLabel.toLowerCase().includes(selectedCity.toLowerCase())) {
-                                        optgroup.style.display = 'block';
-                                    }
-                                });
 
-                                // Reset to first option if a city/municipality is selected
-                                if (selectedValue !== 'all') {
-                                    this.value = selectedValue;
+                                if (this.value === 'For Sale') {
+                                    saleOptions.forEach(option => option.style.display = 'block');
+                                    leaseOptions.forEach(option => option.style.display = 'none');
+                                } else if (this.value === 'For Lease') {
+                                    leaseOptions.forEach(option => option.style.display = 'block');
+                                    saleOptions.forEach(option => option.style.display = 'none');
+                                } else {
+                                    saleOptions.forEach(option => option.style.display = 'none');
+                                    leaseOptions.forEach(option => option.style.display = 'none');
                                 }
                             });
                         </script>
 
+
+                     
+                        <div class="filter-item">
+                            <label for="landTypeFilter">Land Type:</label>
+                            <select id="landTypeFilter" class="form-control">
+                                <option value="all" <?= ($selectedLandType == 'all') ? 'selected' : '' ?>>All Types</option>
+                                <option value="House and Lot" <?= ($selectedLandType == 'House and Lot') ? 'selected' : '' ?>>House and Lot</option>
+                                <option value="Agricultural Farm" <?= ($selectedLandType == 'Agricultural Farm') ? 'selected' : '' ?>>Agricultural Farm</option>
+                                <option value="Commercial Lot" <?= ($selectedLandType == 'Commercial Lot') ? 'selected' : '' ?>>Commercial Lot</option>
+                                <option value="Raw Land" <?= ($selectedLandType == 'Raw Land') ? 'selected' : '' ?>>Raw Land</option>
+                                <option value="Residential Land" <?= ($selectedLandType == 'Residential Land') ? 'selected' : '' ?>>Residential Land</option>
+                                <option value="Residential Farm" <?= ($selectedLandType == 'Residential Farm') ? 'selected' : '' ?>>Residential Farm</option>
+                                <option value="Memorial Lot" <?= ($selectedLandType == 'Memorial Lot') ? 'selected' : '' ?>>Memorial Lot</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label for="propertyLocation">Location:</label>
+                            <select name="propertyLocation" class="form-control" id="propertyLocation">
+                                <?php include '../../backend/filter_place.php'; ?>  
+                                <option value="Bacoor, Cavite" <?= ($selectedLocation == 'Bacoor, Cavite') ? 'selected' : '' ?>>Bacoor</option>            
+                            </select>
+                        </div>
+                       
                         <div class="filter-item">
                             <label for="priceRange">Price Range:</label>
                             <div class="input-group">
@@ -410,30 +403,240 @@ elseif ($_SESSION['role_type'] !== 'admin') {
             </div>
         </div>
     </div>
+   
+<script>
+   function applyFilters() {
+    console.log("Filters applied!");
+}
+
+function resetFilters() {
+    // Reset all filters
+    document.getElementById("saleTypeFilter").value = "all";
+    document.getElementById("leaseTermFilter").value = "all";
+    document.getElementById("monthlyRental").value = "";
+    document.getElementById("landTypeFilter").value = "all";
+    document.getElementById("propertyLocation").value = "all";
+    document.getElementById("landCondition").value = "all";
+    document.getElementById("minPrice").value = "";
+    document.getElementById("maxPrice").value = "";
+    document.getElementById("minArea").value = "";
+    document.getElementById("maxArea").value = "";
+
+    // Uncheck all additional info checkboxes
+    document.querySelectorAll("input[name='additionalInfo']").forEach(cb => cb.checked = false);
+
+    // Show all property cards
+    document.querySelectorAll(".property-card").forEach(card => card.style.display = "block");
+
+    // Remove URL parameters without reloading
+    const newUrl = window.location.pathname; // Get URL without parameters
+    history.replaceState(null, "", newUrl); // Update URL
+}
+
+// Attach event listener to reset button
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+
+
+// Attach event listener to reset button
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("saleTypeFilter")) {
+        document.getElementById("saleTypeFilter").value = params.get("saleTypeFilter");
+    }
+
+    if (params.has("landTypeFilter")) {
+        document.getElementById("landTypeFilter").value = params.get("landTypeFilter");
+    }
+
+    if (params.has("propertyLocation")) {
+        document.getElementById("propertyLocation").value = params.get("propertyLocation");
+    }
+
+    if (params.has("min_price")) {
+        document.getElementById("minPrice").value = params.get("min_price");
+    }
+
+    if (params.has("max_price")) {
+        document.getElementById("maxPrice").value = params.get("max_price");
+    }
+
+    if (
+        params.has("saleTypeFilter") || 
+        params.has("landTypeFilter") || 
+        params.has("propertyLocation") || 
+        params.has("min_price") || 
+        params.has("max_price")
+    ) {
+        document.getElementById("applyFilters").click();
+    }
+});
+
+
+  
+</script>
+
+
+
+<script>
+function applyFilters() {
+    let selectedSaleType = document.getElementById("saleTypeFilter").value;
+    let selectedLeaseTerm = document.getElementById("leaseTermFilter").value;
+    let monthlyRentInput = document.getElementById("monthlyRental").value.replace(/,/g, '').trim();
+    let selectedLandType = document.getElementById("landTypeFilter").value;
+    let selectedLocation = document.getElementById("propertyLocation").value;
+    let selectedLandCondition = document.getElementById("landCondition").value;
+    let minPrice = document.getElementById("minPrice").value.trim();
+    let maxPrice = document.getElementById("maxPrice").value.trim();
+    let minArea = document.getElementById("minArea").value.trim();
+    let maxArea = document.getElementById("maxArea").value.trim();
+
+    // Get selected checkboxes for additional info
+    let selectedAdditionalInfo = Array.from(document.querySelectorAll("input[name='additionalInfo']:checked")).map(cb => cb.value);
+
+    let cards = document.querySelectorAll(".property-card");
+
+    cards.forEach(card => {
+        let saleType = card.getAttribute("data-sale-type");
+        let leaseTerm = card.getAttribute("data-lease-term");
+        let monthlyRent = card.getAttribute("data-monthly-rent");
+        let landType = card.getAttribute("data-land-type");
+        let propertyLocation = card.getAttribute("data-location");
+        let landCondition = card.getAttribute("data-land-condition");
+        let salePrice = parseFloat(card.getAttribute("data-sale-price")) || 0;
+        let landArea = parseFloat(card.getAttribute("data-land-area")) || 0;
+        let additionalInfo = card.getAttribute("data-another-info") ? card.getAttribute("data-another-info").split(",") : [];
+
+        card.style.display = "none";
+
+        if (
+            selectedSaleType === "all" && 
+            selectedLeaseTerm === "all" && 
+            monthlyRentInput === "" && 
+            selectedLandType === "all" && 
+            selectedLocation === "all" && 
+            selectedLandCondition === "all" &&
+            minPrice === "" && maxPrice === "" &&
+            minArea === "" && maxArea === "" &&
+            selectedAdditionalInfo.length === 0
+        ) {
+            card.style.display = "block";
+            return;
+        }
+
+        if (selectedSaleType !== "all" && saleType !== selectedSaleType) {
+            return;
+        }
+
+        if (selectedSaleType === "For Lease" && selectedLeaseTerm !== "all" && leaseTerm !== selectedLeaseTerm) {
+            return;
+        }
+
+        if (monthlyRentInput !== "" && monthlyRent !== null) {
+            let rentValue = parseInt(monthlyRent, 10);
+            let inputValue = parseInt(monthlyRentInput, 10);
+            if (rentValue !== inputValue) {
+                return;
+            }
+        }
+
+        if (selectedLandType !== "all" && landType !== selectedLandType) {
+            return;
+        }
+
+        if (selectedLocation !== "all" && propertyLocation !== selectedLocation) {
+            return;
+        }
+
+        if (selectedSaleType === "For Sale" && selectedLandCondition !== "all" && landCondition !== selectedLandCondition) {
+            return;
+        }
+
+        if (selectedSaleType === "For Sale") {
+            if (minPrice !== "" && salePrice < parseFloat(minPrice)) {
+                return;
+            }
+            if (maxPrice !== "" && salePrice > parseFloat(maxPrice)) {
+                return;
+            }
+        } else if (selectedSaleType === "For Lease") {
+            let rentValue = parseFloat(monthlyRent) || 0;
+            if (minPrice !== "" && rentValue < parseFloat(minPrice)) {
+                return;
+            }
+            if (maxPrice !== "" && rentValue > parseFloat(maxPrice)) {
+                return;
+            }
+        }
+        if (minArea !== "" && landArea < parseFloat(minArea)) {
+            return;
+        }
+
+        if (maxArea !== "" && landArea > parseFloat(maxArea)) {
+            return;
+        }
+
+        // Check if the selected additional info matches any card's additional info
+        if (selectedAdditionalInfo.length > 0) {
+            let matches = selectedAdditionalInfo.some(info => additionalInfo.includes(info));
+            if (!matches) {
+                return;
+            }
+        }
+
+        card.style.display = "block";
+    });
+}
+
+document.getElementById("applyFilters").addEventListener("click", applyFilters);
+</script>
     
     
 
-                <div class="tab-content mt-4">
+<div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
                             <!-- Post new land property -->
-                            <h3 class="mb-1 mr-5">All Land Properties</h3>
+                            <h3 class="mb-1 mr-5" id="land_property">All Land Properties</h3>
                             <div class="property-list">
                                 
     <?php
     require '../../db.php';
 
+    // $sql = "SELECT p.*, 
+    //         u.fname, u.lname,
+    //         ui.image_name as user_image,
+    //         (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+    //         DATE_FORMAT(p.created_at, '%M %d, %Y') as formatted_date,
+    //         DATE_FORMAT(p.created_at, '%h:%i %p') as formatted_time,
+    //         DATEDIFF(CURRENT_DATE, p.created_at) as days_since_added
+    //         FROM properties p 
+    //         LEFT JOIN users u ON p.user_id = u.user_id
+    //         LEFT JOIN user_img ui ON u.user_id = ui.user_id
+    //         WHERE p.is_archive = 0
+    //         ORDER BY p.property_id DESC";
+    
     $sql = "SELECT p.*, 
-            u.fname, u.lname,
-            ui.image_name as user_image,
-            (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
-            DATE_FORMAT(p.created_at, '%M %d, %Y') as formatted_date,
-            DATE_FORMAT(p.created_at, '%h:%i %p') as formatted_time,
-            DATEDIFF(CURRENT_DATE, p.created_at) as days_since_added
-            FROM properties p 
-            LEFT JOIN users u ON p.user_id = u.user_id
-            LEFT JOIN user_img ui ON u.user_id = ui.user_id
-            ORDER BY p.property_id DESC";
+        u.fname, 
+        u.lname,
+        ui.image_name AS user_image,
+        (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+        DATE_FORMAT(p.created_at, '%M %d, %Y') AS formatted_date,
+        DATE_FORMAT(p.created_at, '%h:%i %p') AS formatted_time,
+        DATEDIFF(CURRENT_DATE, p.created_at) AS days_since_added,
+        COUNT(v.id) AS total_views  -- Count views per property
+    FROM properties p
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN user_img ui ON u.user_id = ui.user_id
+    LEFT JOIN views v ON p.property_id = v.property_id  -- Join views table
+    WHERE p.is_archive = 0
+    GROUP BY p.property_id  -- Ensure correct grouping
+    ORDER BY p.property_id DESC";
+
+
+    
 
     $result = $conn->query($sql);
 
@@ -442,17 +645,38 @@ elseif ($_SESSION['role_type'] !== 'admin') {
             $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
             $agentName = $row['fname'] . ' ' . $row['lname'];
             
-            // Calculate if the property is less than 7 days old
             $createdDate = strtotime($row['created_at']);
             $currentDate = strtotime('now');
             $daysDifference = floor(($currentDate - $createdDate) / (60 * 60 * 24));
             $isNew = ($row['days_since_added'] <= 7);
     ?>
-            <div class="property-card">
+          <div class="property-card" 
+        data-sale-type="<?php echo ($row['sale_or_lease'] == 'sale') ? 'For Sale' : 'For Lease'; ?>" 
+        data-lease-term="<?php echo ($row['lease_duration'] == 'short_term') ? 'Short Term' : 'Long Term'; ?>"
+        data-monthly-rent="<?php echo $row['monthly_rent']; ?>"
+        data-land-type="<?php echo htmlspecialchars($row['property_type']); ?>" 
+        data-location="<?php echo htmlspecialchars($row['property_location']); ?>"
+        data-sale-price="<?php echo htmlspecialchars($row['sale_price']); ?>"
+        data-land-condition="<?php echo htmlspecialchars($row['land_condition']); ?>"
+        data-land-area="<?php echo htmlspecialchars($row['land_area']); ?>"
+        data-another-info="<?php echo htmlspecialchars($row['another_info']);
+        
+        ?>">
+
+
+
+
+    
+
+
+
+
+
+
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">
-                    <?php echo $row['sale_or_lease'] == 'sale' ? 'FOR SALE' : 'FOR LEASE'; ?>
+                    <?php echo $row['sale_or_lease'] == 'sale' ? 'For Sale' : 'For Lease'; ?>
                     </div>
                     <?php if ($isNew) { ?>
                         <div class="new-badge" data-created="<?php echo $row['created_at']; ?>">NEW</div>
@@ -465,6 +689,9 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                 <div class="property-content">
                     <div class="property-header">
                         <h3 class="property-title">Property Name: <?php echo htmlspecialchars($row['property_name']); ?></h3>
+                    </div>
+                    <div class="property-header">
+                        <h3 class="property-title text-muted" style="font-size: 12px;">Views:  <?php echo htmlspecialchars($row['total_views']); ?></h3>
                     </div>
                     
                     <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price'] > 0) { ?>
@@ -480,17 +707,38 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         <?php if ($row['property_type']) { ?>
                             <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span>
                         <?php } ?>
+                        <?php if (!empty($row['sale_or_lease'])) { ?>
+                            <span><i class="fas fa-tag">Lease Type </i>
+                                <?php 
+                                    echo $row['sale_or_lease'] === 'sale' ? 'For Sale' : ($row['sale_or_lease'] === 'lease' ? 'For Lease' : htmlspecialchars($row['sale_or_lease'])); 
+                                ?>
+                            </span>
+                        <?php } ?>
+                        <?php if ($row['sale_or_lease'] === 'lease' && !empty($row['lease_duration'])) { 
+                            $lease_label = ($row['lease_duration'] === 'short_term') ? 'Short Term' : 'Long Term';
+                        ?>
+                            <span><i class="fas fa-file-contract">Lease Term: </i> <?php echo $lease_label; ?></span>
+                        <?php } ?>
+
+                        <?php if ($row['sale_or_lease'] === 'lease' && !empty($row['monthly_rent'])) { ?>
+                            <span class="d-none"><i class="fas fa-money-bill-wave"></i> Monthly Rent: <?php echo $row['monthly_rent']; ?></span>
+                        <?php } ?>
+                        <?php if ($row['sale_or_lease'] === 'sale' && !empty($row['land_condition'])) { ?>
+                            <span><i class="fas fa-check-circle">Land Condition</i> <?php echo $row['land_condition']; ?></span>
+                        <?php } ?>
+                        <?php if (!empty($row['property_type'])) { ?>
+                            <span class="d-none"><i class="fas fa-map-marker-alt">Property Location</i> <?php echo $row['property_type']; ?></span>
+                        <?php } ?>
+                        <?php if (!empty($row['property_location'])) { ?>
+                            <span class="d-none"><i class="fas fa-map-marker-alt">Property Location</i> <?php echo $row['property_location']; ?></span>
+                        <?php } ?>
+
+                       
                     </div>
 
                     <?php if ($row['property_description']) { ?>
                         <div class="property-description"><i class="fas fa-land"> Land Description:</i>
                             <?php echo substr(htmlspecialchars($row['property_description']), 0, 100) . '...'; ?>
-                        </div>
-                    <?php } ?>
-
-                    <?php if ($row['land_condition']) { ?>
-                        <div class="property-conditon">
-                            <span><i class="fas fa-check-circle"></i> Land Condition: <?php echo ucfirst($row['land_condition']); ?></span>
                         </div>
                     <?php } ?>
 
@@ -513,28 +761,10 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         <button class="btn btn-primary btn-sm" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View
                         </button>
-                        
-                        <button class="btn btn-warning btn-sm" onclick="showRestrictModal(<?php echo $row['property_id']; ?>, '<?php echo $row['status'] ?? 'active'; ?>')">
-                            <i class="fas <?php echo ($row['status'] ?? 'active') === 'restricted' ? 'fa-unlock' : 'fa-ban'; ?>"></i>
-                            <?php echo ($row['status'] ?? 'active') === 'restricted' ? 'Unrestrict' : 'Restrict'; ?>
-                        </button>
-
-                        <button class="btn btn-danger btn-sm" onclick="archiveProperty(<?php echo $row['property_id']; ?>)">
-                            <i class="fas fa-archive"></i> Archive
-                        </button>
                     </div>
-
-                    <div class="agent-info">
-                        <?php if ($row['user_image']) { ?>
-                            <img src="../../assets/images/profile/<?php echo $row['user_image']; ?>" alt="Agent">
-                        <?php } ?>
-                        <span><i class="fas fa-user"> Agent Name:</i> <?php echo htmlspecialchars($agentName); ?></span>
-                        <?php if ($row['user_id'] != $_SESSION['user_id']) { ?>
-                            <button class="btn-contact" onclick="contactAgent(<?php echo $row['user_id']; ?>)">
-                                <i class="fas fa-user"></i> Message Agent
-                            </button>
-                        <?php } ?>
-                    </div>
+                    <hr>
+                    <strong>Agent:</strong> <?php echo htmlspecialchars($agentName); ?>
+                    
                 </div>
             </div>
     <?php
@@ -2122,101 +2352,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
         });
     }
 
-    function applyFilters() {
-        const searchInput = document.getElementById('searchInput').value.toLowerCase();
-        const saleType = document.getElementById('saleTypeFilter').value;
-        const landType = document.getElementById('landTypeFilter').value;
-        const location = document.getElementById('propertyLocation').value;
-        const minPrice = document.getElementById('minPrice').value;
-        const maxPrice = document.getElementById('maxPrice').value;
-        const minArea = document.getElementById('minArea').value;
-        const maxArea = document.getElementById('maxArea').value;
-        
-        const propertyCards = document.querySelectorAll('.property-card');
-
-        propertyCards.forEach(card => {
-            let showCard = true;
-            
-            // Search text filter
-            const propertyName = card.querySelector('.property-title').textContent.toLowerCase();
-            const propertyType = card.querySelector('.property-details').textContent.toLowerCase();
-            const propertyLocation = card.querySelector('.location-badge').textContent.toLowerCase();
-            
-            if (searchInput && !propertyName.includes(searchInput) && 
-                !propertyType.includes(searchInput) && 
-                !propertyLocation.includes(searchInput)) {
-                showCard = false;
-            }
-
-            // Sale type filter
-            if (saleType !== 'all') {
-                const cardSaleType = card.querySelector('.sale-badge').textContent.toLowerCase();
-                if (!cardSaleType.includes(saleType)) {
-                    showCard = false;
-                }
-            }
-
-            // Land type filter
-            if (landType !== 'all') {
-                const cardLandType = card.querySelector('.property-details').textContent.toLowerCase();
-                if (!cardLandType.includes(landType)) {
-                    showCard = false;
-                }
-            }
-
-            // Location filter
-            if (location !== 'all') {
-                const cardLocation = card.querySelector('.location-badge').textContent.toLowerCase();
-                if (!cardLocation.includes(location.toLowerCase())) {
-                    showCard = false;
-                }
-            }
-
-            // Price range filter
-            const priceText = card.querySelector('.property-price').textContent;
-            const price = parseFloat(priceText.replace(/[^0-9.]/g, ''));
-            if ((minPrice && price < minPrice) || (maxPrice && price > maxPrice)) {
-                showCard = false;
-            }
-
-            // Area range filter
-            const areaText = card.querySelector('.property-details').textContent;
-            const areaMatch = areaText.match(/(\d+)\s*sqm/);
-            if (areaMatch) {
-                const area = parseFloat(areaMatch[1]);
-                if ((minArea && area < minArea) || (maxArea && area > maxArea)) {
-                    showCard = false;
-                }
-            }
-
-            card.style.display = showCard ? 'block' : 'none';
-        });
-    }
-
-    function resetFilters() {
-        // Reset all filter inputs
-        document.getElementById('searchInput').value = '';
-        document.getElementById('saleTypeFilter').value = 'all';
-        document.getElementById('landTypeFilter').value = 'all';
-        document.getElementById('propertyLocation').value = 'all';
-        document.getElementById('minPrice').value = '';
-        document.getElementById('maxPrice').value = '';
-        document.getElementById('minArea').value = '';
-        document.getElementById('maxArea').value = '';
-        
-        // Reset checkboxes
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.checked = false;
-        });
-
-        // Show all property cards
-        document.querySelectorAll('.property-card').forEach(card => {
-            card.style.display = 'block';
-        });
-    }
-
-    // Add event listener for search input
-    document.getElementById('searchInput').addEventListener('keyup', handleSearch);
+   
     </script>
 
 </body>

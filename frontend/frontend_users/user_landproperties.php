@@ -272,14 +272,22 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         </div>
                     </div>
                 </div>
-                    <h5>Filters</h5>
+                <h5>Filters</h5>
                     <div class="filter-row">
-                    <div class="filter-item">
+                        <?php
+                        $selectedSaleType = isset($_GET['saleTypeFilter']) ? $_GET['saleTypeFilter'] : 'all';
+                        $selectedLandType = isset($_GET['landTypeFilter']) ? $_GET['landTypeFilter'] : 'all';
+                        $selectedLocation = isset($_GET['propertyLocation']) ? $_GET['propertyLocation'] : 'all';
+                        $minPrice = isset($_GET['min_price']) ? intval($_GET['min_price']) : 0;
+                        $maxPrice = isset($_GET['max_price']) ? intval($_GET['max_price']) : 1000000000;
+                        ?>
+
+                        <div class="filter-item">
                             <label for="saleTypeFilter">Sale Type:</label>
                             <select id="saleTypeFilter" class="form-control">
-                                <option value="all">All Types</option>
-                                <option value="For Sale">For Sale</option>
-                                <option value="For Lease">For Lease</option>
+                                <option value="all" <?= ($selectedSaleType == 'all') ? 'selected' : '' ?>>All Types</option>
+                                <option value="For Sale" <?= ($selectedSaleType == 'For Sale') ? 'selected' : '' ?>>For Sale</option>
+                                <option value="For Lease" <?= ($selectedSaleType == 'For Lease') ? 'selected' : '' ?>>For Lease</option>
                             </select>
                         </div>
                         <div class="filter-item lease-options" style="display:none;">
@@ -298,7 +306,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <div class="filter-item sale-options" style="display:none;">
                             <label for="landCondition">Land Condition:</label>
                             <select id="landCondition" class="form-control">
-                                <option value="">All Terms</option>
+                                <option value="all">All Terms</option>
                                 <option value="resale">Resale</option>
                                 <option value="foreClose">Foreclose/Acquired Assets</option>
                                 <option value="pasalo">Pasalo/Assumed Balance</option>
@@ -309,47 +317,47 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                             <input type="text" id="landContract" class="form-control" placeholder="Enter amount" 
                                 oninput="this.value = this.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
                         </div>
+                        <script>
+                            document.getElementById('saleTypeFilter').addEventListener('change', function() {
+                                const saleOptions = document.querySelectorAll('.sale-options');
+                                const leaseOptions = document.querySelectorAll('.lease-options');
+
+                                if (this.value === 'For Sale') {
+                                    saleOptions.forEach(option => option.style.display = 'block');
+                                    leaseOptions.forEach(option => option.style.display = 'none');
+                                } else if (this.value === 'For Lease') {
+                                    leaseOptions.forEach(option => option.style.display = 'block');
+                                    saleOptions.forEach(option => option.style.display = 'none');
+                                } else {
+                                    saleOptions.forEach(option => option.style.display = 'none');
+                                    leaseOptions.forEach(option => option.style.display = 'none');
+                                }
+                            });
+                        </script>
+
 
                      
                         <div class="filter-item">
                             <label for="landTypeFilter">Land Type:</label>
                             <select id="landTypeFilter" class="form-control">
-                                <option value="">All Types</option>
-                                <option value="House and Lot">House and Lot</option>
-                                <option value="Agricultural Farm">Agricultural Farm</option>
-                                <option value="Commercial Lot">Commercial Lot</option>
-                                <option value="Raw Land">Raw Land</option>
-                                <option value="Residential Land">Residential Land</option>
-                                <option value="Residential Farm">Residential Farm</option>
-                                <option value="Memorial Lot">Memorial Lot</option>
+                                <option value="all" <?= ($selectedLandType == 'all') ? 'selected' : '' ?>>All Types</option>
+                                <option value="House and Lot" <?= ($selectedLandType == 'House and Lot') ? 'selected' : '' ?>>House and Lot</option>
+                                <option value="Agricultural Farm" <?= ($selectedLandType == 'Agricultural Farm') ? 'selected' : '' ?>>Agricultural Farm</option>
+                                <option value="Commercial Lot" <?= ($selectedLandType == 'Commercial Lot') ? 'selected' : '' ?>>Commercial Lot</option>
+                                <option value="Raw Land" <?= ($selectedLandType == 'Raw Land') ? 'selected' : '' ?>>Raw Land</option>
+                                <option value="Residential Land" <?= ($selectedLandType == 'Residential Land') ? 'selected' : '' ?>>Residential Land</option>
+                                <option value="Residential Farm" <?= ($selectedLandType == 'Residential Farm') ? 'selected' : '' ?>>Residential Farm</option>
+                                <option value="Memorial Lot" <?= ($selectedLandType == 'Memorial Lot') ? 'selected' : '' ?>>Memorial Lot</option>
                             </select>
                         </div>
                         <div class="filter-item">
-                            <label for="locationFilter">Location:</label>
+                            <label for="propertyLocation">Location:</label>
                             <select name="propertyLocation" class="form-control" id="propertyLocation">
-                                  <?php include '../../backend/filter_places.php'; ?>          
+                                <?php include '../../backend/filter_place.php'; ?>  
+                                <option value="Bacoor, Cavite" <?= ($selectedLocation == 'Bacoor, Cavite') ? 'selected' : '' ?>>Bacoor</option>            
                             </select>
                         </div>
-                        <script>
-                            document.getElementById('propertyLocation').addEventListener('change', function() {
-                                const selectedValue = this.value;
-                                const selectedCity = selectedValue.split(',')[0]; // Get city name before comma
-                                const barangayOptions = document.querySelectorAll('optgroup[label^="Barangays"]');
-                                
-                                barangayOptions.forEach(optgroup => {
-                                    optgroup.style.display = 'none';
-                                    const cityInLabel = optgroup.label.split('-')[1].trim(); // Get city name after dash
-                                    if (cityInLabel.toLowerCase().includes(selectedCity.toLowerCase())) {
-                                        optgroup.style.display = 'block';
-                                    }
-                                });
-
-                                // Reset to first option if a city/municipality is selected
-                                if (selectedValue !== 'all') {
-                                    this.value = selectedValue;
-                                }
-                            });
-                        </script>
+                       
                         <div class="filter-item">
                             <label for="priceRange">Price Range:</label>
                             <div class="input-group">
@@ -401,8 +409,83 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
         </div>
     </div>
    
+<script>
+   function applyFilters() {
+    console.log("Filters applied!");
+}
 
-    <script>
+function resetFilters() {
+    // Reset all filters
+    document.getElementById("saleTypeFilter").value = "all";
+    document.getElementById("leaseTermFilter").value = "all";
+    document.getElementById("monthlyRental").value = "";
+    document.getElementById("landTypeFilter").value = "all";
+    document.getElementById("propertyLocation").value = "all";
+    document.getElementById("landCondition").value = "all";
+    document.getElementById("minPrice").value = "";
+    document.getElementById("maxPrice").value = "";
+    document.getElementById("minArea").value = "";
+    document.getElementById("maxArea").value = "";
+
+    // Uncheck all additional info checkboxes
+    document.querySelectorAll("input[name='additionalInfo']").forEach(cb => cb.checked = false);
+
+    // Show all property cards
+    document.querySelectorAll(".property-card").forEach(card => card.style.display = "block");
+
+    // Remove URL parameters without reloading
+    const newUrl = window.location.pathname; // Get URL without parameters
+    history.replaceState(null, "", newUrl); // Update URL
+}
+
+// Attach event listener to reset button
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+
+
+// Attach event listener to reset button
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.has("saleTypeFilter")) {
+        document.getElementById("saleTypeFilter").value = params.get("saleTypeFilter");
+    }
+
+    if (params.has("landTypeFilter")) {
+        document.getElementById("landTypeFilter").value = params.get("landTypeFilter");
+    }
+
+    if (params.has("propertyLocation")) {
+        document.getElementById("propertyLocation").value = params.get("propertyLocation");
+    }
+
+    if (params.has("min_price")) {
+        document.getElementById("minPrice").value = params.get("min_price");
+    }
+
+    if (params.has("max_price")) {
+        document.getElementById("maxPrice").value = params.get("max_price");
+    }
+
+    if (
+        params.has("saleTypeFilter") || 
+        params.has("landTypeFilter") || 
+        params.has("propertyLocation") || 
+        params.has("min_price") || 
+        params.has("max_price")
+    ) {
+        document.getElementById("applyFilters").click();
+    }
+});
+
+
+  
+</script>
+
+
+
+<script>
 function applyFilters() {
     let selectedSaleType = document.getElementById("saleTypeFilter").value;
     let selectedLeaseTerm = document.getElementById("leaseTermFilter").value;
@@ -585,7 +668,14 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
         data-sale-price="<?php echo htmlspecialchars($row['sale_price']); ?>"
         data-land-condition="<?php echo htmlspecialchars($row['land_condition']); ?>"
         data-land-area="<?php echo htmlspecialchars($row['land_area']); ?>"
-        data-another-info="<?php echo htmlspecialchars($row['another_info']); ?>">
+        data-another-info="<?php echo htmlspecialchars($row['another_info']);
+        
+        ?>">
+
+
+
+
+    
 
 
 
@@ -595,7 +685,7 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">
-                    <?php echo $row['sale_or_lease'] == 'sale' ? 'FOR SALE' : 'FOR LEASE'; ?>
+                    <?php echo $row['sale_or_lease'] == 'sale' ? 'For Sale' : 'For Lease'; ?>
                     </div>
                     <?php if ($isNew) { ?>
                         <div class="new-badge" data-created="<?php echo $row['created_at']; ?>">NEW</div>

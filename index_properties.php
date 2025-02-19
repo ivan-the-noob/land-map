@@ -298,6 +298,24 @@
                             <input type="text" id="landContract" class="form-control" placeholder="Enter amount" 
                                 oninput="this.value = this.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
                         </div>
+                        <script>
+                            document.getElementById('saleTypeFilter').addEventListener('change', function() {
+                                const saleOptions = document.querySelectorAll('.sale-options');
+                                const leaseOptions = document.querySelectorAll('.lease-options');
+
+                                if (this.value === 'For Sale') {
+                                    saleOptions.forEach(option => option.style.display = 'block');
+                                    leaseOptions.forEach(option => option.style.display = 'none');
+                                } else if (this.value === 'For Lease') {
+                                    leaseOptions.forEach(option => option.style.display = 'block');
+                                    saleOptions.forEach(option => option.style.display = 'none');
+                                } else {
+                                    saleOptions.forEach(option => option.style.display = 'none');
+                                    leaseOptions.forEach(option => option.style.display = 'none');
+                                }
+                            });
+                        </script>
+
 
                      
                         <div class="filter-item">
