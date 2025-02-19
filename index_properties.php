@@ -1194,9 +1194,6 @@ setInterval(updateTime, 1000);
 </script>
 
 <!-- Add the floating button -->
-<button id="mapButton" class="floating-map-btn" onclick="toggleMap()">
-    <i class="fas fa-map-marker-alt"></i>
-</button>
 
 <!-- Add the map panel -->
 <div id="mapPanel" class="map-panel">
