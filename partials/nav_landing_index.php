@@ -15,9 +15,9 @@
 			</a>
 
 			<ul class="js-clone-nav d-none d-lg-inline-block text-left site-menu mx-auto">
-				<li class=""><a href="../landMapLatest">Home</a></li>
-				<li class=""><a href="../landMapLatest/index_properties.php">Properties</a></li>
-				<li class=""><a href="../landMap_V6/frontend/contact_us.php">Contact Us</a></li>
+				<li class=""><a href="index.php">Home</a></li>
+				<li class=""><a href="#">Properties</a></li>
+				<li class=""><a href="index.php#cta-section">Contact Us</a></li>
 				<li class=""><a href="./frontend/sign_up.php" class="btn btn-primary signup-hover">Sign Up</a></li>
 				<li class=""><a href="./frontend/sign_in.php" class="btn btn-light signin-hover">Sign In</a></li>
 			</ul>

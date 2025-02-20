@@ -324,7 +324,7 @@ if (isset($_SESSION['user_id'])) {
                                         ?>
 
                                         <div class="col-md-3">
-                                            <a href="messages.php" class="text-decoration-none">
+                                            <a href="agent_crm.php" class="text-decoration-none">
                                                 <div class="card bg-success text-white hover-card">
                                                     <div class="card-body text-center">
                                                         <i class="fas fa-comments fa-2x mb-2"></i>
@@ -335,7 +335,7 @@ if (isset($_SESSION['user_id'])) {
                                             </a>
                                         </div>
                                           <div class="col-md-3">
-                                            <a href="inactive_listings.php" class="text-decoration-none">
+                                            <a href="agent_listing.php" class="text-decoration-none">
                                                 <div class="card bg-secondary text-white hover-card">
                                                     <div class="card-body text-center">
                                                         <i class="fas fa-clock fa-2x mb-2"></i>
@@ -346,7 +346,7 @@ if (isset($_SESSION['user_id'])) {
                                             </a>
                                         </div>
                                         <div class="col-md-3">
-                                            <a href="listings.php" class="text-decoration-none">
+                                            <a href="agent_listing_archived.php" class="text-decoration-none">
                                                 <div class="card bg-warning text-white hover-card">
                                                     <div class="card-body text-center">
                                                         <i class="fas fa-archive fa-2x mb-2"></i>
@@ -361,7 +361,7 @@ if (isset($_SESSION['user_id'])) {
 
                                         <!-- New Sold properties card -->
                                         <div class="col-md-3 mt-1">
-                                            <a href="sold_listings.php" class="text-decoration-none">
+                                            <a href="agent_crm.php" class="text-decoration-none">
                                                 <div class="card bg-info text-white hover-card">
                                                     <div class="card-body text-center">
                                                         <i class="fas fa-check fa-2x mb-2"></i>

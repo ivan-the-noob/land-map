@@ -75,6 +75,12 @@ elseif ($_SESSION['role_type'] !== 'agent') {
     <link href="../../assets/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
     <link href="../../assets/lib/typicons.font/typicons.css" rel="stylesheet">
     <link href="../../assets/lib/flag-icon-css/css/flag-icon.min.css" rel="stylesheet">
+    
+<!-- Required Scripts -->
+<script src="../../assets/lib/jquery/jquery.min.js"></script>
+<script src="../../assets/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../assets/lib/ionicons/ionicons.js"></script>
+<script src="../../assets/js/azia.js"></script>
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../../assets/css/azia.css">
@@ -266,23 +272,58 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
 </div>
 
     
+ <!-- Sign Out Confirmation Modal -->
+ <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content"> <!-- This is the white container -->
+                <div class="modal-body text-center">
+                    <!-- Custom Sign Out Icon with Animation -->
+                    <div class="signout-icon-wrapper">
+                        <i class="fas fa-sign-out-alt signout-icon"></i>
+                    </div>
+                    <p class="signout-modal-message">Are you sure you want to sign out?</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmSignOutButton">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <script>
+    $(document).ready(function () {
+        console.log("jQuery Loaded:", $.fn.jquery); // Debugging
+        console.log("Bootstrap Modal Loaded:", typeof $.fn.modal); // Debugging
+
+        // Show the sign-out confirmation modal
+        $('#signOutButton').on('click', function () {
+            $('#signOutModal').modal('show'); // Show the modal
+        });
+
+        // Confirm sign out (destroy session and redirect to login page)
+        $('#confirmSignOutButton').on('click', function () {
+            fetch('../../backend/sign_out.php', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '../../index.php';
+                    } else {
+                        alert('Error: Could not sign out.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    });
+</script>
+
+<script>
+    jQuery.noConflict();
+</script>
 
 
-
-
-
-
-
-           
-
-
-
-
-<!-- Required Scripts -->
-<script src="../../assets/lib/jquery/jquery.min.js"></script>
-<script src="../../assets/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../../assets/lib/ionicons/ionicons.js"></script>
-<script src="../../assets/js/azia.js"></script>
 
 <script>
 function viewAgentLands(agentId) {
@@ -310,55 +351,11 @@ setInterval(updateDateTime, 1000);
 </script>
 
 <!--Unauthorized modal-->
-<script>
-        $(document).ready(function () {
-            var showModal = <?php echo $show_modal ? 'true' : 'false'; ?>;
-            var errorMessage = <?php echo json_encode($error_message); ?>;
 
-            if (showModal) {
-                $('#warningMessage').text(errorMessage); // Set the error message dynamically
-                $('#warningModal').modal({
-                    backdrop: 'static',  // Prevent closing when clicking outside
-                    keyboard: false      // Prevent closing when pressing the escape key
-                });
-                $('#warningModal').modal('show'); // Show the modal
-            }
-
-            // Close the modal and redirect to login when the "Sign In" button is clicked
-            $('#warningCloseButton').click(function () {
-                $('#warningModal').modal('hide');
-                window.location.href = '../../index.php';  // Redirect to the login page
-            });
-        });
-    </script>
+    
 
     <!--Signout process--->
-    <script>
-        // Show the sign-out confirmation modal when the Sign Out button is clicked
-        document.getElementById('signOutButton').addEventListener('click', function () {
-            $('#signOutModal').modal('show');  // Show the modal
-        });
-
-        // Confirm sign out (destroy session and redirect to login page)
-        document.getElementById('confirmSignOutButton').addEventListener('click', function () {
-            // Make a request to sign_out.php to destroy the session
-            fetch('../../backend/sign_out.php', {
-                method: 'GET'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // If sign out is successful, redirect to login page
-                        window.location.href = '../../index.php'; // Redirect to login page
-                    } else {
-                        alert('Error: Could not sign out.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
-    </script>
+   
 
     <!--Time Update-->
     <script>

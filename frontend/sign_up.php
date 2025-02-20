@@ -121,12 +121,14 @@
 
                     <div class="az-signup-footer" style="margin-bottom: 20px;">
                         <div class="custom-control custom-checkbox">
-                            <input type="checkbox" class="custom-control-input"  name="terms" required>
-                            <label class="custom-control-label" for="terms">I agree to the <a href="#"
-                                    data-toggle="modal" data-target="#termsModal">Terms and Conditionss</a></label>
-                            <span class="error-message" id="terms_error" style="color:red;"></span>
+                            <input type="checkbox" class="custom-control-input" id="terms1" name="terms" required>
+                            <label class="custom-control-label" for="terms1">
+                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms and Conditions</a>
+                            </label>
+                            <span class="error-message" id="terms_error1" style="color:red;"></span>
                         </div>
                     </div>
+
 
                     <button name="sign_up.btn" type="submit" class="btn btn-az-primary btn-block"
                         style="margin-bottom: 20px;">
@@ -245,10 +247,11 @@
 
                     <div class="az-signup-footer" style="margin-bottom: 20px;">
                         <div class="custom-control custom-checkbox" style="cursor: pointer;">
-                            <input type="checkbox" class="custom-control-input" id="terms" name="terms" required style="cursor: pointer;">
-                            <label class="custom-control-label" for="terms" style="cursor: pointer;">I agree to the <a href="#"
-                                    data-toggle="modal" data-target="#termsModal">Terms and Conditionss</a></label>
-                            <span class="error-message" id="terms_error" style="color:red;"></span>
+                            <input type="checkbox" class="custom-control-input" id="terms2" name="terms" required style="cursor: pointer;">
+                            <label class="custom-control-label" for="terms2" style="cursor: pointer;">
+                                I agree to the <a href="#" data-toggle="modal" data-target="#termsModal">Terms and Conditions</a>
+                            </label>
+                            <span class="error-message" id="terms_error2" style="color:red;"></span>
                         </div>
                     </div>
                     

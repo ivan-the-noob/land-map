@@ -280,7 +280,7 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                         $user_id = $_SESSION['user_id'];
 
                         // Fetch user information
-                        $sql = "SELECT position, prc_id, dshp_id, information_status, prc_file, dshp_file FROM users WHERE user_id = ?";
+                        $sql = "SELECT position, prc_id, dshp_id, information_status, prc_file, dshp_file, updated_time FROM users WHERE user_id = ?";
                         $stmt = $conn->prepare($sql);
                         $stmt->bind_param("i", $user_id);
                         $stmt->execute();
@@ -312,14 +312,24 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
 
                                 <label class="mt-2">PRC ID Number</label>
                                 <input type="number" name="prc_id" class="form-control mt-2" 
-                                    placeholder="Enter PRC ID Number" required>
+                                value="<?= htmlspecialchars($user['prc_id']) ?>" placeholder="Enter PRC ID Number" required>
+                                <?php if (!empty($user['prc_file'])): ?>
+                                    <img src="../../assets/agent_information/<?= $user['prc_file'] ?>" alt="PRC File" style="max-width: 200px; max-height: 150px;">
+                                <?php else: ?>
+                                    <p>No file uploaded</p>
+                                <?php endif; ?>
 
                                 <label class="mt-2">DSHP (Upload File)</label>
                                 <input type="file" name="dshp_file" class="form-control mt-2">
+                                <?php if (!empty($user['dshp_file'])): ?>
+                                        <img src="../../assets/agent_information/<?= $user['dshp_file'] ?>" alt="DSHP File" style="max-width: 200px; max-height: 150px;">
+                                    <?php else: ?>
+                                        <p>No file uploaded</p>
+                                    <?php endif; ?>
 
                                 <label class="mt-2">DSHP ID Number</label>
                                 <input type="number" name="dshp_id" class="form-control mt-2" 
-                                placeholder="Enter DSHP ID Number" required>
+                                value="<?= htmlspecialchars($user['dshp_id']) ?>" placeholder="Enter DSHP ID Number" required>
 
                                 <button type="submit" class="btn btn-success mt-2">Update Information</button>
                                 <div id="agent-status-message" class="mt-2"></div>
@@ -366,6 +376,67 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                                 <input type="number" name="dshp_id" class="form-control mt-2" 
                                 value="<?= htmlspecialchars($user['dshp_id']) ?>" readonly>
                             </form>
+                            <?php 
+                                $info_status = $user['information_status'];
+                                $updated_time = strtotime($user['updated_time']);
+                                $one_week_ago = strtotime('-1 week');
+                                
+                                if ($info_status == 3 && $updated_time >= $one_week_ago) {
+                                    ?>
+                                   <form id="update-step">
+                                        <button type="button" class="btn btn-success mt-2 rounded d-flex mx-auto" id="update-btn">
+                                            Update
+                                        </button>
+                                    </form>
+
+                                    <p id="update-message" class="mt-2 text-danger"></p>
+
+                                    <script>
+                                 document.getElementById("update-btn").addEventListener("click", function () {
+                                    var xhr = new XMLHttpRequest();
+                                    xhr.open("POST", "../../backend/update_status.php", true);
+                                    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                                    xhr.onreadystatechange = function () {
+                                        if (xhr.readyState === 4) {
+                                            try {
+                                                if (xhr.status === 200) {
+                                                    var response = JSON.parse(xhr.responseText);
+                                                    if (response.success) {
+                                                        document.getElementById("update-message").innerHTML = "<span class='text-success'>" + response.message + "</span>";
+                                                        setTimeout(() => {
+                                                            location.reload();
+                                                        }, 1500);
+                                                    } else {
+                                                        document.getElementById("update-message").innerHTML = "<span class='text-danger'>" + response.message + "</span>";
+                                                    }
+                                                } else {
+                                                    document.getElementById("update-message").innerHTML = "<span class='text-danger'>Server error: " + xhr.status + "</span>";
+                                                }
+                                            } catch (e) {
+                                                document.getElementById("update-message").innerHTML = "<span class='text-danger'>Invalid JSON response: " + xhr.responseText + "</span>";
+                                            }
+                                        }
+                                    };
+
+                                    xhr.send();
+                                });
+
+
+                                    </script>
+
+                                    <?php
+                                    
+                                }
+                                else{
+                                    if ($info_status == 3 && $updated_time > $one_week_ago) {
+                                    ?>
+                                    <p class="mt-2">Please wait one week before updating again.</p>
+                                    <?php
+                                    }
+                                }
+                            ?>
+                            
                             <?php
                         }
                         ?>

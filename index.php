@@ -529,7 +529,7 @@ function validatePrice(input) {
     </div>
 
 
-    <div class="py-5 cta-section">
+    <div class="py-5 cta-section" id="cta-section">
         <div class="container">
             <div class="row text-center">
                 <div class="col-md-12">

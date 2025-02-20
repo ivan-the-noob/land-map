@@ -24,7 +24,7 @@ try {
         throw new Exception("Invalid request parameters.");
     }
 
-    $stmt = $conn->prepare("UPDATE users SET information_status = ? WHERE user_id = ?");
+    $stmt = $conn->prepare("UPDATE users SET information_status = ?, updated_time = NOW() WHERE user_id = ?");
     if (!$stmt) {
         throw new Exception("SQL error: " . $conn->error);
     }

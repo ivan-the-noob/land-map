@@ -429,7 +429,7 @@ setInterval(updateDateTime, 1000);
                                     <?php echo htmlspecialchars($agent['email']); ?>
                                 </p>
                                 <p><strong><i class="fas fa-phone"></i> Phone:</strong> 
-                                    <?php echo isset($agent['phone']) ? htmlspecialchars($agent['phone']) : 'Not provided'; ?>
+                                    <?php echo isset($agent['mobile']) ? htmlspecialchars($agent['mobile']) : 'Not provided'; ?>
                                 </p>
                                 <p><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> 
                                     <?php echo isset($agent['location']) ? htmlspecialchars($agent['location']) : 'Tanza, Cavite'; ?>

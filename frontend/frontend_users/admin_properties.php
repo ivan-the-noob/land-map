@@ -295,8 +295,11 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         </div>
                         <div class="filter-item lease-options" style="display:none;">
                             <label for="monthlyRental">Monthly Rental Cost:</label>
-                            <input type="text" id="monthlyRental" class="form-control" placeholder="Enter amount" 
-                                oninput="this.value = this.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
+                            <div class="input-group">
+                                <input type="number" id="minPrice" class="form-control" placeholder="Min">
+                                <div class="input-group-text">to</div>
+                                <input type="number" id="maxPrice" class="form-control" placeholder="Max">
+                            </div>
                         </div>
                         <div class="filter-item sale-options" style="display:none;">
                             <label for="landCondition">Land Condition:</label>
@@ -309,8 +312,11 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         </div>
                         <div class="filter-item sale-options" style="display:none;">
                             <label for="landContract">Land Contract Price:</label>
-                            <input type="text" id="landContract" class="form-control" placeholder="Enter amount" 
-                                oninput="this.value = this.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
+                            <div class="input-group">
+                                <input type="number" id="minPrice" class="form-control" placeholder="Min">
+                                <div class="input-group-text">to</div>
+                                <input type="number" id="maxPrice" class="form-control" placeholder="Max">
+                            </div>
                         </div>
                         <script>
                             document.getElementById('saleTypeFilter').addEventListener('change', function() {
@@ -353,32 +359,13 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                             </select>
                         </div>
                        
-                        <div class="filter-item">
-                            <label for="priceRange">Price Range:</label>
-                            <div class="input-group">
-                                <input type="number" id="minPrice" class="form-control" placeholder="Min">
-                                <div class="input-group-text">to</div>
-                                <input type="number" id="maxPrice" class="form-control" placeholder="Max">
-                            </div>
-                        </div>
+                      
                         <div class="filter-item">
                             <label for="areaRange">Area (sqm):</label>
                             <div class="input-group">
                                 <input type="number" id="minArea" class="form-control" placeholder="Min">
                                 <div class="input-group-text">to</div>
                                 <input type="number" id="maxArea" class="form-control" placeholder="Max">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="filter-row">
-                        <div class="filter-item">
-                            <label>Land Features:</label>
-                            <div class="features-list">
-                                <label class="feature-tag"><input type="checkbox" name="features" value="irrigation"> Irrigation System</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="road"> Road Access</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="electricity"> Electricity</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="water"> Water System</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="fenced"> Fenced</label>
                             </div>
                         </div>
                         <div class="filter-item">
@@ -391,6 +378,10 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                 <small class="text-muted">Additional Info will be displayed in the land details</small>
                             </div>
                         </div>
+                    </div>
+                    <div class="filter-row">
+                        
+                        
                     </div>
                     <button id="applyFilters" class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
                     <button id="resetFilters" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
@@ -761,6 +752,11 @@ document.getElementById("applyFilters").addEventListener("click", applyFilters);
                     <button class="btn btn-primary btn-sm" onclick="viewDetails(<?php echo $row['property_id']; ?>)">
                             <i class="fas fa-eye"></i> View
                         </button>
+                        <?php if ($row['property_status'] == 1): ?>
+                            <button class="btn btn-danger rounded">
+                                Sold
+                            </button>
+                        <?php endif; ?>
                     </div>
                     <hr>
                     <strong>Agent:</strong> <?php echo htmlspecialchars($agentName); ?>
@@ -1535,7 +1531,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
         </div>
     </div>
 
-    <!-- Sign Out Confirmation Modal -->
+    <!-- Sign Out Confirmation Modals -->
     <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">

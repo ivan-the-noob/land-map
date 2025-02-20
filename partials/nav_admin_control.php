@@ -218,11 +218,13 @@ $(document).ready(function() {
                 </a>
 
               
-
-                <button id="signOutButton" class="dropdown-item" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; display: flex; align-items: center; padding: 8px 15px;">
+                <a href="../../backend/sign_out.php" id="signOutButton" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#signOutModal" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; display: flex; align-items: center; padding: 8px 15px;">
                     <i class="typcn typcn-power-outline" style="margin-right: 10px; color: #dc3545;"></i>
                     <span style="color: #dc3545;">Sign Out</span>
-                </button>
+                </a>
+
+                
+
             </div><!-- dropdown-menu -->
         </div>
     </div><!-- az-header-right -->

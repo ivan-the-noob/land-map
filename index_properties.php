@@ -281,8 +281,11 @@
                         </div>
                         <div class="filter-item lease-options" style="display:none;">
                             <label for="monthlyRental">Monthly Rental Cost:</label>
-                            <input type="text" id="monthlyRental" class="form-control" placeholder="Enter amount" 
-                                oninput="this.value = this.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
+                            <div class="input-group">
+                                <input type="number" id="minPrice" class="form-control" placeholder="Min">
+                                <div class="input-group-text">to</div>
+                                <input type="number" id="maxPrice" class="form-control" placeholder="Max">
+                            </div>
                         </div>
                         <div class="filter-item sale-options" style="display:none;">
                             <label for="landCondition">Land Condition:</label>
@@ -294,9 +297,12 @@
                             </select>
                         </div>
                         <div class="filter-item sale-options" style="display:none;">
-                            <label for="landContract">Land Contract Price:</label>
-                            <input type="text" id="landContract" class="form-control" placeholder="Enter amount" 
-                                oninput="this.value = this.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')">
+                            <label for="priceRange">Price Range:</label>
+                            <div class="input-group">
+                                <input type="number" id="minPrice" class="form-control" placeholder="Min">
+                                <div class="input-group-text">to</div>
+                                <input type="number" id="maxPrice" class="form-control" placeholder="Max">
+                            </div>
                         </div>
                         <script>
                             document.getElementById('saleTypeFilter').addEventListener('change', function() {
@@ -335,18 +341,11 @@
                             <label for="propertyLocation">Location:</label>
                             <select name="propertyLocation" class="form-control" id="propertyLocation">
                                 <?php include 'backend/filter_place.php'; ?>  
-                                <option value="Bacoor, Cavite" <?= ($selectedLocation == 'Bacoor, Cavite') ? 'selected' : '' ?>>Bacoor</option>            
+               
                             </select>
                         </div>
                        
-                        <div class="filter-item">
-                            <label for="priceRange">Price Range:</label>
-                            <div class="input-group">
-                                <input type="number" id="minPrice" class="form-control" placeholder="Min">
-                                <div class="input-group-text">to</div>
-                                <input type="number" id="maxPrice" class="form-control" placeholder="Max">
-                            </div>
-                        </div>
+                      
                         <div class="filter-item">
                             <label for="areaRange">Area (sqm):</label>
                             <div class="input-group">
@@ -355,18 +354,19 @@
                                 <input type="number" id="maxArea" class="form-control" placeholder="Max">
                             </div>
                         </div>
-                    </div>
-                    <div class="filter-row">
                         <div class="filter-item">
-                            <label>Land Features:</label>
+                            <label>Additional Info:</label>
                             <div class="features-list">
-                                <label class="feature-tag"><input type="checkbox" name="features" value="irrigation"> Irrigation System</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="road"> Road Access</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="electricity"> Electricity</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="water"> Water System</label>
-                                <label class="feature-tag"><input type="checkbox" name="features" value="fenced"> Fenced</label>
+                                <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="cleanTitle"> Clean Title</label>
+                                <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="DisPromo"> Discounted/Promo</label>
+                                <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="pagibig"> Pag-IBIG Accredited</label>
+                                <label class="feature-tag"><input type="checkbox" name="additionalInfo" value="fsbo"> For Sale by Owner</label>
+                                <small class="text-muted">Additional Info will be displayed in the land details</small>
                             </div>
                         </div>
+                    </div>
+                    <div class="filter-row">
+                      
                         <div class="filter-item">
                             <label>Additional Info:</label>
                             <div class="features-list">

@@ -233,14 +233,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <button class="<?= $buttonClass ?>">
                             <i class="fas fa-clock"></i> <?= $buttonText ?>
                         </button>
-                        <?php
-                            if ($inquiryStatus !== 'declined' && $inquiryStatus !== 'cancelled' && $inquiryStatus !== 'completed') {
-                                echo '<button class="btn-delete" onclick="deleteProperty(' . $row['property_id'] . ')">
-                                        <i class="fas fa-trash"></i> Cancel Inquiry
-                                    </button>';
-                            }
-                        ?>
-
+                        
 
                     
 

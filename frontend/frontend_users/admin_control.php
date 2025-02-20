@@ -23,6 +23,7 @@
     <link rel="icon" href="../../assets/images/logo.png" type="image/x-icon">
 
     <!-- vendor css -->
+     
     <link href="../../assets/lib/fontawesome-free/css/all.min.css" rel="stylesheet">
     <link href="../../assets/lib/ionicons/css/ionicons.min.css" rel="stylesheet">
     <link href="../../assets/lib/typicons.font/typicons.css" rel="stylesheet">
@@ -37,13 +38,26 @@
     <!-- azia CSS -->
     <link rel="stylesheet" href="../../assets/css/azia.css">
     <link rel="stylesheet" href="../../assets/css/profile.css">
+    <script src="../../assets/lib/jquery/jquery.min.js"></script>
+    <script src="../../assets/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../assets/lib/ionicons/ionicons.js"></script>
+    <script src="../../assets/lib/jquery.flot/jquery.flot.js"></script>
+    <script src="../../assets/lib/jquery.flot/jquery.flot.resize.js"></script>
+    <script src="../../assets/lib/chart.js/Chart.bundle.min.js"></script>
+    <script src="../../assets/lib/peity/jquery.peity.min.js"></script>
+
+    <script src="../../assets/js/azia.js"></script>
+    <script src="../../assets/js/chart.flot.sampledata.js"></script>
+    <script src="../../assets/js/dashboard.sampledata.js"></script>
+    <script src="../../assets/js/jquery.cookie.js" type="text/javascript"></script>
+
 
 </head>
 
 <body>
 
     <div class="az-header">
-        <?php require '../../partials/nav_admin.php'; ?>
+        <?php require '../../partials/nav_admin_control.php'; ?>
     </div><!-- az-header -->
 
     <div class="az-content pd-y-20 pd-lg-y-30 pd-xl-y-40">
@@ -79,111 +93,86 @@
                                     <div class="main-box clearfix" id="user-tables">
                                         <h3>User List</h3>
                                         <div class="table-responsive d-flex ">
-                                        <table class="table table-striped user-list">
-                                            <thead class="thead-light">
-                                                <tr>
-                                                    <th>User</th>
-                                                    <th>Role</th>
-                                                    <th class="text-center">Status</th>
-                                                    <th>Email</th>
-                                                    <th class="text-center">Actions</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php
-                                               $query = "SELECT user_id, profile, fname, lname, role_type, is_verified, email FROM users WHERE role_type = 'user'";
+                                        <?php
+                                    $limit = 5; // Number of users per page
+                                    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                                    $page = max(1, $page); // Ensure the page is at least 1
+                                    $offset = ($page - 1) * $limit; // Calculate offset
 
-                                                $result = $conn->query($query);
+                                    // Count total users
+                                    $countQuery = "SELECT COUNT(*) AS total FROM users WHERE role_type = 'user'";
+                                    $countResult = $conn->query($countQuery);
+                                    $totalUsers = $countResult->fetch_assoc()['total'];
+                                    $totalPages = ceil($totalUsers / $limit);
 
-                                                if ($result->num_rows > 0): 
-                                                    while ($user = $result->fetch_assoc()): ?>
-                                                        <tr>
-                                                            <td>
-                                                                <img src="../../assets/profile_images/<?= htmlspecialchars($user['profile']) ?>" alt="" style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
-                                                                <a href="#" class="user-link text-dark"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></a>
-                                                            </td>
-                                                            <td><?= htmlspecialchars($user['role_type']) ?></td>
-                                                            <td class="text-center">
-                                                                <span class="badge badge-<?= $user['is_verified'] == 1 ? 'success' : 'secondary' ?>">
-                                                                    <?= $user['is_verified'] == 1 ? 'Active' : 'Inactive' ?>
-                                                                </span>
-                                                            </td>
-                                                            <td><a class="text-dark" href="mailto:<?= htmlspecialchars($user['email']) ?>"><?= htmlspecialchars($user['email']) ?></a></td>
-                                                            <td class="text-center">
-                                                                <!-- Edit Button -->
-                                                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal<?= $user['user_id'] ?>">
-                                                                    <i class="fas fa-pencil-alt"></i>
-                                                                </button>
-                                                                
-                                                                <!-- Edit Modal -->
-                                                                <div class="modal fade" id="editUserModal<?= $user['user_id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
-                                                                    <div class="modal-dialog" role="document">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h5 class="modal-title">Edit User</h5>
-                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                    <span aria-hidden="true">&times;</span>
-                                                                                </button>
-                                                                            </div>
-                                                                            <div class="modal-body">
-                                                                                <form class="editUserForm">
-                                                                                    <input type="hidden" name="user_id" value="<?= $user['user_id'] ?>">
+                                    // Fetch users with pagination
+                                    $query = "SELECT user_id, profile, fname, lname, role_type, is_verified, email FROM users WHERE role_type = 'user' LIMIT $limit OFFSET $offset";
+                                    $result = $conn->query($query);
+                                    ?>
 
-                                                                                    <div class="form-group">
-                                                                                        <label>First Name</label>
-                                                                                        <input type="text" class="form-control" name="fname" value="<?= htmlspecialchars($user['fname']) ?>">
-                                                                                    </div>
-
-                                                                                    <div class="form-group">
-                                                                                        <label>Last Name</label>
-                                                                                        <input type="text" class="form-control" name="lname" value="<?= htmlspecialchars($user['lname']) ?>">
-                                                                                    </div>
-
-                                                                                    <div class="form-group">
-                                                                                        <label>Email</label>
-                                                                                        <input type="email" class="form-control" name="email" value="<?= htmlspecialchars($user['email']) ?>">
-                                                                                    </div>
-
-                                                                                    <button type="submit" class="btn btn-primary">Save changes</button>
-                                                                                </form>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Delete Button -->
-                                                                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal<?= $user['user_id'] ?>">
-                                                                    <i class="fas fa-trash-alt"></i>
-                                                                </button>
-
-                                                                <!-- Delete Modal -->
-                                                                <div class="modal fade" id="deleteUserModal<?= $user['user_id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
-                                                                    <div class="modal-dialog" role="document">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h5 class="modal-title">Confirm Deletion</h5>
-                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                    <span aria-hidden="true">&times;</span>
-                                                                                </button>
-                                                                            </div>
-                                                                            <div class="modal-body">Are you sure you want to delete this user?</div>
-                                                                            <div class="modal-footer">
-                                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                                                                <button type="button" class="btn btn-danger confirmUserDelete" data-user_id="<?= $user['user_id'] ?>">Delete</button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endwhile; 
-                                                else: ?>
+                                    <table class="table table-striped user-list">
+                                        <thead class="thead-light">
+                                            <tr>
+                                                <th>User</th>
+                                                <th>Role</th>
+                                                <th class="text-center">Status</th>
+                                                <th>Email</th>
+                                                <th class="text-center">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php if ($result->num_rows > 0): ?>
+                                                <?php while ($user = $result->fetch_assoc()): ?>
                                                     <tr>
-                                                        <td colspan="5" class="text-center">No users found.</td>
+                                                        <td>
+                                                            <img src="../../assets/profile_images/<?= htmlspecialchars($user['profile']) ?>" alt="" style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
+                                                            <a href="#" class="user-link text-dark"><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></a>
+                                                        </td>
+                                                        <td><?= htmlspecialchars($user['role_type']) ?></td>
+                                                        <td class="text-center">
+                                                            <span class="badge badge-<?= $user['is_verified'] == 1 ? 'success' : 'secondary' ?>">
+                                                                <?= $user['is_verified'] == 1 ? 'Active' : 'Inactive' ?>
+                                                            </span>
+                                                        </td>
+                                                        <td><a class="text-dark" href="mailto:<?= htmlspecialchars($user['email']) ?>"><?= htmlspecialchars($user['email']) ?></a></td>
+                                                        <td class="text-center">
+                                                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editUserModal<?= $user['user_id'] ?>">
+                                                                <i class="fas fa-pencil-alt"></i>
+                                                            </button>
+
+                                                            <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal<?= $user['user_id'] ?>">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </td>
                                                     </tr>
-                                                <?php endif; ?>
-                                            </tbody>
-                                        </table>
+                                                <?php endwhile; ?>
+                                            <?php else: ?>
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No users found.</td>
+                                                </tr>
+                                            <?php endif; ?>
+                                        </tbody>
+                                    </table>
+
+                                    <!-- Pagination -->
+                                    <nav>
+                                        <ul class="pagination justify-content-end">
+                                            <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                                                <a class="page-link" href="?page=<?= $page - 1 ?>">Previous</a>
+                                            </li>
+                                            
+                                            <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                                                <li class="page-item <?= ($i == $page) ? 'active' : '' ?>">
+                                                    <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                                                </li>
+                                            <?php endfor; ?>
+                                            
+                                            <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                                                <a class="page-link" href="?page=<?= $page + 1 ?>">Next</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+
 
                                         <script>
                                         $(document).ready(function () {
@@ -245,6 +234,21 @@
                                     <!-- Agent Tables Section -->
                                     <div class="main-box clearfix" id="agent-tables" style="display:none;">
                                         <h3>Agent List</h3>
+                                        <?php
+                                            // Database connection
+                                            $agent_limit = 5; // Number of records per page
+                                            $agent_page = isset($_POST['agent_page']) ? (int)$_POST['agent_page'] : 1;
+                                            $agent_offset = ($agent_page - 1) * $agent_limit;
+
+                                            $agent_query = "SELECT profile, user_id, fname, lname, email, mobile, location FROM users WHERE role_type = 'agent' LIMIT $agent_limit OFFSET $agent_offset";
+                                            $agent_result = $conn->query($agent_query);
+
+                                            $total_agent_query = "SELECT COUNT(*) AS total_agents FROM users WHERE role_type = 'agent'";
+                                            $total_agent_result = $conn->query($total_agent_query);
+                                            $total_agent_row = $total_agent_result->fetch_assoc();
+                                            $total_agent_pages = ceil($total_agent_row['total_agents'] / $agent_limit);
+                                        ?>
+
                                         <div class="table-responsive">
                                         <table class="table table-striped agent-list">
                                             <thead class="thead-light">
@@ -362,6 +366,112 @@
                                             </tbody>
                                         </table>
 
+                                        <nav>
+    <ul class="pagination justify-content-end">
+        <li class="page-item <?= ($agent_page <= 1) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page - 1 ?>" href="#">Previous</a>
+        </li>
+
+        <?php for ($i = 1; $i <= $total_agent_pages; $i++): ?>
+            <li class="page-item <?= ($i == $agent_page) ? 'active' : '' ?>">
+                <a class="page-link agent-page-link" data-page="<?= $i ?>" href="#"><?= $i ?></a>
+            </li>
+        <?php endfor; ?>
+
+        <li class="page-item <?= ($agent_page >= $total_agent_pages) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page + 1 ?>" href="#">Next</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- AJAX for Pagination -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script>
+    $(document).ready(function () {
+        console.log("jQuery Loaded:", $.fn.jquery);
+        console.log("Bootstrap Modal Loaded:", typeof $.fn.modal);
+    });
+</script>
+<script>
+        $(document).ready(function () {
+            var showModal = <?php echo $show_modal ? 'true' : 'false'; ?>;
+            var errorMessage = <?php echo json_encode($error_message); ?>;
+
+            if (showModal) {
+                $('#warningMessage').text(errorMessage); // Set the error message dynamically
+                $('#warningModal').modal({
+                    backdrop: 'static',  // Prevent closing when clicking outside
+                    keyboard: false      // Prevent closing when pressing the escape key
+                });
+                $('#warningModal').modal('show'); // Show the modal
+            }
+
+            // Close the modal and redirect to login when the "Sign In" button is clicked
+            $('#warningCloseButton').click(function () {
+                $('#warningModal').modal('hide');
+                window.location.href = '../../index.php';  // Redirect to the login page
+            });
+        });
+    </script>
+    
+    <button id="signOutButton" class="dropdown-item" style="width: 100%; text-align: left; border: none; background: none; cursor: pointer; display: flex; align-items: center; padding: 8px 15px;" data-bs-toggle="modal" data-bs-target="#signOutModal">
+    <i class="typcn typcn-power-outline" style="margin-right: 10px; color: #dc3545;"></i>
+    <span style="color: #dc3545;">Sign Out</span>
+</button>
+
+<!-- Signout Modal (Bootstrap 5) -->
+<div class="modal fade" id="signOutModal" tabindex="-1" aria-labelledby="signOutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="signOutModalLabel">Sign Out</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body text-center">
+                <div class="signout-icon-wrapper mb-3">
+                    <i class="fas fa-sign-out-alt signout-icon fa-3x text-danger"></i>
+                </div>
+                <p class="signout-modal-message">Are you sure you want to sign out?</p>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="logout.php" method="POST">
+                    <button type="submit" class="btn btn-danger">Confirm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+$(document).ready(function() {
+    $(".agent-page-link").click(function(e) {
+        e.preventDefault();
+        let agentPage = $(this).data("page");
+
+        if (agentPage < 1 || agentPage > <?= $total_agent_pages ?>) return;
+
+        $.ajax({
+            type: "POST",
+            url: "", // Same file
+            data: { agent_page: agentPage },
+            success: function(response) {
+                $("body").html(response); // Reload only the table and pagination
+            }
+        });
+    });
+});
+</script>
+
+</div>
                                         
                                      
 
@@ -424,75 +534,7 @@
                                         
 
 <!--Unauthorized modal-->
-<script>
-        $(document).ready(function () {
-            var showModal = <?php echo $show_modal ? 'true' : 'false'; ?>;
-            var errorMessage = <?php echo json_encode($error_message); ?>;
 
-            if (showModal) {
-                $('#warningMessage').text(errorMessage); // Set the error message dynamically
-                $('#warningModal').modal({
-                    backdrop: 'static',  // Prevent closing when clicking outside
-                    keyboard: false      // Prevent closing when pressing the escape key
-                });
-                $('#warningModal').modal('show'); // Show the modal
-            }
-
-            // Close the modal and redirect to login when the "Sign In" button is clicked
-            $('#warningCloseButton').click(function () {
-                $('#warningModal').modal('hide');
-                window.location.href = '../../index.php';  // Redirect to the login page
-            });
-        });
-    </script>
-
-    <!--Signout process--->
-    <div class="modal fade" id="signOutModal" tabindex="-1" role="dialog" aria-labelledby="signOutModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content"> <!-- This is the white container -->
-                <div class="modal-body text-center">
-                    <!-- Custom Sign Out Icon with Animation -->
-                    <div class="signout-icon-wrapper">
-                        <i class="fas fa-sign-out-alt signout-icon"></i>
-                    </div>
-                    <p class="signout-modal-message">Are you sure you want to sign out?</p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmSignOutButton">Confirm</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
- <script>
-        // Show the sign-out confirmation modal when the Sign Out button is clicked
-        document.getElementById('signOutButton').addEventListener('click', function () {
-            $('#signOutModal').modal('show');  // Show the modal
-        });
-
-        // Confirm sign out (destroy session and redirect to login page)
-        document.getElementById('confirmSignOutButton').addEventListener('click', function () {
-            // Make a request to sign_out.php to destroy the session
-            fetch('../../backend/sign_out.php', {
-                method: 'GET'
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // If sign out is successful, redirect to login page
-                        window.location.href = '../../index.php'; // Redirect to login page
-                    } else {
-                        alert('Error: Could not sign out.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
-    </script>
 
 
                                         <!-- Edit Modal -->
@@ -504,15 +546,7 @@
                                        
 
 
-                                        </div>
-                                        <nav aria-label="Page navigation">
-                                            <ul class="pagination">
-                                                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                                                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                                            </ul>
-                                        </nav>
+                                        
                                     </div><!-- main-box -->
 
                                     <div class="main-box clearfix" id="agent-verification" style="display:none;">
@@ -575,6 +609,23 @@
                                                     <?php endif; ?>
                                                 </tbody>
                                             </table>
+                                            <nav>
+    <ul class="pagination justify-content-end">
+        <li class="page-item <?= ($agent_page <= 1) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page - 1 ?>" href="#">Previous</a>
+        </li>
+
+        <?php for ($i = 1; $i <= $total_agent_pages; $i++): ?>
+            <li class="page-item <?= ($i == $agent_page) ? 'active' : '' ?>">
+                <a class="page-link agent-page-link" data-page="<?= $i ?>" href="#"><?= $i ?></a>
+            </li>
+        <?php endfor; ?>
+
+        <li class="page-item <?= ($agent_page >= $total_agent_pages) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page + 1 ?>" href="#">Next</a>
+        </li>
+    </ul>
+</nav>
                                         </div>
                                     </div>
                                     <div class="main-box" id="admin-registration-form" style="display:none; margin-bottom: 5px;">
@@ -617,6 +668,7 @@
                                 <span id="adminLoadingSpinner" style="display: none;" class="spinner-border spinner-border-sm text-light" role="status" aria-hidden="true"></span>
                             </button>
                         </form>
+                        
                     </div>
                                       
                                     </div>
@@ -732,7 +784,26 @@
                                                     <?php endif; ?>
                                                 </tbody>
                                             </table>
+                                            <nav>
+    <ul class="pagination justify-content-end">
+        <li class="page-item <?= ($agent_page <= 1) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page - 1 ?>" href="#">Previous</a>
+        </li>
+
+        <?php for ($i = 1; $i <= $total_agent_pages; $i++): ?>
+            <li class="page-item <?= ($i == $agent_page) ? 'active' : '' ?>">
+                <a class="page-link agent-page-link" data-page="<?= $i ?>" href="#"><?= $i ?></a>
+            </li>
+        <?php endfor; ?>
+
+        <li class="page-item <?= ($agent_page >= $total_agent_pages) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page + 1 ?>" href="#">Next</a>
+        </li>
+    </ul>
+</nav>
+                                            
                                         </div>
+                                        
 
                                         <h3>Reported Properties</h3>
                                             <div class="table-responsive">
@@ -794,6 +865,23 @@
                                                         <?php endif; ?>
                                                     </tbody>
                                                 </table>
+                                                <nav>
+    <ul class="pagination justify-content-end">
+        <li class="page-item <?= ($agent_page <= 1) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page - 1 ?>" href="#">Previous</a>
+        </li>
+
+        <?php for ($i = 1; $i <= $total_agent_pages; $i++): ?>
+            <li class="page-item <?= ($i == $agent_page) ? 'active' : '' ?>">
+                <a class="page-link agent-page-link" data-page="<?= $i ?>" href="#"><?= $i ?></a>
+            </li>
+        <?php endfor; ?>
+
+        <li class="page-item <?= ($agent_page >= $total_agent_pages) ? 'disabled' : '' ?>">
+            <a class="page-link agent-page-link" data-page="<?= $agent_page + 1 ?>" href="#">Next</a>
+        </li>
+    </ul>
+</nav>
                                             </div>
 
 
@@ -1365,21 +1453,10 @@
         </div>
     </div>
 
-    <script src="../../assets/lib/jquery/jquery.min.js"></script>
-    <script src="../../assets/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../../assets/lib/ionicons/ionicons.js"></script>
-    <script src="../../assets/lib/jquery.flot/jquery.flot.js"></script>
-    <script src="../../assets/lib/jquery.flot/jquery.flot.resize.js"></script>
-    <script src="../../assets/lib/chart.js/Chart.bundle.min.js"></script>
-    <script src="../../assets/lib/peity/jquery.peity.min.js"></script>
-
-    <script src="../../assets/js/azia.js"></script>
-    <script src="../../assets/js/chart.flot.sampledata.js"></script>
-    <script src="../../assets/js/dashboard.sampledata.js"></script>
-    <script src="../../assets/js/jquery.cookie.js" type="text/javascript"></script>
 
     <script src="../../assets/js/addedFunctions.js"></script>
 
+    
     <script>
         maptilersdk.config.apiKey = 'gLXa6ihZF9HF7keYdTHC';
 
@@ -1914,6 +1991,16 @@
     </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        console.log("jQuery Version:", $.fn.jquery);
+    $(document).ready(function () {
+        console.log("jQuery Loaded:", $.fn.jquery);
+        console.log("Bootstrap Modal Loaded:", typeof $.fn.modal);
+    });
+</script>
 
     <script>
        document.addEventListener("DOMContentLoaded", function () {
