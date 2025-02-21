@@ -167,7 +167,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
         <?php require '../../partials/nav_user.php' ?>
     </div>
 
-    <div class="az-content az-content-dashboard">
+    <div class="az-content az-content-dashboard ">
         <div class="container">
             <div class="az-content-body">
                 <div class="az-dashboard-one-title">

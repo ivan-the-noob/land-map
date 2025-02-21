@@ -296,9 +296,9 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         <div class="filter-item lease-options" style="display:none;">
                             <label for="monthlyRental">Monthly Rental Cost:</label>
                             <div class="input-group">
-                                <input type="number" id="minPrice" class="form-control" placeholder="Min">
+                            <input type="number" id="monthlyRentalMin" class="form-control" placeholder="Min">
                                 <div class="input-group-text">to</div>
-                                <input type="number" id="maxPrice" class="form-control" placeholder="Max">
+                                <input type="number" id="monthlyRentalMax" class="form-control" placeholder="Max">
                             </div>
                         </div>
                         <div class="filter-item sale-options" style="display:none;">
@@ -360,7 +360,10 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         </div>
                        
                       
-                        <div class="filter-item">
+                       
+                    </div>
+                    <div class="filter-row">
+                    <div class="filter-item">
                             <label for="areaRange">Area (sqm):</label>
                             <div class="input-group">
                                 <input type="number" id="minArea" class="form-control" placeholder="Min">
@@ -378,9 +381,6 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                 <small class="text-muted">Additional Info will be displayed in the land details</small>
                             </div>
                         </div>
-                    </div>
-                    <div class="filter-row">
-                        
                         
                     </div>
                     <button id="applyFilters" class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
@@ -395,193 +395,191 @@ elseif ($_SESSION['role_type'] !== 'admin') {
         </div>
     </div>
    
-<script>
+    <script>
    function applyFilters() {
-    console.log("Filters applied!");
-}
-
-function resetFilters() {
-    // Reset all filters
-    document.getElementById("saleTypeFilter").value = "all";
-    document.getElementById("leaseTermFilter").value = "all";
-    document.getElementById("monthlyRental").value = "";
-    document.getElementById("landTypeFilter").value = "all";
-    document.getElementById("propertyLocation").value = "all";
-    document.getElementById("landCondition").value = "all";
-    document.getElementById("minPrice").value = "";
-    document.getElementById("maxPrice").value = "";
-    document.getElementById("minArea").value = "";
-    document.getElementById("maxArea").value = "";
-
-    // Uncheck all additional info checkboxes
-    document.querySelectorAll("input[name='additionalInfo']").forEach(cb => cb.checked = false);
-
-    // Show all property cards
-    document.querySelectorAll(".property-card").forEach(card => card.style.display = "block");
-
-    // Remove URL parameters without reloading
-    const newUrl = window.location.pathname; // Get URL without parameters
-    history.replaceState(null, "", newUrl); // Update URL
-}
-
-// Attach event listener to reset button
-document.getElementById("resetFilters").addEventListener("click", resetFilters);
-
-
-// Attach event listener to reset button
-document.getElementById("resetFilters").addEventListener("click", resetFilters);
-
-document.addEventListener("DOMContentLoaded", function () {
-    const params = new URLSearchParams(window.location.search);
-
-    if (params.has("saleTypeFilter")) {
-        document.getElementById("saleTypeFilter").value = params.get("saleTypeFilter");
+        console.log("Filters applied!");
     }
 
-    if (params.has("landTypeFilter")) {
-        document.getElementById("landTypeFilter").value = params.get("landTypeFilter");
+    function resetFilters() {
+        // Reset all filters
+        document.getElementById("saleTypeFilter").value = "all";
+        document.getElementById("leaseTermFilter").value = "all";
+        document.getElementById("monthlyRentalMin").value = "";
+        document.getElementById("monthlyRentalMax").value = "";
+        document.getElementById("landTypeFilter").value = "all";
+        document.getElementById("propertyLocation").value = "all";
+        document.getElementById("landCondition").value = "all";
+        document.getElementById("minPrice").value = "";
+        document.getElementById("maxPrice").value = "";
+        document.getElementById("minArea").value = "";
+        document.getElementById("maxArea").value = "";
+
+        // Uncheck all additional info checkboxes
+        document.querySelectorAll("input[name='additionalInfo']").forEach(cb => cb.checked = false);
+
+        // Show all property cards
+        document.querySelectorAll(".property-card").forEach(card => card.style.display = "block");
+
+        // Remove URL parameters without reloading
+        const newUrl = window.location.pathname;
+        history.replaceState(null, "", newUrl);
     }
 
-    if (params.has("propertyLocation")) {
-        document.getElementById("propertyLocation").value = params.get("propertyLocation");
-    }
+    document.getElementById("resetFilters").addEventListener("click", resetFilters);
 
-    if (params.has("min_price")) {
-        document.getElementById("minPrice").value = params.get("min_price");
-    }
+    document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
 
-    if (params.has("max_price")) {
-        document.getElementById("maxPrice").value = params.get("max_price");
-    }
+        if (params.has("saleTypeFilter")) {
+            document.getElementById("saleTypeFilter").value = params.get("saleTypeFilter");
+        }
 
-    if (
-        params.has("saleTypeFilter") || 
-        params.has("landTypeFilter") || 
-        params.has("propertyLocation") || 
-        params.has("min_price") || 
-        params.has("max_price")
-    ) {
-        document.getElementById("applyFilters").click();
-    }
-});
+        if (params.has("landTypeFilter")) {
+            document.getElementById("landTypeFilter").value = params.get("landTypeFilter");
+        }
 
+        if (params.has("propertyLocation")) {
+            document.getElementById("propertyLocation").value = params.get("propertyLocation");
+        }
 
-  
-</script>
+        if (params.has("min_price")) {
+            document.getElementById("minPrice").value = params.get("min_price");
+        }
 
+        if (params.has("max_price")) {
+            document.getElementById("maxPrice").value = params.get("max_price");
+        }
 
+        if (params.has("monthly_rental_min")) {
+            document.getElementById("monthlyRentalMin").value = params.get("monthly_rental_min");
+        }
 
-<script>
-function applyFilters() {
-    let selectedSaleType = document.getElementById("saleTypeFilter").value;
-    let selectedLeaseTerm = document.getElementById("leaseTermFilter").value;
-    let monthlyRentInput = document.getElementById("monthlyRental").value.replace(/,/g, '').trim();
-    let selectedLandType = document.getElementById("landTypeFilter").value;
-    let selectedLocation = document.getElementById("propertyLocation").value;
-    let selectedLandCondition = document.getElementById("landCondition").value;
-    let minPrice = document.getElementById("minPrice").value.trim();
-    let maxPrice = document.getElementById("maxPrice").value.trim();
-    let minArea = document.getElementById("minArea").value.trim();
-    let maxArea = document.getElementById("maxArea").value.trim();
-
-    // Get selected checkboxes for additional info
-    let selectedAdditionalInfo = Array.from(document.querySelectorAll("input[name='additionalInfo']:checked")).map(cb => cb.value);
-
-    let cards = document.querySelectorAll(".property-card");
-
-    cards.forEach(card => {
-        let saleType = card.getAttribute("data-sale-type");
-        let leaseTerm = card.getAttribute("data-lease-term");
-        let monthlyRent = card.getAttribute("data-monthly-rent");
-        let landType = card.getAttribute("data-land-type");
-        let propertyLocation = card.getAttribute("data-location");
-        let landCondition = card.getAttribute("data-land-condition");
-        let salePrice = parseFloat(card.getAttribute("data-sale-price")) || 0;
-        let landArea = parseFloat(card.getAttribute("data-land-area")) || 0;
-        let additionalInfo = card.getAttribute("data-another-info") ? card.getAttribute("data-another-info").split(",") : [];
-
-        card.style.display = "none";
+        if (params.has("monthly_rental_max")) {
+            document.getElementById("monthlyRentalMax").value = params.get("monthly_rental_max");
+        }
 
         if (
-            selectedSaleType === "all" && 
-            selectedLeaseTerm === "all" && 
-            monthlyRentInput === "" && 
-            selectedLandType === "all" && 
-            selectedLocation === "all" && 
-            selectedLandCondition === "all" &&
-            minPrice === "" && maxPrice === "" &&
-            minArea === "" && maxArea === "" &&
-            selectedAdditionalInfo.length === 0
+            params.has("saleTypeFilter") || 
+            params.has("landTypeFilter") || 
+            params.has("propertyLocation") || 
+            params.has("min_price") || 
+            params.has("max_price") ||
+            params.has("monthly_rental_min") ||
+            params.has("monthly_rental_max")
         ) {
-            card.style.display = "block";
-            return;
+            document.getElementById("applyFilters").click();
         }
-
-        if (selectedSaleType !== "all" && saleType !== selectedSaleType) {
-            return;
-        }
-
-        if (selectedSaleType === "For Lease" && selectedLeaseTerm !== "all" && leaseTerm !== selectedLeaseTerm) {
-            return;
-        }
-
-        if (monthlyRentInput !== "" && monthlyRent !== null) {
-            let rentValue = parseInt(monthlyRent, 10);
-            let inputValue = parseInt(monthlyRentInput, 10);
-            if (rentValue !== inputValue) {
-                return;
-            }
-        }
-
-        if (selectedLandType !== "all" && landType !== selectedLandType) {
-            return;
-        }
-
-        if (selectedLocation !== "all" && propertyLocation !== selectedLocation) {
-            return;
-        }
-
-        if (selectedSaleType === "For Sale" && selectedLandCondition !== "all" && landCondition !== selectedLandCondition) {
-            return;
-        }
-
-        if (selectedSaleType === "For Sale") {
-            if (minPrice !== "" && salePrice < parseFloat(minPrice)) {
-                return;
-            }
-            if (maxPrice !== "" && salePrice > parseFloat(maxPrice)) {
-                return;
-            }
-        } else if (selectedSaleType === "For Lease") {
-            let rentValue = parseFloat(monthlyRent) || 0;
-            if (minPrice !== "" && rentValue < parseFloat(minPrice)) {
-                return;
-            }
-            if (maxPrice !== "" && rentValue > parseFloat(maxPrice)) {
-                return;
-            }
-        }
-        if (minArea !== "" && landArea < parseFloat(minArea)) {
-            return;
-        }
-
-        if (maxArea !== "" && landArea > parseFloat(maxArea)) {
-            return;
-        }
-
-        // Check if the selected additional info matches any card's additional info
-        if (selectedAdditionalInfo.length > 0) {
-            let matches = selectedAdditionalInfo.some(info => additionalInfo.includes(info));
-            if (!matches) {
-                return;
-            }
-        }
-
-        card.style.display = "block";
     });
-}
 
-document.getElementById("applyFilters").addEventListener("click", applyFilters);
+    function applyFilters() {
+        let selectedSaleType = document.getElementById("saleTypeFilter").value;
+        let selectedLeaseTerm = document.getElementById("leaseTermFilter").value;
+        let minMonthlyRent = document.getElementById("monthlyRentalMin").value.trim();
+        let maxMonthlyRent = document.getElementById("monthlyRentalMax").value.trim();
+        let selectedLandType = document.getElementById("landTypeFilter").value;
+        let selectedLocation = document.getElementById("propertyLocation").value;
+        let selectedLandCondition = document.getElementById("landCondition").value;
+        let minPrice = document.getElementById("minPrice").value.trim();
+        let maxPrice = document.getElementById("maxPrice").value.trim();
+        let minArea = document.getElementById("minArea").value.trim();
+        let maxArea = document.getElementById("maxArea").value.trim();
+
+        let selectedAdditionalInfo = Array.from(document.querySelectorAll("input[name='additionalInfo']:checked")).map(cb => cb.value);
+
+        let cards = document.querySelectorAll(".property-card");
+
+        cards.forEach(card => {
+            let saleType = card.getAttribute("data-sale-type");
+            let leaseTerm = card.getAttribute("data-lease-term");
+            let monthlyRent = parseFloat(card.getAttribute("data-monthly-rent")) || 0;
+            let landType = card.getAttribute("data-land-type");
+            let propertyLocation = card.getAttribute("data-location");
+            let landCondition = card.getAttribute("data-land-condition");
+            let salePrice = parseFloat(card.getAttribute("data-sale-price")) || 0;
+            let landArea = parseFloat(card.getAttribute("data-land-area")) || 0;
+            let additionalInfo = card.getAttribute("data-another-info") ? card.getAttribute("data-another-info").split(",") : [];
+
+            card.style.display = "none";
+
+            if (
+                selectedSaleType === "all" && 
+                selectedLeaseTerm === "all" && 
+                minMonthlyRent === "" && maxMonthlyRent === "" &&
+                selectedLandType === "all" && 
+                selectedLocation === "all" && 
+                selectedLandCondition === "all" &&
+                minPrice === "" && maxPrice === "" &&
+                minArea === "" && maxArea === "" &&
+                selectedAdditionalInfo.length === 0
+            ) {
+                card.style.display = "block";
+                return;
+            }
+
+            if (selectedSaleType !== "all" && saleType !== selectedSaleType) {
+                return;
+            }
+
+            if (selectedSaleType === "For Lease" && selectedLeaseTerm !== "all" && leaseTerm !== selectedLeaseTerm) {
+                return;
+            }
+
+            if (minMonthlyRent !== "" && monthlyRent < parseFloat(minMonthlyRent)) {
+                return;
+            }
+
+            if (maxMonthlyRent !== "" && monthlyRent > parseFloat(maxMonthlyRent)) {
+                return;
+            }
+
+            if (selectedLandType !== "all" && landType !== selectedLandType) {
+                return;
+            }
+
+            if (selectedLocation !== "all" && propertyLocation !== selectedLocation) {
+                return;
+            }
+
+            if (selectedSaleType === "For Sale" && selectedLandCondition !== "all" && landCondition !== selectedLandCondition) {
+                return;
+            }
+
+            if (selectedSaleType === "For Sale") {
+                if (minPrice !== "" && salePrice < parseFloat(minPrice)) {
+                    return;
+                }
+                if (maxPrice !== "" && salePrice > parseFloat(maxPrice)) {
+                    return;
+                }
+            } else if (selectedSaleType === "For Lease") {
+                if (minPrice !== "" && monthlyRent < parseFloat(minPrice)) {
+                    return;
+                }
+                if (maxPrice !== "" && monthlyRent > parseFloat(maxPrice)) {
+                    return;
+                }
+            }
+
+            if (minArea !== "" && landArea < parseFloat(minArea)) {
+                return;
+            }
+
+            if (maxArea !== "" && landArea > parseFloat(maxArea)) {
+                return;
+            }
+
+            if (selectedAdditionalInfo.length > 0) {
+                let matches = selectedAdditionalInfo.some(info => additionalInfo.includes(info));
+                if (!matches) {
+                    return;
+                }
+            }
+
+            card.style.display = "block";
+        });
+    }
+
+    document.getElementById("applyFilters").addEventListener("click", applyFilters);
 </script>
     
     
