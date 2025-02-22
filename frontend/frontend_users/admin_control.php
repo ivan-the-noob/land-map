@@ -57,7 +57,7 @@
 <body>
 
     <div class="az-header">
-        <?php require '../../partials/nav_admin_control.php'; ?>
+        <?php require '../../partials/nav_admin.php'; ?>
     </div><!-- az-header -->
 
     <div class="az-content pd-y-20 pd-lg-y-30 pd-xl-y-40">

@@ -9,8 +9,6 @@
     $cms = $result->fetch_assoc();
 ?>
 
-
-
                      
 <div class="container">
 
@@ -54,9 +52,38 @@
             <li class="">
                 <a href="../frontend_users/user_agents_admin.php" class="nav-link"><i class="fas fa-user-tie"></i> Brokers</a>
             </li>
-
-            <li class="">
-                <a href="../frontend_users/admin_control.php" class="nav-link"><i class="fas fa-user-cog"></i> Admin Control</a>
+<!-- <li class="">
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-cog"></i> Admin Control
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="../frontend_users/admin_control.php">User List</a>
+                    <a class="dropdown-item" href="#">Agent List</a>
+                    <a class="dropdown-item" href="#">Agent Registration</a>
+                    <a class="dropdown-item" href="#">Admin Registration</a>
+                    <a class="dropdown-item" href="#">Verify Agent Registration</a>
+                    <a class="dropdown-item" href="#">Reports</a>
+                    <a class="dropdown-item" href="#">Website Edit</a>
+                </div>
+            </li>
+</li> -->
+            <li class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-user-cog"></i> Controls</a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="../frontend_users/admin_userlist.php">User List</a>
+                    <a class="dropdown-item" href="../frontend_users/admin_agentlist.php">Agent List</a>
+                    <a class="dropdown-item" href="../frontend_users/admin_verifyagentRegistration.php">Verify Agent Registration</a>
+                    <a class="dropdown-item" href="../frontend_users/admin_agentRegistration.php">Agent Registration</a>
+                    <a class="dropdown-item" href="../frontend_users/admin_adminRegistration.php">Admin Registration</a>
+                    <a class="dropdown-item dropdown-toggle" href="#" data-toggle="dropdown">Reports</a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="admin_reportedUsers.php">Reported Users</a>
+                        <a class="dropdown-item" href="admin_reportedProperties.php">Reported Properties</a>
+                    </div>
+                    <a class="dropdown-item" href="admin_websiteEdit.php">Website Edit</a>
+                </div>
             </li>
 
            
@@ -67,9 +94,11 @@
     </div>
 
     <div class="az-header-right">
-    <a href="admin_crm.php" class="az-header-search-link"><i class="fas fa-handshake"></i></a>
-    <a href="admin_properties.php" class="az-header-search-link"><i class="fas fa-search"></i></a>
-       
+        <a href="../frontend_users/user_landproperties.php" class="az-header-search-link"><i class="fas fa-search"></i></a>
+        <div class="az-header-message">
+            <a href="../frontend_users/user_chat.php"><i class="typcn typcn-messages"></i></a>
+        </div><!-- az-header-message -->
+
         <?php
 if (!isset($_SESSION['user_id'])) {
     // Redirect to login page if the user is not logged in
