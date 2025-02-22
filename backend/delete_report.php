@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $query = "DELETE FROM reports WHERE id = ?";
+    $query = "DELETE FROM report_properties WHERE id = ?";
     $stmt = $conn->prepare($query);
     $stmt->bind_param("i", $report_id);
 
