@@ -329,6 +329,35 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                     </div>
                                 </form>
 
+                                <script>
+    $(document).ready(function() {
+        $("#cmsForm").on("submit", function(e) {
+            e.preventDefault(); 
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                url: "../../backend/process_cms.php", 
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                beforeSend: function() {
+                    $("#responseMessage").html('<div class="alert alert-info">Updating...</div>').fadeIn();
+                },
+                success: function(response) {
+                    console.log("Server Response: ", response);
+                    $("#responseMessage").html('<div class="alert alert-success">' + response + '</div>').fadeIn().delay(3000).fadeOut();
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Error: ", xhr.responseText);
+                    $("#responseMessage").html('<div class="alert alert-danger">An error occurred: ' + error + '</div>').fadeIn().delay(3000).fadeOut();
+                }
+            });
+        });
+    });
+    </script>
+
                                 </div>
                                                 </div>
                             </div>
