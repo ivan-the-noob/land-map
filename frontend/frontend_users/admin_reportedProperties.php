@@ -220,7 +220,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                         
                                                         $query = "SELECT rp.*, pi.image_name
                                                         FROM report_properties rp
-                                                        LEFT JOIN property_images pi ON rp.property_id = pi.property_id
+                                                        INNER JOIN property_images pi ON rp.property_id = pi.property_id
                                                         LIMIT $limit OFFSET $offset";
                                               
 
