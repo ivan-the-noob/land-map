@@ -514,6 +514,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                                 u_inq.fname AS inquirer_fname, 
                                 u_inq.lname AS inquirer_lname, 
                                 iq.user_id AS inquirer_id,  
+                                iq.cancel_reason AS reason,
                                 p.user_id AS agent_id,      
                                 ui.image_name AS user_image,
                                 (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
@@ -572,6 +573,13 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <?php if ($row['property_type']) { ?>
                             <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span>
                         <?php } ?>
+                        <?php if ($row['sale_or_lease']) { ?>
+                            <span><i class="fas fa-home"> Lease Type:</i> <?php echo htmlspecialchars($row['sale_or_lease']); ?></span>
+                        <?php } ?>
+                        <?php if (!empty(trim($row['reason']))) { ?>
+                            <span>Cancel Reason: <?php echo htmlspecialchars($row['reason']); ?></span>
+                        <?php } ?>
+
                     </div>
 
                     <?php if ($row['property_description']) { ?>
@@ -671,9 +679,34 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <?php } ?>
                        
                         <?php if ($inquiryStatus !== 'cancelled' && $inquiryStatus !== 'completed') { ?>
-                            <button class="btn-delete" onclick="openDeleteModal(<?= htmlspecialchars($row['inquiry_id']); ?>)">
-                                <i class="fas fa-trash"></i> Cancel Inquiry
-                            </button>
+                        <button class="btn-delete" onclick="openDeleteModal(<?= htmlspecialchars($row['inquiry_id']); ?>)">
+                            <i class="fas fa-trash"></i> Cancel Inquiry
+                        </button>
+                        <div class="modal fade" id="deleteInquiryModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel">Cancel Inquiry</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to cancel this inquiry?</p>
+                                        <div class="form-group">
+                                            <label for="cancel_reason">Reason for Cancellation:</label>
+                                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="3" required></textarea>
+                                        </div>
+                                        <input type="hidden" id="cancelInquiryId">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Confirm Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                               
                             <?php } else { ?>
                               
                         <?php } ?>
@@ -758,18 +791,24 @@ $(document).ready(function () {
                         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
                         <script>
                             function openDeleteModal(inquiryId) {
-                                $("#confirmDeleteBtn").attr("data-inquiry-id", inquiryId);
+                                $("#cancelInquiryId").val(inquiryId);
                                 $("#deleteInquiryModal").modal("show");
                             }
 
                             $(document).ready(function () {
                                 $("#confirmDeleteBtn").click(function () {
-                                    let inquiryId = $(this).attr("data-inquiry-id");
+                                    let inquiryId = $("#cancelInquiryId").val();
+                                    let cancelReason = $("#cancel_reason").val().trim();
+
+                                    if (cancelReason === "") {
+                                        alert("Please provide a reason for cancellation.");
+                                        return;
+                                    }
 
                                     $.ajax({
                                         url: "../../backend/delete_inquiry.php",
                                         type: "POST",
-                                        data: { inquiry_id: inquiryId },  // Change property_id to inquiry_id
+                                        data: { inquiry_id: inquiryId, cancel_reason: cancelReason },
                                         success: function (response) {
                                             if (response.trim() === "success") {
                                                 alert("Inquiry cancelled successfully!");
@@ -785,6 +824,7 @@ $(document).ready(function () {
                                 });
                             });
                         </script>
+
 
 
                         </div>

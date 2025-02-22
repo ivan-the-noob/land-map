@@ -661,16 +661,6 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
         
         ?>">
 
-
-
-
-    
-
-
-
-
-
-
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">

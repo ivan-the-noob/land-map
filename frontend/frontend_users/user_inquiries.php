@@ -128,6 +128,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         u.fname, u.lname,
                                         ui.image_name AS user_image,
                                         iq.status AS inquiry_status,
+                                        iq.cancel_reason AS reason,
                                         p.user_id AS agent_id, 
                                         (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
                                         FROM properties p
@@ -204,8 +205,12 @@ elseif ($_SESSION['role_type'] !== 'user') {
                             <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span>
                         <?php } ?>
                         <?php if ($row['sale_or_lease']) { ?>
-                            <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['sale_or_lease']); ?></span>
+                            <span><i class="fas fa-home"> Lease Type:</i> <?php echo htmlspecialchars($row['sale_or_lease']); ?></span>
                         <?php } ?>
+                        <?php if (!empty(trim($row['reason']))) { ?>
+                            <span>Cancel Reason: <?php echo htmlspecialchars($row['reason']); ?></span>
+                        <?php } ?>
+
                     </div>
 
                     <?php if ($row['property_description']) { ?>
@@ -233,6 +238,37 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <button class="<?= $buttonClass ?>">
                             <i class="fas fa-clock"></i> <?= $buttonText ?>
                         </button>
+                        <?php
+                            if ($inquiryStatus !== 'declined' && $inquiryStatus !== 'cancelled') {
+                                echo '<button class="btn-delete cancel-btn" data-toggle="modal" data-target="#cancelModal" data-property-id="' . $row['property_id'] . '">
+                                        <i class="fas fa-trash"></i> Cancel Inquiry
+                                    </button>';
+                            }
+                        ?>
+                        <div class="modal fade" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="cancelModalLabel">Cancel Inquiry</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="cancelForm">
+                                        <input type="hidden" name="property_id" id="cancel_property_id">
+                                        <div class="form-group">
+                                            <label for="cancel_reason">Reason for Cancellation</label>
+                                            <textarea class="form-control" id="cancel_reason" name="cancel_reason" rows="3" required></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-danger d-flex mx-auto">Submit Cancellation</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                         
 
                     
@@ -923,33 +959,44 @@ function updateProperty(propertyId) {
     window.location.href = 'edit_property.php?id=' + propertyId;
 }
 
-function deleteProperty(propertyId) {
-    if (confirm('Are you sure you want to cancel this inquiry?')) {
-        console.log('Cancelling inquiry for property:', propertyId);
+$(document).ready(function () {
+    // Capture property ID when modal is opened
+    $('.cancel-btn').on('click', function () {
+        var propertyId = $(this).data('property-id');
+        $('#cancel_property_id').val(propertyId);
+    });
 
-        // Make an AJAX request to update the status to 'cancelled'
-        var xhr = new XMLHttpRequest();
-        xhr.open("POST", "../../backend/cancel_inquiry.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                // Handle the response (you can show a success message or update the UI)
-                alert("Inquiry has been cancelled.");
-                location.reload(); // Reload to reflect the changes
+    // Handle form submission via AJAX
+    $('#cancelForm').on('submit', function (e) {
+        e.preventDefault();
+
+        var propertyId = $('#cancel_property_id').val();
+        var cancelReason = $('#cancel_reason').val();
+
+        $.ajax({
+            url: '../../backend/cancel_inquiry.php',
+            type: 'POST',
+            data: {
+                property_id: propertyId,
+                cancel_reason: cancelReason
+            },
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    alert("Inquiry has been cancelled.");
+                    $('#cancelModal').modal('hide');
+                    location.reload();
+                } else {
+                    alert("Error: " + response.error);
+                }
+            },
+            error: function () {
+                alert("Something went wrong. Please try again.");
             }
-        };
-        xhr.send("property_id=" + propertyId);
-    }
-}
+        });
+    });
+});
 
-
-function viewDetails(propertyId) {
-    console.log('Viewing details for property:', propertyId);
-}
-
-function contactAgent(userId) {
-    console.log('Contacting agent:', userId);
-}
 </script>
                         </div>
                     </div>

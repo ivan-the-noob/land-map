@@ -1,23 +1,28 @@
 <?php
-    require '../db.php';
+session_start();
+require '../db.php';
 
-    if (isset($_POST['property_id'])) {
-        $propertyId = $_POST['property_id'];
+if (isset($_POST['property_id']) && isset($_POST['cancel_reason'])) {
+    $propertyId = intval($_POST['property_id']);
+    $cancelReason = trim($_POST['cancel_reason']);
 
-        $sql = "UPDATE inquire SET status = 'cancelled' WHERE property_id = ?";
+    // Update the inquire table without cancelled_by
+    $sql = "UPDATE inquire SET status = 'cancelled', cancel_reason = ? WHERE property_id = ?";
 
-        if ($stmt = $conn->prepare($sql)) {
-            $stmt->bind_param("i", $propertyId); 
-            if ($stmt->execute()) {
-                echo "Inquiry has been cancelled successfully.";
-            } else {
-                echo "Error cancelling inquiry.";
-            }
-            $stmt->close();
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("si", $cancelReason, $propertyId);
+        if ($stmt->execute()) {
+            echo json_encode(["success" => true]);
         } else {
-            echo "Failed to prepare the statement.";
+            echo json_encode(["success" => false, "error" => "Error cancelling inquiry."]);
         }
-
-        $conn->close();
+        $stmt->close();
+    } else {
+        echo json_encode(["success" => false, "error" => "Failed to prepare statement."]);
     }
+
+    $conn->close();
+} else {
+    echo json_encode(["success" => false, "error" => "Missing required fields."]);
+}
 ?>

@@ -18094,6 +18094,11 @@ body {
   }
 }
 
+.nav a{
+  color: #006D77 !important;
+;
+}
+
 .card-dashboard-one {
   position: relative;
   border-color: #cdd4e0;

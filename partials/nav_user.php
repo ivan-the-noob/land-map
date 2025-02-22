@@ -64,7 +64,7 @@ if (session_status() === PHP_SESSION_NONE) {
     <div class="az-header-right">
         <a href="../frontend_users/user_landproperties.php" class="az-header-search-link"><i class="fas fa-search"></i></a>
         <div class="az-header-message">
-            <a href="../frontend_users/user_chat.php"><i class="typcn typcn-messages"></i></a>
+            <a href="../frontend_users/user_inquires.php"><i class="typcn typcn-messages"></i></a>
         </div><!-- az-header-message -->
 
         <?php

@@ -275,7 +275,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                     <h3 class="property-title">Property Name: <?php echo htmlspecialchars($row['property_name']); ?></h3>
                     
                     <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price'] > 0) { ?>
-                        <div class="property-price">₱<?php echo number_format($row['sale_price'], 2); ?></div>
+                        <div class="property-price">₱<?php echo number_format($row['sale_price'], 2); ?>/contract price</div>
                     <?php } elseif ($row['sale_or_lease'] == 'lease' && $row['monthly_rent'] > 0) { ?>
                         <div class="property-price">₱<?php echo number_format($row['monthly_rent'], 2); ?>/monthly cost</div>
                     <?php } ?>
@@ -286,6 +286,13 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <?php } ?>
                         <?php if ($row['property_type']) { ?>
                             <span><i class="fas fa-home"> Land Type:</i> <?php echo htmlspecialchars($row['property_type']); ?></span>
+                        <?php } ?>
+                        <?php if (!empty($row['sale_or_lease'])) { ?>
+                            <span><i class="fas fa-tag">Lease Type </i>
+                                <?php 
+                                    echo $row['sale_or_lease'] === 'sale' ? 'For Sale' : ($row['sale_or_lease'] === 'lease' ? 'For Lease' : htmlspecialchars($row['sale_or_lease'])); 
+                                ?>
+                            </span>
                         <?php } ?>
                     </div>
 
