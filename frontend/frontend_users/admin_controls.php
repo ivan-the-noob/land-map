@@ -646,7 +646,7 @@
                                                                 JOIN properties p ON rp.property_id = p.property_id
                                                                 JOIN users u1 ON p.user_id = u1.user_id
                                                                 JOIN users u2 ON p.user_id = u2.user_id
-                                                                LEFT JOIN property_images pi ON rp.property_id = pi.property_id LIMIT 1";
+                                                                LEFT JOIN property_images pi ON rp.property_id = pi.property_id";
 
                                                         $result = $conn->query($query);
 
