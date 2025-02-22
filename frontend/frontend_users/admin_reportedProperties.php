@@ -202,6 +202,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                             <th>Property</th> <!-- Updated from Property ID to Property (Image) -->
                                                             <th>Agent Name</th>
                                                             <th>Report Reason</th>
+                                                            <th>Status</th>
                                                             <th class="text-center">Actions</th>
                                                         </tr>
                                                     </thead>
@@ -244,6 +245,21 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                                     </td>
                                                                     <td><?= htmlspecialchars($report['agent_fname'] . ' ' . $report['agent_lname']) ?></td>
                                                                     <td><?= htmlspecialchars($report['report_reason']) ?></td>
+                                                                    <td class="text-center">
+                                                                    <?php
+                                                                    $disableStatus = $report['disable_status'];
+
+                                                                    if ($disableStatus == 0) {
+                                                                        echo '<span class="badge badge-success">Active</span>';
+                                                                    } elseif ($disableStatus == 1) {
+                                                                        echo '<span class="badge badge-warning">Active 1 Warning</span>';
+                                                                    } elseif ($disableStatus == 2) {
+                                                                        echo '<span class="badge badge-warning">Active 2 Warnings</span>';
+                                                                    } else {
+                                                                        echo '<span class="badge badge-danger">Disabled</span>';
+                                                                    }
+                                                                    ?>
+                                                                </td>
                                                                    
                                                                     <td class="text-center">
                                                                         <!-- Approve (Disable) -->
