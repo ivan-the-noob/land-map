@@ -192,29 +192,26 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                         <!-- Reload Page button -->
                         <button id="reload-page-button" class="btn btn-primary">Reload Page</button>
                     </div>
+                        
                         <div class="iframe-container" style="overflow: hidden;">
-                            <!-- Iframe to display the webpage -->
-                            <iframe id="website-viewer" src="../../index.php" width="100%" height="800px" frameborder="0"></iframe>
-                        </div>
-                        <div class="iframe-container" style="overflow: hidden;">
-    <!-- Iframe to display the webpage -->
-    <iframe id="website-viewer" src="../../index.php" width="100%" height="800px" frameborder="0"></iframe>
-</div>
+                                <!-- Iframe to display the webpage -->
+                                <iframe id="website-viewer" src="../../index.php" width="100%" height="800px" frameborder="0"></iframe>
+                            </div>
 
-<script>
-    document.getElementById("website-viewer").onload = function() {
-        var iframe = document.getElementById("website-viewer").contentWindow.document;
-        var links = iframe.querySelectorAll("a");
+                            <script>
+                                document.getElementById("website-viewer").onload = function() {
+                                    var iframe = document.getElementById("website-viewer").contentWindow.document;
+                                    var links = iframe.querySelectorAll("a");
 
-        links.forEach(function(link) {
-            link.addEventListener("click", function(event) {
-                event.preventDefault(); // Prevent the default action
-                link.style.pointerEvents = "none"; // Disable clicking
-                link.style.color = "gray"; // Optional: Change color to indicate disabled state
-            });
-        });
-    };
-</script>
+                                    links.forEach(function(link) {
+                                        link.addEventListener("click", function(event) {
+                                            event.preventDefault(); // Prevent the default action
+                                            link.style.pointerEvents = "none"; // Disable clicking
+                                            link.style.color = "gray"; // Optional: Change color to indicate disabled state
+                                        });
+                                    });
+                                };
+                            </script>
 
                         <!-- Customization Form -->
                         <?php
