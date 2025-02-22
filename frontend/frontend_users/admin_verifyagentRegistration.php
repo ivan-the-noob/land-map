@@ -339,6 +339,81 @@ elseif ($_SESSION['role_type'] !== 'admin') {
 <script src="../../assets/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../../assets/lib/ionicons/ionicons.js"></script>
 <script src="../../assets/js/azia.js"></script>
+<script>
+       document.addEventListener("DOMContentLoaded", function () {
+    // Handle View Button Click
+    document.querySelectorAll(".view-agent").forEach(button => {
+        button.addEventListener("click", function () {
+            let agent = JSON.parse(this.getAttribute("data-agent"));
+
+            // Populate Modal Fields
+            document.getElementById("agentProfileImg").src = "../../assets/profile_images/" + agent.profile;
+            document.getElementById("agentName").textContent = agent.fname + " " + agent.lname;
+            document.getElementById("agentEmail").textContent = agent.email;
+            document.getElementById("agentLocation").textContent = agent.location;
+            document.getElementById("agentMobile").textContent = agent.mobile;
+
+            document.getElementById("agentPrimaryIDType").textContent = agent.primary_id_type;
+            document.getElementById("agentPrimaryIDNumber").textContent = agent.primary_id_number;
+            document.getElementById("agentPrimaryIDImg").src = "../../assets/agents/" + agent.primary_id_image;
+
+            document.getElementById("agentSecondaryIDType").textContent = agent.secondary_id_type;
+            document.getElementById("agentSecondaryIDNumber").textContent = agent.secondary_id_number;
+            document.getElementById("agentSecondaryIDImg").src = "../../assets/agents/" + agent.secondary_id_image;
+        });
+    });
+
+    // Handle Approve Agent
+    document.querySelectorAll(".approve-agent").forEach(button => {
+        button.addEventListener("click", function () {
+            let agentId = this.getAttribute("data-id");
+
+            if (confirm("Are you sure you want to approve this agent?")) {
+                fetch("../../backend/approve_agent.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "user_id=" + agentId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Agent approved successfully!");
+                        location.reload();
+                    } else {
+                        alert("Error approving agent.");
+                    }
+                });
+            }
+        });
+    });
+
+    // Handle Decline Agent
+    document.querySelectorAll(".decline-agent").forEach(button => {
+        button.addEventListener("click", function () {
+            let agentId = this.getAttribute("data-id");
+
+            if (confirm("Are you sure you want to decline this agent?")) {
+                fetch("../../backend/decline_agent.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "user_id=" + agentId
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Agent declined successfully!");
+                        location.reload();
+                    } else {
+                        alert("Error declining agent.");
+                    }
+                });
+            }
+        });
+    });
+});
+
+
+    </script>
 
 <script>
 function viewAgentLands(agentId) {

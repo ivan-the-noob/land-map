@@ -364,62 +364,71 @@ elseif ($_SESSION['role_type'] !== 'admin') {
 <script src="../../assets/js/azia.js"></script>
 
 <script>
-        document.getElementById('agentRegistrationForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent form from submitting the traditional way
+    document.getElementById('agentRegistrationForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent form from submitting the traditional way
 
-            // Hide error messages before submitting the form
-            document.getElementById('first_name_error').textContent = '';
-            document.getElementById('last_name_error').textContent = '';
-            document.getElementById('email_error').textContent = '';
-            document.getElementById('password_error').textContent = '';
+        // Hide error messages before submitting the form
+        document.getElementById('first_name_error').textContent = '';
+        document.getElementById('last_name_error').textContent = '';
+        document.getElementById('email_error').textContent = '';
+        document.getElementById('password_error').textContent = '';
 
-            // Show loading spinner
-            document.getElementById('buttonText').style.display = 'none';
-            document.getElementById('loadingSpinner').style.display = 'inline-block';
+        // Show loading spinner
+        document.getElementById('buttonText').style.display = 'none';
+        document.getElementById('loadingSpinner').style.display = 'inline-block';
 
-            const formData = new FormData(this);
+        const formData = new FormData(this);
 
-            // Send form data using AJAX
-            fetch('../../backend/agent_registration.php', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // Hide loading spinner
-                    document.getElementById('loadingSpinner').style.display = 'none';
-                    document.getElementById('buttonText').style.display = 'inline-block';
+        // Send form data using AJAX
+        fetch('../../backend/agent_registration.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text()) // Use text() first to debug raw output
+        .then(data => {
+            console.log("Raw Response:", data); // Log full response to check if it's valid JSON
+            try {
+                let jsonData = JSON.parse(data);
+                console.log("Parsed JSON:", jsonData);
 
-                    if (data.success) {
-                        // Show the success modal
-                        $('#successModal').modal('show');
-                    } else {
-                        // Show validation errors if any
-                        for (const key in data.errors) {
-                            if (data.errors.hasOwnProperty(key)) {
-                                const errorElement = document.getElementById(`${key}_error`);
-                                if (errorElement) {
-                                    errorElement.textContent = data.errors[key];
-                                }
-                            }
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('buttonText').style.display = 'inline-block';
+
+                if (jsonData.success) {
+                    // Show the success modal
+                    $('#successModal').modal('show');
+                } else {
+                    // Show validation errors if any
+                    for (const key in jsonData.errors) {
+                        const errorElement = document.getElementById(`${key}_error`);
+                        if (errorElement) {
+                            errorElement.textContent = jsonData.errors[key];
                         }
                     }
-                })
-                .catch(error => {
-                    // Handle unexpected errors
-                    console.error('Error:', error);
-                    document.getElementById('loadingSpinner').style.display = 'none';
-                    document.getElementById('buttonText').style.display = 'inline-block';
-                });
+                }
+            } catch (error) {
+                console.error("JSON Parse Error:", error, data);
+                alert("An error occurred while processing your request. Check the console for details.");
+            }
+        })
+        .catch(error => {
+            // Handle unexpected errors
+            console.error('Fetch Error:', error);
+            alert("A network error occurred. Please try again.");
+            document.getElementById('loadingSpinner').style.display = 'none';
+            document.getElementById('buttonText').style.display = 'inline-block';
         });
+    });
 
-        // Redirect or close the modal when OK button is clicked
-        document.getElementById('okButton').addEventListener('click', function () {
-            $('#successModal').modal('hide');
+    // Redirect or close the modal when OK button is clicked
+    document.getElementById('okButton').addEventListener('click', function () {
+        $('#successModal').modal('hide');
+        window.location.href = '../../frontend/frontend_users/admin_control.php';
+    });
+</script>
 
-            window.location.href = '../../frontend/frontend_users/admin_control.php';
-        });
-    </script>
+
 
 <script>
 function viewAgentLands(agentId) {

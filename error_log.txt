@@ -1,0 +1,30 @@
+[22-Feb-2025 19:23:43 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php:101
+Stack trace:
+#0 C:\xampp8.2\htdocs\landmap\backend\agent_registration.php(101): mysqli_stmt->bind_param('sssssssssssssss...', 'agent', 'Ivanss', 'Ablanida', 'joshuapalacioss...', '$2y$10$2kw5RRTF...', '+639957939703', '312', '1740248623_67ba...', 'passport', '312312', '1740248623_67ba...', 'philhealth', '312312', '1740248623_67ba...', '960ad351dfebe21...')
+#1 {main}
+  thrown in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php on line 101
+[22-Feb-2025 19:23:44 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php:101
+Stack trace:
+#0 C:\xampp8.2\htdocs\landmap\backend\agent_registration.php(101): mysqli_stmt->bind_param('sssssssssssssss...', 'agent', 'Ivanss', 'Ablanida', 'joshuapalacioss...', '$2y$10$VPgWI/5X...', '+639957939703', '312', '1740248624_67ba...', 'passport', '312312', '1740248624_67ba...', 'philhealth', '312312', '1740248624_67ba...', '11c6376d8c00c7a...')
+#1 {main}
+  thrown in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php on line 101
+[22-Feb-2025 19:24:06 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php:101
+Stack trace:
+#0 C:\xampp8.2\htdocs\landmap\backend\agent_registration.php(101): mysqli_stmt->bind_param('sssssssssssssss...', 'agent', 'Ivanss', 'Ablanida', 'joshuapalacioss...', '$2y$10$DelzSI.0...', '+639957939703', '312', '1740248646_67ba...', 'passport', '312312', '1740248646_67ba...', 'philhealth', '312312', '1740248646_67ba...', 'e9f0dfa1def5af0...')
+#1 {main}
+  thrown in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php on line 101
+[22-Feb-2025 19:27:48 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php:101
+Stack trace:
+#0 C:\xampp8.2\htdocs\landmap\backend\agent_registration.php(101): mysqli_stmt->bind_param('sssssssssssssss...', 'agent', 'Ivansssss', 'Ablanida', 'joshuapalacioss...', '$2y$10$QF2rZjkW...', '+639957939703', '312', '1740248868_67ba...', 'passport', '312312', '1740248868_67ba...', 'philhealth', '312312', '1740248868_67ba...', '5f96446c4fe3562...')
+#1 {main}
+  thrown in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php on line 101
+[22-Feb-2025 19:29:00 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Column count doesn't match value count at row 1 in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php:100
+Stack trace:
+#0 C:\xampp8.2\htdocs\landmap\backend\agent_registration.php(100): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php on line 100
+[22-Feb-2025 19:29:57 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php:101
+Stack trace:
+#0 C:\xampp8.2\htdocs\landmap\backend\agent_registration.php(101): mysqli_stmt->bind_param('sssssssssssssss...', 'agent', 'Ivansssss', 'Ablanida', 'joshuapalacioss...', '$2y$10$fcNC5roL...', '+639957939703', '312', '1740248997_67ba...', 'passport', '312312', '1740248997_67ba...', 'philhealth', '312312', '1740248997_67ba...', '1f792d5296bf2ff...')
+#1 {main}
+  thrown in C:\xampp8.2\htdocs\landmap\backend\agent_registration.php on line 101

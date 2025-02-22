@@ -1,5 +1,8 @@
 <?php
-
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', '../error_log.txt'); // Logs errors to a file
 require '../db.php';
 require '../vendor/autoload.php';
 
@@ -90,12 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Generate verification code
         $verification_code = bin2hex(random_bytes(16));
 
-        // Insert into database
         $insert_query = "INSERT INTO users (role_type, fname, lname, email, password, mobile, location, profile, primary_id_type, primary_id_number, primary_id_image, secondary_id_type, secondary_id_number, secondary_id_image, verification_code, is_verified, admin_verify) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)"; 
 
         $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param("ssssssssssssssss", $role_type, $first_name, $last_name, $email, $hashed_password, $mobile, $location, $profile_image, $primary_id_type, $primary_id_number, $primary_id_image, $secondary_id_type, $secondary_id_number, $secondary_id_image, $verification_code);
+        $stmt->bind_param("sssssssssssssss", $role_type, $first_name, $last_name, $email, $hashed_password, $mobile, $location, $profile_image, $primary_id_type, $primary_id_number, $primary_id_image, $secondary_id_type, $secondary_id_number, $secondary_id_image, $verification_code);
+
 
 
         if ($stmt->execute()) {
@@ -130,18 +133,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>";
             
 
-            if ($mail->send()) {
-                echo json_encode(['success' => true, 'message' => "Account successfully created. A verification email has been sent."]);
+                if ($mail->send()) {
+                    echo json_encode(['success' => true, 'message' => "Account successfully created. Verification email sent."]);
+                } else {
+                    error_log("Email Error: " . $mail->ErrorInfo);
+                    echo json_encode(['success' => false, 'errors' => ['email' => "Error sending verification email."]]);
+                }
             } else {
-                echo json_encode(['success' => false, 'errors' => ['general' => "Error sending verification email."]]);
+                error_log("MySQL Error: " . $stmt->error);
+                echo json_encode(['success' => false, 'errors' => ['general' => "Database error occurred."]]);
             }
+            $stmt->close();
         } else {
-            $errors['general'] = "Error: " . $conn->error;
             echo json_encode(['success' => false, 'errors' => $errors]);
         }
-    } else {
-        echo json_encode(['success' => false, 'errors' => $errors]);
     }
-}
-
-$conn->close();
+    
+    $conn->close();
