@@ -124,11 +124,12 @@ elseif ($_SESSION['role_type'] !== 'user') {
 
                                 $user_id = $_SESSION['user_id']; 
 
-                                $sql = "SELECT p.*, iq.*, 
+                                $sql = "SELECT p.*, 
                                         u.fname, u.lname,
                                         ui.image_name AS user_image,
                                         iq.status AS inquiry_status,
                                         p.user_id AS agent_id, 
+                                        iq.cancel_reason,
                                         (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
                                         FROM properties p
                                         LEFT JOIN users u ON p.user_id = u.user_id
@@ -206,8 +207,8 @@ elseif ($_SESSION['role_type'] !== 'user') {
                         <?php if ($row['sale_or_lease']) { ?>
                             <span><i class="fas fa-home"> Lease Type:</i> <?php echo htmlspecialchars($row['sale_or_lease']); ?></span>
                         <?php } ?>
-                        <?php if (!empty(trim($row['cancel_reason']))) { ?>
-                            <span>Cancel Reason: <?php echo htmlspecialchars($row['cancel_reason']); ?></span>
+                        <?php if (!empty(trim($row['reason']))) { ?>
+                            <span>Cancel Reason: <?php echo htmlspecialchars($row['reason']); ?></span>
                         <?php } ?>
 
                     </div>
