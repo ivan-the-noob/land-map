@@ -218,11 +218,18 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                         $total_properties = $total_result->fetch_assoc()['total'];
                                                         $total_pages = ceil($total_properties / $limit);
                                                         
-                                                        $query = "SELECT rp.*, pi.image_name
+                                                        $query = "SELECT rp.*, 
+                                                            u1.fname AS user_fname, u1.lname AS user_lname, 
+                                                            u2.fname AS agent_fname, u2.lname AS agent_lname,
+                                                            pi.image_name
                                                         FROM report_properties rp
-                                                        INNER JOIN property_images pi ON rp.property_id = pi.property_id
-                                                        LIMIT $limit OFFSET $offset";
-                                              
+                                                        JOIN properties p ON rp.property_id = p.property_id
+                                                        JOIN users u1 ON p.user_id = u1.user_id  -- Property owner (User)
+                                                        LEFT JOIN users u2 ON p.agent_id = u2.user_id  -- Agent (if applicable)
+                                                        LEFT JOIN property_images pi ON rp.property_id = pi.property_id
+                                                        LIMIT $limit OFFSET $offset;
+                                                        ";
+                                                                                                                        
 
                                                         $result = $conn->query($query);
 
