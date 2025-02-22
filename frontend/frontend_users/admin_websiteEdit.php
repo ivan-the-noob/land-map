@@ -196,6 +196,26 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                             <!-- Iframe to display the webpage -->
                             <iframe id="website-viewer" src="../../index.php" width="100%" height="800px" frameborder="0"></iframe>
                         </div>
+                        <div class="iframe-container" style="overflow: hidden;">
+    <!-- Iframe to display the webpage -->
+    <iframe id="website-viewer" src="../../index.php" width="100%" height="800px" frameborder="0"></iframe>
+</div>
+
+<script>
+    document.getElementById("website-viewer").onload = function() {
+        var iframe = document.getElementById("website-viewer").contentWindow.document;
+        var links = iframe.querySelectorAll("a");
+
+        links.forEach(function(link) {
+            link.addEventListener("click", function(event) {
+                event.preventDefault(); // Prevent the default action
+                link.style.pointerEvents = "none"; // Disable clicking
+                link.style.color = "gray"; // Optional: Change color to indicate disabled state
+            });
+        });
+    };
+</script>
+
                         <!-- Customization Form -->
                         <?php
                             $query = "SELECT * FROM cms LIMIT 1";
@@ -559,79 +579,7 @@ setInterval(updateDateTime, 1000);
     });
     </script>
 
-<script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get all the buttons
-            const buttons = document.querySelectorAll('.btn-group .btn');
-
-            // Form sections for different property types
-            const landForm = document.getElementById('landForm');
-            const singleAttachedHouseForm = document.getElementById('singleAttachedHouseForm');
-            const singleDetachedHouseForm = document.getElementById('singleDetachedHouseForm');
-            const rowhouseForm = document.getElementById('rowhouseForm');
-            const apartmentForm = document.getElementById('apartmentForm');
-            const villaForm = document.getElementById('villaForm');
-
-            // Function to hide all forms and disable their fields
-            function hideAllForms() {
-                // Get all form sections
-                const forms = [landForm, singleAttachedHouseForm, singleDetachedHouseForm, rowhouseForm, apartmentForm, villaForm];
-
-                // Loop through all forms
-                forms.forEach(form => {
-                    // Disable all input fields within the form
-                    const inputs = form.querySelectorAll('input, textarea, select');
-                    inputs.forEach(input => {
-                        input.disabled = true;
-                    });
-                    // Hide the form
-                    form.style.display = 'none';
-                });
-            }
-
-            // Function to show the selected form and enable its fields
-            function showForm(form) {
-                // Hide all forms first and disable their fields
-                hideAllForms();
-
-                // Show the selected form and enable its fields
-                form.style.display = 'block';
-                const inputs = form.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    input.disabled = false;  // Enable the fields of the currently visible form
-                });
-            }
-
-            // Add event listeners to each button
-            buttons.forEach(button => {
-                button.addEventListener('click', function () {
-                    // Remove the "active" class from all buttons
-                    buttons.forEach(btn => btn.classList.remove('active'));
-
-                    // Add the "active" class to the clicked button
-                    this.classList.add('active');
-
-                    // Show the corresponding form based on the clicked button
-                    if (this.id === 'landBtn') {
-                        showForm(landForm);
-                    } else if (this.id === 'singleAttachedHouseBtn') {
-                        showForm(singleAttachedHouseForm);
-                    } else if (this.id === 'singleDetachedHouseBtn') {
-                        showForm(singleDetachedHouseForm);
-                    } else if (this.id === 'rowhouseBtn') {
-                        showForm(rowhouseForm);
-                    } else if (this.id === 'apartmentBtn') {
-                        showForm(apartmentForm);
-                    } else if (this.id === 'villaBtn') {
-                        showForm(villaForm);
-                    }
-                });
-            });
-
-            // Initially, show the Land form
-            showForm(landForm);
-        });
-    </script>
+    
 
 </body>
 </html>
