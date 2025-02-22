@@ -129,7 +129,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         ui.image_name AS user_image,
                                         iq.status AS inquiry_status,
                                         p.user_id AS agent_id, 
-                                        iq.cancel_reason,
+                                        iq.cancel_reason AS cancel,
                                         (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
                                         FROM properties p
                                         LEFT JOIN users u ON p.user_id = u.user_id
