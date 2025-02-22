@@ -118,14 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $mail->isHTML(true);
             $mail->Subject = 'Please verify your email address';
             $base_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] . "/landmap";
-            $verification_link = "$base_url/backend/verify_email.php?code=$verification_code";
             
             $mail->Body = "
                 <div style='font-family: Roboto, Arial, sans-serif; line-height: 1.6; color: #333; font-size: 16px;'>
                     <h2 style='color: #2C3E50; font-size: 20px;'>Hi $first_name,</h2>
                     <p style='font-size: 16px;'>Thank you for registering! Please click the button below to verify your email address:</p>
                     <div style='margin: 20px 0;'>
-                        <a href='$verification_link' style='display: inline-block; padding: 12px 20px; font-size: 16px; font-weight: bold; color: #fff; text-decoration: none; background-color: #28a745; border-radius: 5px;'>Verify Email</a>
+                         <a href='http://landmap.shop/backend/verify_email.php?code=$verification_code' style='display: inline-block; padding: 12px 20px; font-size: 16px; font-weight: bold; color: #fff; text-decoration: none; background-color: #28a745; border-radius: 5px;'>Verify Email</a>
                     </div>
                     <p style='font-size: 16px;'>If you did not register, please ignore this email.</p>
                     <br>
