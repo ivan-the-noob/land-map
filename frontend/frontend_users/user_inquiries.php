@@ -128,7 +128,6 @@ elseif ($_SESSION['role_type'] !== 'user') {
                                         u.fname, u.lname,
                                         ui.image_name AS user_image,
                                         iq.status AS inquiry_status,
-                                        iq.cancel_reason AS reason,
                                         p.user_id AS agent_id, 
                                         (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
                                         FROM properties p
