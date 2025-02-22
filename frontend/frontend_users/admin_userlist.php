@@ -193,7 +193,7 @@
             <!-- end time and date -->
             
             <!-- User List -->
-            <div class="row mt-4">
+            <div class="rows mt-4">
                 <div class="col-12">
                     <h4 class="text-center">Total Users: <?php echo $total_users; ?></h4>
                 </div>

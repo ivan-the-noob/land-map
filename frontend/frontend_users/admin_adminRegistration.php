@@ -187,7 +187,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
             <!-- end time and date -->
             
             <!-- User List -->
-            <div class="row mt-4">
+            <div class="rows mt-4">
                 <div class="main-box" id="admin-registration-form">
                         
                         

@@ -187,7 +187,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
             <!-- end time and date -->
             
             <!-- Agent List -->
-            <div class="row mt-4">
+            <div class="rows mt-4">
                 <div class="col-12">
                     <h4 class="text-center">Total Unverified Agents: <?php echo $total_verify; ?></h4>
                 </div>

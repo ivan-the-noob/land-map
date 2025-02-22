@@ -188,7 +188,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
             
             <!-- User List -->
              
-            <div class="row mt-4">
+            <div class="rows mt-4">
                 <div class="col-12">
                     <h4 class="text-center">Total Reported Properties: <?php echo $total_users; ?></h4>
                 </div>
@@ -217,19 +217,21 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                         $total_result = $conn->query($total_query);
                                                         $total_properties = $total_result->fetch_assoc()['total'];
                                                         $total_pages = ceil($total_properties / $limit);
-                                                        
                                                         $query = "SELECT rp.*, 
-                                                            u1.fname AS user_fname, u1.lname AS user_lname, 
-                                                            u2.fname AS agent_fname, u2.lname AS agent_lname,
-                                                            pi.image_name
-                                                        FROM report_properties rp
-                                                        JOIN properties p ON rp.property_id = p.property_id
-                                                        JOIN users u1 ON p.user_id = u1.user_id  -- Property owner (User)
-                                                        LEFT JOIN users u2 ON p.agent_id = u2.user_id  -- Agent (if applicable)
-                                                        LEFT JOIN property_images pi ON rp.property_id = pi.property_id
-                                                        LIMIT $limit OFFSET $offset;
+                                                                    u1.fname AS user_fname, u1.lname AS user_lname,  -- Reporter (who reported the property)
+                                                                    u2.fname AS agent_fname, u2.lname AS agent_lname, -- Property owner (agent)
+                                                                    u2.disable_status, -- Getting disable_status from property owner
+                                                                    pi.image_name  -- Fetch image_name from property_images
+                                                                FROM report_properties rp
+                                                                JOIN properties p ON rp.property_id = p.property_id
+                                                                JOIN users u1 ON rp.user_id = u1.user_id  -- Reporter
+                                                                JOIN users u2 ON p.user_id = u2.user_id  -- Property owner (agent)
+                                                                LEFT JOIN property_images pi ON rp.property_id = pi.property_id  
+                                                                LIMIT $limit OFFSET $offset;
                                                         ";
-                                                                                                                        
+
+
+                                                                
 
                                                         $result = $conn->query($query);
 
@@ -247,31 +249,36 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                                     <td><?= htmlspecialchars($report['agent_fname'] . ' ' . $report['agent_lname']) ?></td>
                                                                     <td><?= htmlspecialchars($report['report_reason']) ?></td>
                                                                     <td class="text-center">
-                                                                    <?php
-                                                                    $disableStatus = $report['disable_status'];
+    <?php
+    $disableStatus = $report['disable_status']; // Now getting from the property owner (agent)
 
-                                                                    if ($disableStatus == 0) {
-                                                                        echo '<span class="badge badge-success">Active</span>';
-                                                                    } elseif ($disableStatus == 1) {
-                                                                        echo '<span class="badge badge-warning">Active 1 Warning</span>';
-                                                                    } elseif ($disableStatus == 2) {
-                                                                        echo '<span class="badge badge-warning">Active 2 Warnings</span>';
-                                                                    } else {
-                                                                        echo '<span class="badge badge-danger">Disabled</span>';
-                                                                    }
-                                                                    ?>
-                                                                </td>
-                                                                   
+    if ($disableStatus == 0) {
+        echo '<span class="badge badge-success">Active</span>';
+    } elseif ($disableStatus == 1) {
+        echo '<span class="badge badge-warning">Active 1 Warning</span>';
+    } elseif ($disableStatus == 2) {
+        echo '<span class="badge badge-warning">Active 2 Warnings</span>';
+    } else {
+        echo '<span class="badge badge-danger">Disabled</span>';
+    }
+    ?>
+</td>
+
                                                                     <td class="text-center">
                                                                         <!-- Approve (Disable) -->
-                                                                        <button class="btn btn-success btn-sm disable-user" data-user-id="<?= $report['user_id'] ?>">
+                                                                        <button class="btn btn-success btn-sm disable-user" data-property-id="<?= $report['property_id'] ?>">
                                                                             <i class="fas fa-check"></i>
                                                                         </button>
+
 
                                                                         <!-- Delete Report -->
                                                                         <button class="btn btn-danger btn-sm delete-report" data-report-id="<?= $report['id'] ?>">
                                                                             <i class="fas fa-times"></i>
                                                                         </button>
+                                                                        <button class="btn btn-warning text-white btn-sm enable-property" data-report-id="<?= $report['property_id'] ?>">
+                                                                            Enable
+                                                                        </button>
+
                                                                     </td>
                                                                 </tr>
                                                             <?php endwhile;
@@ -289,27 +296,63 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                     <script>
                                         $(document).ready(function () {
                                         // Handle image click to open zoom modal
+
                                        
 
-                                        // Disable user (Increment disable_status)
                                         $('.disable-user').on('click', function () {
-                                            var userId = $(this).data('user-id');
+                                            var propertyId = $(this).data('property-id'); // Get property_id
+
+                                            if (!confirm("Are you sure you want to disable this agent?")) {
+                                                return;
+                                            }
 
                                             $.ajax({
                                                 url: '../../backend/disable_user.php',
                                                 type: 'POST',
-                                                data: { user_id: userId },
+                                                data: { property_id: propertyId }, // Send property_id instead of agent_id
                                                 dataType: 'json',
                                                 success: function (response) {
                                                     if (response.success) {
-                                                        alert("User disabled successfully!");
+                                                        alert("Agent disabled successfully!");
                                                         location.reload();
                                                     } else {
                                                         alert("Error: " + response.error);
                                                     }
+                                                },
+                                                error: function () {
+                                                    alert("AJAX request failed.");
                                                 }
                                             });
                                         });
+                                        $('.enable-property').on('click', function () {
+                                        var propertyId = $(this).data('report-id'); // Get property_id
+
+                                        if (!confirm("Are you sure you want to enable this property?")) {
+                                            return;
+                                        }
+
+                                        $.ajax({
+                                            url: '../../backend/enable_property.php', // New PHP file to handle enabling
+                                            type: 'POST',
+                                            data: { property_id: propertyId }, // Send property_id
+                                            dataType: 'json',
+                                            success: function (response) {
+                                                if (response.success) {
+                                                    alert("Property enabled successfully!");
+                                                    location.reload();
+                                                } else {
+                                                    alert("Error: " + response.error);
+                                                }
+                                            },
+                                            error: function () {
+                                                alert("AJAX request failed.");
+                                            }
+                                        });
+                                    });
+
+
+
+
 
                                         // Delete report
                                         $('.delete-report').on('click', function () {
