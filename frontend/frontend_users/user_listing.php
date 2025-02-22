@@ -264,7 +264,16 @@ elseif ($_SESSION['role_type'] !== 'user') {
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">
-                        <?php echo strtoupper($row['sale_or_lease']); ?>
+                    <?php
+                        $sale_or_lease = strtoupper($row['sale_or_lease']);
+
+                        if ($sale_or_lease === 'SALE') {
+                            echo 'FOR SALE';
+                        } elseif ($sale_or_lease === 'LEASE') {
+                            echo 'FOR LEASE';
+                        }
+                    ?>
+
                     </div>
                     <div class="location-badge">
                         <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($row['property_location']); ?>

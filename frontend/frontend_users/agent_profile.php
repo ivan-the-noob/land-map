@@ -408,7 +408,7 @@ if (!isset($_SESSION['role_type'])) {
                     <img src="../../assets/profile_images/<?php echo !empty($agent['profile']) ? htmlspecialchars($agent['profile']) : '../../assets/images/default-profile.jpg'; ?>" style="width: 150px; height: 150px; border-radius: 50%;">
                     <h3 class="mt-3"><?php echo htmlspecialchars($agent['fname'] . ' ' . $agent['lname']); ?></h3>
                     <p><strong><i class="fas fa-envelope"></i> Email:</strong> <?php echo htmlspecialchars($agent['email']); ?></p>
-                    <p><strong><i class="fas fa-phone"></i> Phone:</strong> <?php echo !empty($agent['phone']) ? htmlspecialchars($agent['phone']) : 'Not provided'; ?></p>
+                    <p><strong><i class="fas fa-phone"></i> Phone:</strong> <?php echo !empty($agent['mobile']) ? htmlspecialchars($agent['mobile']) : 'Not provided'; ?></p>
                     <p><strong><i class="fas fa-map-marker-alt"></i> Location:</strong> <?php echo !empty($agent['location']) ? htmlspecialchars($agent['location']) : 'Tanza, Cavite'; ?></p>
                     <p><strong><i class="fa fa-id-card"></i> PRC:</strong> <?php echo !empty($agent['prc_id']) ? htmlspecialchars($agent['prc_id']) : 'Not provided'; ?></p>
                     <p><strong><i class="fa fa-address-card"></i> DHSP:</strong> <?php echo !empty($agent['dshp_id']) ? htmlspecialchars($agent['dshp_id']) : 'Not provided'; ?></p>
@@ -438,9 +438,18 @@ if (!isset($_SESSION['role_type'])) {
                     </div>
                     
                     <div class="property-content">
+                         
+                     
+                    <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price']) { ?>
+                        <div class="property-price">₱<?php echo number_format($row['sale_price'], 2); ?>/contract price</div>
+                    <?php } elseif ($row['sale_or_lease'] == 'lease' && $row['monthly_rent'] > 0) { ?>
+                        <div class="property-price">₱<?php echo number_format($row['monthly_rent'], 2); ?>/monthly cost</div>
+                    <?php } ?>
+
+
                         <h3 class="property-title">Property Name: <?php echo htmlspecialchars($row['property_name']); ?></h3>
                         
-                        <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price'] > 0) { ?>
+                        <?php if ($row['sale_or_lease'] == 'sale' && $row['sale_price']) { ?>
                             <div class="property-price">₱ <?php echo number_format($row['sale_price'], 2); ?></div>
                         <?php } elseif ($row['sale_or_lease'] == 'lease' && $row['monthly_rent'] > 0) { ?>
                             <div class="property-price">₱ <?php echo number_format($row['monthly_rent'], 2); ?> /monthly cost</div>
@@ -453,6 +462,9 @@ if (!isset($_SESSION['role_type'])) {
                             <?php if ($row['property_type']) { ?>
                                 <span><i class="fas fa-home"></i> Land Type: <?php echo htmlspecialchars($row['property_type']); ?></span>
                             <?php } ?>
+                            <?php if ($row['sale_or_lease']) { ?>
+                            <span><i class="fas fa-tag">Lease Type: </i> <?php echo htmlspecialchars($row['sale_or_lease']); ?></span> <!-- Land type -->
+                        <?php } ?>
                         </div>
                         
                         <?php if ($row['property_description']) { ?>
@@ -474,9 +486,61 @@ if (!isset($_SESSION['role_type'])) {
                         <?php } ?>
                         
                         <div class="property-actions">
-                            <button class="btn-view" onclick="openModal(<?php echo $row['property_id']; ?>)">
-                                <i class="fas fa-eye"></i> View More Details
-                            </button>
+                        <button class="btn btn-danger btn-sm" onclick="openAddToListModal(<?php echo $row['property_id']; ?>)">
+                            <i class="fas fa-archive"></i> Add to List
+                        </button>
+                        <div class="modal fade" id="addToListModal" tabindex="-1" aria-labelledby="addToListModalLabel">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="addToListModalLabel">Confirm Listing</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Are you sure you want to list this property?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                                        <button type="button" class="btn btn-success" id="confirmAddToListBtn">Yes, List</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                        <script>
+                            let selectedPropertyId = null;
+
+                            function openAddToListModal(propertyId) {
+                                selectedPropertyId = propertyId;
+                                $('#addToListModal').modal('show');
+                            }
+
+                            $(document).ready(function () {
+                                $('#confirmAddToListBtn').on('click', function () {
+                                    if (selectedPropertyId) {
+                                        $.ajax({
+                                            url: '../../backend/update_add_list.php',
+                                            type: 'POST',
+                                            data: { property_id: selectedPropertyId },
+                                            success: function (response) {
+                                                console.log("Server Response:", response); 
+                                                if (response.trim() === "success") {
+                                                    alert("Property listed successfully!");
+                                                    location.reload(); 
+                                                } else {
+                                                    alert("Failed to list property: " + response); 
+                                                }
+                                            },
+
+                                            error: function () {
+                                                alert("An error occurred.");
+                                            }
+                                        });
+                                        $('#addToListModal').modal('hide');
+                                    }
+                                });
+                            });
+                        </script>
                         </div>
                     </div>
                 </div>

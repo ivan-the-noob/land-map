@@ -664,7 +664,15 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">
-                    <?php echo $row['sale_or_lease'] == 'sale' ? 'For Sale' : 'For Lease'; ?>
+                    <?php
+                        $sale_or_lease = strtoupper($row['sale_or_lease']);
+
+                        if ($sale_or_lease === 'SALE') {
+                            echo 'FOR SALE';
+                        } elseif ($sale_or_lease === 'LEASE') {
+                            echo 'FOR LEASE';
+                        }
+                    ?>
                     </div>
                     <?php if ($isNew) { ?>
                         <div class="new-badge" data-created="<?php echo $row['created_at']; ?>">NEW</div>

@@ -372,19 +372,19 @@ if (!isset($_SESSION['role_type'])) {
     // Fetch properties only for the logged-in agent
     $userId = $_SESSION['user_id']; // Assuming user_id is stored in session
     $sql = "SELECT p.*, 
-            u.fname, u.lname,
-            ui.image_name as user_image,
-            (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
-            DATE_FORMAT(p.created_at, '%M %d, %Y') as added_date,
-            DATE_FORMAT(p.created_at, '%h:%i %p') as added_time,
-            TIMESTAMPDIFF(HOUR, p.created_at, NOW()) as hours_since_created,
-            0 as view_count,  /* Temporary default value until table is created */
-            0 as message_count  /* Temporary default value until table is created */
-            FROM properties p 
-            LEFT JOIN users u ON p.user_id = u.user_id
-            LEFT JOIN user_img ui ON u.user_id = ui.user_id
-            WHERE p.user_id = ? AND p.is_archive = 1
-            ORDER BY p.property_id DESC";
+    u.fname, u.lname,
+    ui.image_name as user_image,
+    (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+    DATE_FORMAT(p.created_at, '%M %d, %Y') as added_date,
+    DATE_FORMAT(p.created_at, '%h:%i %p') as added_time,
+    TIMESTAMPDIFF(HOUR, p.created_at, NOW()) as hours_since_created,
+    (SELECT COUNT(*) FROM views WHERE property_id = p.property_id) AS total_views, 
+    0 as message_count
+    FROM properties p 
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN user_img ui ON u.user_id = ui.user_id
+    WHERE p.user_id = ? AND p.is_archive = 1
+    ORDER BY p.property_id DESC";
 
     $stmt = $conn->prepare($sql); // Prepare SQL statement
     $stmt->bind_param("i", $userId); // Bind parameters
@@ -423,14 +423,11 @@ if (!isset($_SESSION['role_type'])) {
                     <!-- Add Property Stats Section -->
                     <?php if (isset($_SESSION['role_type']) && $_SESSION['role_type'] === 'agent') { ?>
                         <div class="property-stats">
-                            <div class="stat-item">
+                            <div class="stat-item d-flex">
                                 <i class="fas fa-eye"></i>
-                                <span><?php echo number_format($row['view_count'] ?? 0); ?> Views</span>
+                                <h3 class="property-title text-muted" style="font-size: 12px;">Views:  <?php echo htmlspecialchars($row['total_views']); ?></h3>
                             </div>
-                            <div class="stat-item">
-                                <i class="fas fa-envelope"></i>
-                                <span><?php echo number_format($row['message_count'] ?? 0); ?> Messages</span>
-                            </div>
+                           
                         </div>
                     <?php } ?>
 
@@ -598,6 +595,84 @@ if (!isset($_SESSION['role_type'])) {
                             data-property-id="<?php echo $row['property_id']; ?>">
                         <i class="fas fa-trash"></i> UnArchive
                     </button>
+                    <!-- Delete Button -->
+<button class="btn btn-danger delete-btn" 
+        data-toggle="modal" 
+        data-target="#deleteModal" 
+        data-property-id="<?php echo $row['property_id']; ?>">
+    <i class="fas fa-trash"></i> Delete
+</button>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this property? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var propertyId; // Store property ID
+
+        // Capture property ID when modal is triggered
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            propertyId = button.data('property-id'); // Get property ID
+            console.log("Selected property ID for deletion:", propertyId);
+        });
+
+        // Handle delete confirmation
+        $('#confirmDelete').on('click', function () {
+            if (!propertyId) {
+                alert('Property ID is missing.');
+                return;
+            }
+
+            $.ajax({
+                url: '../../backend/delete_property.php', // Your backend PHP file
+                type: 'POST',
+                data: { property_id: propertyId },
+                success: function (response) {
+                    console.log("Server Response:", response); 
+                    if (response.trim() === "Success") {
+                        $('#deleteModal').modal('hide');
+
+                        // Reload after a short delay
+                        setTimeout(function () {
+                            location.reload();
+                        }, 500);
+                    } else {
+                        alert('Error: ' + response);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    alert('Error deleting property.');
+                }
+            });
+        });
+
+        // Ensure modal is completely hidden before resetting variables
+        $('#deleteModal').on('hidden.bs.modal', function () {
+            propertyId = null; // Reset property ID
+        });
+    });
+</script>
+
 
                     <!-- Archive Confirmation Modal -->
                     <div class="modal fade" id="archiveModal" tabindex="-1" role="dialog" aria-labelledby="archiveModalLabel" aria-hidden="true">

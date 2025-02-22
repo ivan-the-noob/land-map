@@ -374,19 +374,20 @@ if (!isset($_SESSION['role_type'])) {
     // Fetch properties only for the logged-in agent
     $userId = $_SESSION['user_id']; // Assuming user_id is stored in session
     $sql = "SELECT p.*, 
-            u.fname, u.lname,
-            ui.image_name as user_image,
-            (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
-            DATE_FORMAT(p.created_at, '%M %d, %Y') as added_date,
-            DATE_FORMAT(p.created_at, '%h:%i %p') as added_time,
-            TIMESTAMPDIFF(HOUR, p.created_at, NOW()) as hours_since_created,
-            0 as view_count,  /* Temporary default value until table is created */
-            0 as message_count  /* Temporary default value until table is created */
-            FROM properties p 
-            LEFT JOIN users u ON p.user_id = u.user_id
-            LEFT JOIN user_img ui ON u.user_id = ui.user_id
-            WHERE p.user_id = ? AND p.is_archive = 0
-            ORDER BY p.property_id DESC";
+    u.fname, u.lname,
+    ui.image_name as user_image,
+    (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image,
+    DATE_FORMAT(p.created_at, '%M %d, %Y') as added_date,
+    DATE_FORMAT(p.created_at, '%h:%i %p') as added_time,
+    TIMESTAMPDIFF(HOUR, p.created_at, NOW()) as hours_since_created,
+    (SELECT COUNT(*) FROM views WHERE property_id = p.property_id) AS total_views, 
+    0 as message_count
+    FROM properties p 
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN user_img ui ON u.user_id = ui.user_id
+    WHERE p.user_id = ? AND p.is_archive = 0
+    ORDER BY p.property_id DESC";
+
 
     $stmt = $conn->prepare($sql); // Prepare SQL statement
     $stmt->bind_param("i", $userId); // Bind parameters
@@ -425,9 +426,9 @@ if (!isset($_SESSION['role_type'])) {
                     <!-- Add Property Stats Section -->
                     <?php if (isset($_SESSION['role_type']) && $_SESSION['role_type'] === 'agent') { ?>
                         <div class="property-stats">
-                            <div class="stat-item">
+                            <div class="stat-item d-flex">
                                 <i class="fas fa-eye"></i>
-                                <span><?php echo number_format($row['view_count'] ?? 0); ?> Views</span>
+                                <h3 class="property-title text-muted" style="font-size: 12px;">Views:  <?php echo htmlspecialchars($row['total_views']); ?></h3>
                             </div>
 
                         </div>
@@ -1745,6 +1746,24 @@ google.maps.event.addDomListener(window, 'load', initMap);
                                                 placeholder="Enter land area in sqm" required>
                                             <small id="landAreaValidationMessage" class="text-danger"></small>
                                         </div>
+                                        <div class="form-group col-md-6">
+                                                <label for="developers">Select Developers</label>
+                                                <select class="form-control" id="developer" name="developer">
+                                                    <option value="">Select Developers</option>
+                                                    <option value="AYALA LAND">AYALA LAND</option>
+                                                    <option value="SMDC">SMDC</option>
+                                                    <option value="VISTALAND">VISTALAND</option>
+                                                    <option value="CAMELLA HOMES">CAMELLA HOMES</option>
+                                                    <option value="PRO-FRIENDS">PRO-FRIENDS</option>
+                                                    <option value="DMCI">DMCI</option>
+                                                    <option value="FILINVEST LAND">FILINVEST LAND</option>
+                                                    <option value="SM PRIME HOLDINGS">SM PRIME HOLDINGS</option>
+                                                    <option value="ROBINSON LAND CORPORATION">ROBINSON LAND CORPORATION</option>
+                                                    <option value="FIDERAL LANDS">FIDERAL LANDS</option>
+                                                    <option value="CENTURY PROPERTIES GROUP">CENTURY PROPERTIES GROUP</option>
+                                                    <option value="NO DEVELOPER">NO DEVELOPER</option>
+                                                </select>
+                                            </div>
                                      
 
                                     
@@ -1775,23 +1794,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
                                                     </div>
                                                     <small id="rentValidationMessage" class="text-danger"></small>
                                                 </div>
-                                                <div class="form-group col-md-6">
-                                                <label for="developers">Select Developers</label>
-                                                <select class="form-control" id="developers" name="developer">
-                                                    <option value="">Select Developers</option>
-                                                    <option value="AYALA LAND">AYALA LAND</option>
-                                                    <option value="SMDC">SMDC</option>
-                                                    <option value="VISTALAND">VISTALAND</option>
-                                                    <option value="CAMELLA HOMES">CAMELLA HOMES</option>
-                                                    <option value="PRO-FRIENDS">PRO-FRIENDS</option>
-                                                    <option value="DMCI">DMCI</option>
-                                                    <option value="FILINVEST LAND">FILINVEST LAND</option>
-                                                    <option value="SM PRIME HOLDINGS">SM PRIME HOLDINGS</option>
-                                                    <option value="ROBINSON LAND CORPORATION">ROBINSON LAND CORPORATION</option>
-                                                    <option value="FIDERAL LANDS">FIDERAL LANDS</option>
-                                                    <option value="CENTURY PROPERTIES GROUP">CENTURY PROPERTIES GROUP</option>
-                                                </select>
-                                            </div>
+                                                
                                             </div>
                                             
 
@@ -1837,24 +1840,7 @@ google.maps.event.addDomListener(window, 'load', initMap);
                                                         <option value="fsbo">For Sale by Owner</option>
                                                     </select>
                                                 </div>
-                                                <div class="form-group col-md-6">
-                                                <label for="developers">Select Developers</label>
-                                                <select class="form-control" id="developers" name="developer">
-                                                    <option value="">Select Developers</option>
-                                                    <option value="Developer CORPORATION">Developer CORPORATION</option>
-                                                    <option value="AYALA LAND">AYALA LAND</option>
-                                                    <option value="SMDC">SMDC</option>
-                                                    <option value="VISTALAND">VISTALAND</option>
-                                                    <option value="CAMELLA HOMES">CAMELLA HOMES</option>
-                                                    <option value="PRO-FRIENDS">PRO-FRIENDS</option>
-                                                    <option value="DMCI">DMCI</option>
-                                                    <option value="FILINVEST LAND">FILINVEST LAND</option>
-                                                    <option value="SM PRIME HOLDINGS">SM PRIME HOLDINGS</option>
-                                                    <option value="ROBINSON LAND CORPORATION">ROBINSON LAND CORPORATION</option>
-                                                    <option value="FIDERAL LANDS">FIDERAL LANDS</option>
-                                                    <option value="CENTURY PROPERTIES GROUP">CENTURY PROPERTIES GROUP</option>
-                                                </select>
-                                            </div>
+                                                
                                             </div>
                                         </div>
                                     </div>
@@ -2620,9 +2606,8 @@ google.maps.event.addDomListener(window, 'load', initMap);
         document.getElementById('saleOrLease').dispatchEvent(new Event('change'));
     </script>
 
-    <!-- modal if data is sent and modal appear -->
-    <script>
-       document.getElementById('propertyForm').addEventListener('submit', async function(event) {
+<script>
+document.getElementById('propertyForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const submitBtn = document.getElementById('submitBtn');
@@ -2661,26 +2646,30 @@ google.maps.event.addDomListener(window, 'load', initMap);
     }
 
     try {
-        const response = await fetch('../../backend/add_property.php', {
-            method: 'POST',
-            body: formData
+    const response = await fetch('../../backend/add_property.php', {
+        method: 'POST',
+        body: formData
+    });
+
+    const textResponse = await response.text(); // Get raw response first
+    console.log("Raw Response:", textResponse); // Debugging: Log it to console
+
+    const result = JSON.parse(textResponse); // Now parse JSON manually
+
+    if (result.status === "success") {
+        const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
+            backdrop: 'static',
+            keyboard: false
         });
-
-        const result = await response.json();
-
-        if (result.status === "success") {
-            const successModal = new bootstrap.Modal(document.getElementById('successModal'), {
-                backdrop: 'static',
-                keyboard: false
-            });
-            successModal.show();
-        } else {
-            alert("Error: " + result.message);
-        }
-    } catch (error) {
-        console.error("Submission error:", error);
-        alert("Something went wrong!");
-    } finally {
+        successModal.show();
+    } else {
+        alert("Error: " + result.message);
+    }
+} catch (error) {
+    console.error("Submission error:", error);
+    alert("Error: Invalid JSON response. Check the console for details.");
+}
+ finally {
         submitBtn.disabled = false;
         btnText.textContent = "Submit";
         loadingSpinner.classList.add("d-none");
@@ -2691,8 +2680,8 @@ google.maps.event.addDomListener(window, 'load', initMap);
 document.getElementById('closeModalBtn').addEventListener('click', function() {
     window.location.href = "agent_listing.php"; // Change this to your actual landing page
 });
+</script>
 
-    </script>
 
 <script>
 function updateProperty(propertyId) {
