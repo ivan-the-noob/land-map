@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $mail->isHTML(true);
             $mail->Subject = 'Please verify your email address';
-            $mail->Body = "Hi $first_name, please verify your email by clicking <a href='http://landmap.shop/backend/verify?code=$verification_code'>here</a>.";
+            $mail->Body = "Hi $first_name, please verify your email by clicking    <a href='http://landmap.shop/backend/verify_email.php?code=$verification_code' style='display: inline-block; padding: 12px 20px; font-size: 16px; font-weight: bold; color: #fff; text-decoration: none; background-color: #28a745; border-radius: 5px;'>Verify Email</a>.";
 
             if ($mail->send()) {
                 // Successful registration and email sent
