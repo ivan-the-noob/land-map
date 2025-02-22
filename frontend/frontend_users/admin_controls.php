@@ -638,15 +638,16 @@
                                                     </thead>
                                                     <tbody>
                                                         <?php
-                                                        $query = "SELECT rp.*, 
-                                                                        u1.fname AS user_fname, u1.lname AS user_lname, 
-                                                                        u2.fname AS agent_fname, u2.lname AS agent_lname,
-                                                                        pi.image_name
-                                                                FROM report_properties rp
-                                                                JOIN properties p ON rp.property_id = p.property_id
-                                                                JOIN users u1 ON p.user_id = u1.user_id
-                                                                JOIN users u2 ON p.user_id = u2.user_id
-                                                                LEFT JOIN property_images pi ON rp.property_id = pi.property_id";
+                                                      $query = "SELECT rp.*, 
+                u1.fname AS user_fname, u1.lname AS user_lname, 
+                u2.fname AS agent_fname, u2.lname AS agent_lname,
+                (SELECT pi.image_name FROM property_images pi WHERE pi.property_id = rp.property_id LIMIT 1) AS image_name
+        FROM report_properties rp
+        JOIN properties p ON rp.property_id = p.property_id
+        JOIN users u1 ON p.user_id = u1.user_id
+        JOIN users u2 ON rp.user_id = u2.user_id";
+
+
 
                                                         $result = $conn->query($query);
 
