@@ -2418,7 +2418,7 @@ setInterval(updateTime, 1000);
 
     // // Add event listener for search input
     // document.getElementById('searchInput').addEventListener('keyup', handleSearch);
-    // </script> -->
+    // </script> 
 
 </body>
 

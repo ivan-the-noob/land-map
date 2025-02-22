@@ -387,18 +387,7 @@ if (isset($_SESSION['user_id'])) {
                                     }
                                 </style>
 
-                                <?php if ($total_properties == 0) { ?>
-                                    <div class="text-center mt-5">
-                                        <div class="empty-state">
-                                            <i class="fas fa-plus-circle fa-3x text-muted mb-2"></i>
-                                            <h5>No Properties Listed</h5>
-                                            <p class="text-muted small">Start by adding your first property</p>
-                                            <button class="btn btn-primary mt-3" onclick="redirectToCreateProperty()">
-                                                <i class="fas fa-plus"></i> Add New Land Property
-                                            </button>
-                                        </div>
-                                    </div>
-                                <?php } ?>
+                               
                             </div>
                         <?php endif; ?>
                     </div>
