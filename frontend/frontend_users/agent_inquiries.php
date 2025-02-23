@@ -713,8 +713,10 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                         <?php 
                          if ($reportStatus == 0) {
                             echo '<button class="btn-delete report-btn" data-toggle="modal" data-target="#reportModal" data-inquirer-id="' . $row['inquirer_id'] . '">
-                                    <i class="fas fa-trash"></i> Report
-                                  </button>';
+                            <i class="fas fa-trash"></i> Report
+                          </button>';
+                    
+                    
                         } else {
                           
                         }
@@ -723,7 +725,6 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
             
 
                        <!-- Report Button -->
-
 
 <!-- Bootstrap Modal -->
 <div class="modal fade" id="reportModal" tabindex="-1" role="dialog" aria-labelledby="reportModalLabel" aria-hidden="true">
@@ -736,7 +737,7 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
                 </button>
             </div>
             <div class="modal-body">
-                <p>You are reporting: <strong><?php echo $inquirerName ; ?></strong></p>
+                <p>You are reporting: <strong><?php echo $inquirerName; ?></strong></p>
                 <form id="reportForm">
                     <input type="hidden" name="inquirer_id" id="inquirer_id">
                     <div class="mb-3">
@@ -750,15 +751,15 @@ if (!isset($_SESSION['user_id']) && isset($user['user_id'])) {
     </div>
 </div>
 
+
+
 <script>
 $(document).ready(function () {
-    // Capture the inquirer ID when the modal is triggered
     $('.report-btn').on('click', function () {
         var inquirerId = $(this).data('inquirer-id');
         $('#inquirer_id').val(inquirerId);
     });
 
-    // Handle form submission via AJAX
     $('#reportForm').on('submit', function (e) {
         e.preventDefault(); // Prevent default form submission
 
@@ -770,18 +771,20 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     alert("Report submitted successfully!");
-                    $('#reportModal').modal('hide'); // Hide modal
-                    location.reload(); // Reload the page
+                    $('#reportModal').modal('hide');
+                    location.reload();
                 } else {
-                    alert("Error: " + response.error);
+                    alert("Error: " + response.error); // Now shows specific error
                 }
             },
-            error: function () {
-                alert("Something went wrong. Please try again.");
+            error: function (xhr, status, error) {
+                alert("AJAX Error: " + xhr.responseText); // Show detailed error
             }
         });
     });
 });
+
+
 </script>
 
                         
