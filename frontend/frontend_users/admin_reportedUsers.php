@@ -220,14 +220,15 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                    
                                                    // Fetch paginated reports
                                                    $query = "SELECT r.*, 
-                                                               u1.fname AS user_fname, u1.lname AS user_lname, 
-                                                               u2.fname AS agent_fname, u2.lname AS agent_lname, 
-                                                               u3.role_type AS report_to_role, u3.disable_status, u3.user_id AS reported_user_id
-                                                             FROM reports r
-                                                             JOIN users u1 ON r.user_id = u1.user_id
-                                                             JOIN users u2 ON r.agent_id = u2.user_id
-                                                             JOIN users u3 ON r.report_to = u3.user_id
-                                                             LIMIT $limit OFFSET $offset";
+                                                   u1.fname AS user_fname, u1.lname AS user_lname, 
+                                                   u2.fname AS agent_fname, u2.lname AS agent_lname, 
+                                                   u3.role_type AS report_to_role, u3.disable_status, u3.user_id AS reported_user_id
+                                                    FROM reports r
+                                                    LEFT JOIN users u1 ON r.user_id = u1.user_id
+                                                    LEFT JOIN users u2 ON r.agent_id = u2.user_id
+                                                    LEFT JOIN users u3 ON r.report_to = u3.user_id
+                                                    LIMIT $limit OFFSET $offset";
+                                       
                                                    
                                                    $result = $conn->query($query);
 
@@ -247,7 +248,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                                 <td class="text-center">
                                                                     <?php
                                                                     $disableStatus = $report['disable_status'];
-
+ 
                                                                     if ($disableStatus == 0) {
                                                                         echo '<span class="badge badge-success">Active</span>';
                                                                     } elseif ($disableStatus == 1) {
@@ -281,6 +282,54 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                 </tbody>
                                             </table>
                                         </div>
+
+                                        <script>
+                                        $(document).ready(function () {
+                                        // Handle image click to open zoom modal
+                                       
+
+                                        // Disable user (Increment disable_status)
+                                        $('.disable-user').on('click', function () {
+                                            var userId = $(this).data('user-id');
+
+                                            $.ajax({
+                                                url: '../../backend/disable_users.php',
+                                                type: 'POST',
+                                                data: { user_id: userId },
+                                                dataType: 'json',
+                                                success: function (response) {
+                                                    if (response.success) {
+                                                        alert("User disabled successfully!");
+                                                        location.reload();
+                                                    } else {
+                                                        alert("Error: " + response.error);
+                                                    }
+                                                }
+                                            });
+                                        });
+
+                                        // Delete report
+                                        $('.delete-report').on('click', function () {
+                                            var reportId = $(this).data('report-id');
+
+                                            $.ajax({
+                                                url: '../../backend/delete_reports.php',
+                                                type: 'POST',
+                                                data: { report_id: reportId },
+                                                dataType: 'json',
+                                                success: function (response) {
+                                                    if (response.success) {
+                                                        alert("Report deleted successfully!");
+                                                        location.reload();
+                                                    } else {
+                                                        alert("Error: " + response.error);
+                                                    }
+                                                }
+                                            });
+                                        });
+                                    });
+
+                                        </script>
                 <!-- User List -->
                 </div>
                 <!-- page navigation -->

@@ -604,12 +604,12 @@
 
                                                                 <td class="text-center">
                                                                     <!-- Approve (Disable) -->
-                                                                    <button class="btn btn-success btn-sm disable-user" data-user-id="<?= $report['reported_user_id'] ?>">
+                                                                    <button class="btn btn-success btn-sm disable-users" data-user-id="<?= $report['reported_user_id'] ?>">
                                                                         <i class="fas fa-check"></i>
                                                                     </button>
 
                                                                     <!-- Delete Report -->
-                                                                    <button class="btn btn-danger btn-sm delete-report" data-report-id="<?= $report['id'] ?>">
+                                                                    <button class="btn btn-danger btn-sm delete-reports" data-report-id="<?= $report['id'] ?>">
                                                                         <i class="fas fa-times"></i>
                                                                     </button>
                                                                 </td>
