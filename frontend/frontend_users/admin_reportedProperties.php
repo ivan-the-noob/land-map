@@ -211,88 +211,102 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                         $limit = 5; // Number of properties per page
                                                         $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
                                                         $offset = ($page - 1) * $limit;
-                                                        
+
                                                         // Query to count total properties
                                                         $total_query = "SELECT COUNT(*) AS total FROM report_properties";
                                                         $total_result = $conn->query($total_query);
                                                         $total_properties = $total_result->fetch_assoc()['total'];
                                                         $total_pages = ceil($total_properties / $limit);
-                                                        $query = "SELECT rp.*, 
-                                                                    u1.fname AS user_fname, u1.lname AS user_lname,  -- Reporter (who reported the property)
-                                                                    u2.fname AS agent_fname, u2.lname AS agent_lname, -- Property owner (agent)
-                                                                    u2.disable_status, -- Getting disable_status from property owner
-                                                                    pi.image_name  -- Fetch image_name from property_images
-                                                                FROM report_properties rp
-                                                                JOIN properties p ON rp.property_id = p.property_id
-                                                                JOIN users u1 ON rp.user_id = u1.user_id  -- Reporter
-                                                                JOIN users u2 ON p.user_id = u2.user_id  -- Property owner (agent)
-                                                                LEFT JOIN property_images pi ON rp.property_id = pi.property_id  
-                                                                LIMIT $limit OFFSET $offset;
-                                                        ";
 
-
-                                                                
-
+                                                        // Fetch reported properties
+                                                        $query = "SELECT * FROM report_properties LIMIT $limit OFFSET $offset";
                                                         $result = $conn->query($query);
 
                                                         if ($result->num_rows > 0):
-                                                            while ($report = $result->fetch_assoc()): 
-                                                                $imagePath = !empty($report['image_name']) ? "../../assets/property_images/" . htmlspecialchars($report['image_name']) : "../../assets/no-image.jpg";
+                                                            while ($report = $result->fetch_assoc()):
+                                                                $user_id = intval($report['user_id']);
+                                                                $property_id = intval($report['property_id']);
+
+                                                                // Fetch user (reporter) details
+                                                                $userQuery = "SELECT fname, lname FROM users WHERE user_id = $user_id";
+                                                                $userResult = $conn->query($userQuery);
+                                                                $user = $userResult->fetch_assoc() ?? ['fname' => 'Unknown', 'lname' => 'User'];
+
+                                                                // Fetch agent (property owner) details
+                                                                $property_id = $report['property_id']; 
+
+                                                                $agentQuery = "SELECT u.fname, u.lname, u.disable_status 
+                                                                            FROM properties p 
+                                                                            JOIN users u ON p.user_id = u.user_id 
+                                                                            WHERE p.property_id = $property_id";
+
+                                                                $agentResult = $conn->query($agentQuery);
+
+                                                                if ($agentResult->num_rows > 0) {
+                                                                    $agent = $agentResult->fetch_assoc();
+                                                                } else {
+                                                                    $agent = ['fname' => 'Unknown', 'lname' => 'Agent', 'disable_status' => null];
+                                                                }
+
+
+                                                                // Fetch property image
+                                                                $imageQuery = "SELECT image_name FROM property_images WHERE property_id = $property_id LIMIT 1";
+                                                                $imageResult = $conn->query($imageQuery);
+                                                                $image = $imageResult->fetch_assoc();
+                                                                $imagePath = !empty($image['image_name']) ? "../../assets/property_images/" . htmlspecialchars($image['image_name']) : "../../assets/no-image.jpg";
                                                         ?>
                                                                 <tr>
-                                                                    <td><?= htmlspecialchars($report['user_fname'] . ' ' . $report['user_lname']) ?></td>
+                                                                    <td><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></td>
                                                                     <td class="text-center">
                                                                         <a href="#" data-toggle="modal" data-target="#zoomModal" data-image="<?= $imagePath ?>">
                                                                             <img src="<?= $imagePath ?>" alt="Property Image" style="width: 50px; height: 50px; object-fit: cover; cursor: pointer;">
                                                                         </a>
                                                                     </td>
-                                                                    <td><?= htmlspecialchars($report['agent_fname'] . ' ' . $report['agent_lname']) ?></td>
+                                                                    <td><?= htmlspecialchars($agent['fname'] . ' ' . $agent['lname']) ?></td>
                                                                     <td><?= htmlspecialchars($report['report_reason']) ?></td>
                                                                     <td class="text-center">
-    <?php
-    $disableStatus = $report['disable_status']; // Now getting from the property owner (agent)
+                                                                        <?php
+                                                                        $disableStatus = $agent['disable_status'] ?? null;
 
-    if ($disableStatus == 0) {
-        echo '<span class="badge badge-success">Active</span>';
-    } elseif ($disableStatus == 1) {
-        echo '<span class="badge badge-warning">Active 1 Warning</span>';
-    } elseif ($disableStatus == 2) {
-        echo '<span class="badge badge-warning">Active 2 Warnings</span>';
-    } else {
-        echo '<span class="badge badge-danger">Disabled</span>';
-    }
-    ?>
-</td>
-
+                                                                        if ($disableStatus === null) {
+                                                                            echo '<span class="badge badge-secondary">Unknown</span>';
+                                                                        } elseif ($disableStatus == 0) {
+                                                                            echo '<span class="badge badge-success">Active</span>';
+                                                                        } elseif ($disableStatus == 1) {
+                                                                            echo '<span class="badge badge-warning">Active 1 Warning</span>';
+                                                                        } elseif ($disableStatus == 2) {
+                                                                            echo '<span class="badge badge-warning">Active 2 Warnings</span>';
+                                                                        } else {
+                                                                            echo '<span class="badge badge-danger">Disabled</span>';
+                                                                        }
+                                                                        ?>
+                                                                    </td>
                                                                     <td class="text-center">
                                                                         <!-- Approve (Disable) -->
                                                                         <button class="btn btn-success btn-sm disable-user" data-property-id="<?= $report['property_id'] ?>">
                                                                             <i class="fas fa-check"></i>
                                                                         </button>
 
-
                                                                         <!-- Delete Report -->
                                                                         <button class="btn btn-danger btn-sm delete-report" data-report-id="<?= $report['id'] ?>">
                                                                             <i class="fas fa-times"></i>
                                                                         </button>
-                                                                        <button class="btn btn-warning text-white btn-sm enable-property" data-report-id="<?= $report['property_id'] ?>">
+
+                                                                        <!-- Enable Property -->
+                                                                        <button class="btn btn-warning text-white btn-sm enable-property" data-property-id="<?= $report['property_id'] ?>">
                                                                             Enable
                                                                         </button>
-
                                                                     </td>
                                                                 </tr>
-                                                            <?php endwhile;
+                                                        <?php endwhile;
                                                         else: ?>
                                                             <tr>
-                                                                <td colspan="5" class="text-center">No reported properties found.</td>
+                                                                <td colspan="6" class="text-center">No reported properties found.</td>
                                                             </tr>
                                                         <?php endif; ?>
                                                     </tbody>
                                                 </table>
-                                            </div>
-
-
-                                    
+                                            </div>     
                                     <script>
                                         $(document).ready(function () {
                                         // Handle image click to open zoom modal
@@ -301,6 +315,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
 
                                         $('.disable-user').on('click', function () {
                                             var propertyId = $(this).data('property-id'); // Get property_id
+                                            var userId = $(this).data('user-id'); // Get user_id (assuming it's set in the button)
 
                                             if (!confirm("Are you sure you want to disable this agent?")) {
                                                 return;
@@ -309,7 +324,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                             $.ajax({
                                                 url: '../../backend/disable_user.php',
                                                 type: 'POST',
-                                                data: { property_id: propertyId }, // Send property_id instead of agent_id
+                                                data: { property_id: propertyId, user_id: userId }, // Send both property_id and user_id
                                                 dataType: 'json',
                                                 success: function (response) {
                                                     if (response.success) {
@@ -324,6 +339,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                 }
                                             });
                                         });
+
                                         $('.enable-property').on('click', function () {
                                         var propertyId = $(this).data('report-id'); // Get property_id
 

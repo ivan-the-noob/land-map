@@ -48,10 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt1->execute();
         $stmt1->close();
 
-        // Delete all reports related to this agent's properties
-        $query2 = "DELETE FROM report_properties WHERE property_id = ?";
+        // Delete all reports related to this agent and property
+        $query2 = "DELETE FROM report_properties WHERE property_id = ? AND user_id = ?";
         $stmt2 = $conn->prepare($query2);
-        $stmt2->bind_param("i", $property_id);
+        $stmt2->bind_param("ii", $property_id, $agent_id);
         $stmt2->execute();
         $stmt2->close();
 
@@ -66,4 +66,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $conn->close();
 }
-?>

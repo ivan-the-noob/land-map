@@ -190,6 +190,9 @@ elseif ($_SESSION['role_type'] !== 'admin') {
             <div class="rows mt-4">
                 <!-- Agent Registration Form Section -->
                 <div class="main-box" id="registration-form">
+                <div id="successMessage" class="alert alert-success mt-3" style="display: none;">
+                            Registration successful!
+                </div>
                     <h3>Agent Registration</h3>
                     <form action="../../backend/agent_registration.php" method="POST" id="agentRegistrationForm" enctype="multipart/form-data">
                         <div class="row">
@@ -304,6 +307,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                 </button>
                             </div>
                         </div>
+                       
                     </form>
                 </div>
                 <!-- User List -->
@@ -396,9 +400,21 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                 document.getElementById('buttonText').style.display = 'inline-block';
 
                 if (jsonData.success) {
-                    // Show the success modal
-                    $('#successModal').modal('show');
-                } else {
+                        // Show the success message
+                        document.getElementById('successMessage').style.display = 'block';
+
+                        // Hide loading spinner and restore button text
+                        document.getElementById('loadingSpinner').style.display = 'none';
+                        document.getElementById('buttonText').style.display = 'inline-block';
+
+                        // Show the success modal
+                        $('#successModal').modal('show');
+
+                        // Redirect after a delay
+                        setTimeout(() => {
+                            window.location.href = '#';
+                        }, 3000); // Redirect after 3 seconds
+                    } else {
                     // Show validation errors if any
                     for (const key in jsonData.errors) {
                         const errorElement = document.getElementById(`${key}_error`);
