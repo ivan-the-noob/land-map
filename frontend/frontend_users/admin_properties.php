@@ -583,7 +583,6 @@ elseif ($_SESSION['role_type'] !== 'admin') {
 </script>
     
     
-
 <div class="tab-content mt-4">
                     <div id="dashboard" class="tab-pane active">
                         <div id="dashboard" class="tab-pane">
@@ -624,11 +623,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
     GROUP BY p.property_id  -- Ensure correct grouping
     ORDER BY p.property_id DESC";
 
-
-    
-
     $result = $conn->query($sql);
-
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
@@ -649,19 +644,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
         data-land-condition="<?php echo htmlspecialchars($row['land_condition']); ?>"
         data-land-area="<?php echo htmlspecialchars($row['land_area']); ?>"
         data-another-info="<?php echo htmlspecialchars($row['another_info']);
-        
         ?>">
-
-
-
-
-    
-
-
-
-
-
-
                 <div class="property-image">
                     <img src="<?php echo $imagePath; ?>" alt="<?php echo htmlspecialchars($row['property_name']); ?>">
                     <div class="sale-badge">

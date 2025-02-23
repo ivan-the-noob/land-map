@@ -218,7 +218,6 @@
                                 LIMIT $limit OFFSET $offset";
                                 $result = $conn->query($query);
                   
-
                                 if ($result->num_rows > 0): 
                                     while ($user = $result->fetch_assoc()): ?>
                                         <tr>
@@ -274,13 +273,11 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <!-- Delete Button -->
                                                 <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#deleteUserModal<?= $user['user_id'] ?>">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </button>
-
-                                                <!-- Delete Modal -->
+                                              <!-- Delete Modal -->
                                                 <div class="modal fade" id="deleteUserModal<?= $user['user_id'] ?>" tabindex="-1" role="dialog" aria-hidden="true">
                                                     <div class="modal-dialog" role="document">
                                                         <div class="modal-content">
@@ -308,8 +305,6 @@
                                 <?php endif; ?>
                             </tbody>
                         </table>
-                        
-
                         <script>
                         $(document).ready(function () {
                             $('.editUserForm').submit(function (e) {

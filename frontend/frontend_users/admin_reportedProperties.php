@@ -341,7 +341,7 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                         });
 
                                         $('.enable-property').on('click', function () {
-                                        var propertyId = $(this).data('report-id'); // Get property_id
+                                        var propertyId = $(this).data('property-id'); // Get property_id
 
                                         if (!confirm("Are you sure you want to enable this property?")) {
                                             return;

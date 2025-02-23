@@ -364,7 +364,7 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                                     value="<?= htmlspecialchars($user['prc_id']) ?>" readonly>
                         
                                 <div class="div">
-                                    <label class="mt-2">DSHP (Uploaded File)</label><br>
+                                    <label class="mt-2">DHSUD (Uploaded File)</label><br>
                                     <?php if (!empty($user['dshp_file'])): ?>
                                         <img src="../../assets/agent_information/<?= $user['dshp_file'] ?>" alt="DSHP File" style="max-width: 200px; max-height: 150px;">
                                     <?php else: ?>
@@ -372,16 +372,16 @@ $profileImage = !empty($user['profile']) ? "../../assets/profile_images/" . $use
                                     <?php endif; ?>
                                 </div>
                         
-                                <label class="mt-2">DSHP ID Number</label>
+                                <label class="mt-2">DHSUD ID Number</label>
                                 <input type="number" name="dshp_id" class="form-control mt-2" 
                                 value="<?= htmlspecialchars($user['dshp_id']) ?>" readonly>
                             </form>
                             <?php 
                                 $info_status = $user['information_status'];
                                 $updated_time = strtotime($user['updated_time']);
-                                $one_week_ago = strtotime('-1 week');
+                                $one_week_ago = strtotime('+1 week');
                                 
-                                if ($info_status == 3 && $updated_time >= $one_week_ago) {
+                                if ($info_status == 3 && $updated_time <= $one_week_ago) {
                                     ?>
                                    <form id="update-step">
                                         <button type="button" class="btn btn-success mt-2 rounded d-flex mx-auto" id="update-btn">

@@ -283,7 +283,7 @@ if (!isset($_SESSION['role_type'])) {
 
 <body>
     <div class="az-header">
-        <?php require '../../partials/nav_agent.php' ?> <!-- Include navigation for agent -->
+        <?php require '../../partials/nav_admin.php' ?> <!-- Include navigation for agent -->
     </div>
 
     <div class="az-content az-content-dashboard">

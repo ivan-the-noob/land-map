@@ -337,7 +337,7 @@ $viewerPercentage = ($totalUsers > 0) ? round(($totalViewers / $totalUsers) * 10
 
                     <div class="row row-sm mg-b-20">
                         <div class="col-lg-4">
-                            <div class="card card-dashboard-pageviews">
+                            <div class="card card-dashboard-pageviews d-none">
                                 <div class="card-header">
                                     <h6 class="card-title">Most Viewed Properties</h6>
                                     <p class="card-text">Top performing property listings</p>
