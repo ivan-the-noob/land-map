@@ -244,6 +244,41 @@ elseif ($_SESSION['role_type'] !== 'admin') {
                                                     data-agent='<?= json_encode($agent) ?>'>
                                                     <i class="fas fa-eye"></i> View
                                                 </button>
+                                                <div class="modal fade" id="viewAgentModal" tabindex="-1" role="dialog" aria-labelledby="viewAgentModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="viewAgentModalLabel">Agent Details</h5>
+                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="text-center">
+                                                        <img id="agentProfileImg" src="" alt="Agent Image" class="rounded-circle" style="width: 100px; height: 100px;">
+                                                    </div>
+                                                    <p><strong>Name:</strong> <span id="agentName"></span></p>
+                                                    <p><strong>Email:</strong> <span id="agentEmail"></span></p>
+                                                    <p><strong>Location:</strong> <span id="agentLocation"></span></p>
+                                                    <p><strong>Mobile:</strong> <span id="agentMobile"></span></p>
+                                                    <hr>
+                                                    <h6>Primary ID</h6>
+                                                    <p><strong>Type:</strong> <span id="agentPrimaryIDType"></span></p>
+                                                    <p><strong>Number:</strong> <span id="agentPrimaryIDNumber"></span></p>
+                                                    <div class="text-center">
+                                                        <img id="agentPrimaryIDImg" src="" alt="Primary ID Image" class="img-fluid" style="max-width: 200px;">
+                                                    </div>
+                                                    <hr>
+                                                    <h6>Secondary ID</h6>
+                                                    <p><strong>Type:</strong> <span id="agentSecondaryIDType"></span></p>
+                                                    <p><strong>Number:</strong> <span id="agentSecondaryIDNumber"></span></p>
+                                                    <div class="text-center">
+                                                        <img id="agentSecondaryIDImg" src="" alt="Secondary ID Image" class="img-fluid" style="max-width: 200px;">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                                 <!-- Accept Button (Approve Agent) -->
                                                 <button class="btn btn-success btn-sm approve-agent" data-id="<?= $agent['user_id'] ?>">
