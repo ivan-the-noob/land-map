@@ -355,19 +355,24 @@ elseif ($_SESSION['role_type'] !== 'admin') {
 
                             $('.confirmUserDelete').click(function () {
                                 var userId = $(this).data('user_id');
+
                                 $.ajax({
-                                    url: '../../backend/delete_user.php',
+                                    url: '../../backend/delete_users.php',
                                     type: 'POST',
                                     data: { user_id: userId },
+                                    dataType: 'json', // Expecting JSON response
                                     success: function (response) {
-                                        if (response.trim() === 'success') {
+                                        if (response.success) { // Check JSON 'success' key
                                             alert('User deleted successfully!');
+                                            
+                                            // Close modal before reloading
                                             $('.modal').modal('hide');
+
                                             setTimeout(function () {
-                                                location.reload(true);
+                                                location.reload(true); // Reload page after success
                                             }, 500);
                                         } else {
-                                            alert('Delete failed: ' + response);
+                                            alert('Delete failed: ' + (response.error || 'Unknown error'));
                                         }
                                     },
                                     error: function () {
