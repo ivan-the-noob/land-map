@@ -250,7 +250,8 @@ elseif ($_SESSION['role_type'] !== 'user') {
                     JOIN properties p ON a.property_id = p.property_id
                     LEFT JOIN users u ON p.user_id = u.user_id
                     LEFT JOIN user_img ui ON u.user_id = ui.user_id
-                    WHERE a.add_list = 1 AND a.user_id = $user_id";
+                    WHERE a.add_list = 1 AND a.user_id = $user_id
+                    ORDER BY p.created_at DESC;";
 
                 $result = $conn->query($sql);
 
