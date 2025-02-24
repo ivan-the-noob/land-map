@@ -76,6 +76,8 @@
                     <a class="dropdown-item" href="../frontend_users/admin_agentlist.php">Agent List</a>
                     <a class="dropdown-item" href="../frontend_users/admin_verifyagentRegistration.php">Verify Agent Registration</a>
                     <a class="dropdown-item" href="../frontend_users/admin_agentRegistration.php">Agent Registration</a>
+                    <a class="dropdown-item" href="../frontend_users/admin_verifyagentInfo.php">Verify Agent Information</a>
+                    
                     <a class="dropdown-item" href="../frontend_users/admin_adminRegistration.php">Admin Registration</a>
                     <a class="dropdown-item dropdown-toggle" href="#" data-toggle="dropdown">Reports</a>
                     <div class="dropdown-menu dropdown-menu-right">

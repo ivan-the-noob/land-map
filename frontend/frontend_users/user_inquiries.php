@@ -546,37 +546,45 @@ function contactAgent(userId) {
                         </div>
 
                         <script>
-                            $(document).ready(function () {
-                                // Capture the agent ID when the modal is triggered
-                                $('.report-btn').on('click', function () {
-                                    var agentId = $(this).data('agent-id');
-                                    $('#agent_id').val(agentId);
-                                });
+                        $(document).ready(function () {
+                            // Capture the agent ID when the modal is triggered
+                            $('.report-btn').on('click', function () {
+                                var agentId = $(this).data('agent-id');
+                                $('#agent_id').val(agentId);
+                            });
 
-                                // Handle form submission via AJAX
-                                $('#reportForm').on('submit', function (e) {
-                                    e.preventDefault(); // Prevent default form submission
+                            // Prevent multiple event bindings
+                            $('#reportForm').off('submit').on('submit', function (e) {
+                                e.preventDefault(); // Prevent default form submission
 
-                                    $.ajax({
-                                        url: '../../backend/submit_report.php',
-                                        type: 'POST',
-                                        data: $(this).serialize() + '&user_id=<?php echo $_SESSION['user_id']; ?>',
-                                        dataType: 'json',
-                                        success: function (response) {
-                                            if (response.success) {
-                                                alert("Report submitted successfully!");
+                                $.ajax({
+                                    url: '../../backend/submit_report.php',
+                                    type: 'POST',
+                                    data: $(this).serialize(),
+                                    dataType: 'json',
+                                    success: function (response) {
+                                        if (response.success) {
+                                            Swal.fire({
+                                                title: "Success!",
+                                                text: "Report submitted successfully!",
+                                                icon: "success",
+                                                confirmButtonText: "OK"
+                                            }).then(() => {
                                                 $('#reportModal').modal('hide'); // Hide modal
-                                                location.reload(); // Reload the page
-                                            } else {
-                                                alert("Error: " + response.error);
-                                            }
-                                        },
-                                        error: function () {
-                                            alert("Something went wrong. Please try again.");
+                                                setTimeout(function () {
+                                                    location.reload(); // Reload page after closing modal
+                                                }, 500); 
+                                            });
+                                        } else {
+                                            Swal.fire("Error", response.error, "error");
                                         }
-                                    });
+                                    },
+                                    error: function () {
+                                        Swal.fire("Error", "Something went wrong. Please try again.", "error");
+                                    }
                                 });
                             });
+                        });
                         </script>
 
 

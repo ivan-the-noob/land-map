@@ -238,28 +238,29 @@ elseif ($_SESSION['role_type'] !== 'user') {
                             <div class="property-list">
                                 
                             <?php
-                require '../../db.php';
+require '../../db.php';
 
-                $user_id = $_SESSION['user_id']; 
+$user_id = $_SESSION['user_id']; 
 
-                $sql = "SELECT p.*, 
-                u.fname, u.lname,
-                ui.image_name AS user_image,
-                (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
-                    FROM archive_table a
-                    JOIN properties p ON a.property_id = p.property_id
-                    LEFT JOIN users u ON p.user_id = u.user_id
-                    LEFT JOIN user_img ui ON u.user_id = ui.user_id
-                    WHERE a.add_list = 1 AND a.user_id = $user_id
-                    ORDER BY p. DESC;";
+$sql = "SELECT p.*, 
+        u.fname, u.lname,
+        ui.image_name AS user_image,
+        (SELECT image_name FROM property_images WHERE property_id = p.property_id LIMIT 1) AS property_image
+    FROM archive_table a
+    JOIN properties p ON a.property_id = p.property_id
+    LEFT JOIN users u ON p.user_id = u.user_id
+    LEFT JOIN user_img ui ON u.user_id = ui.user_id
+    WHERE a.add_list = 1 AND a.user_id = $user_id
+    ORDER BY a.created_at DESC;";  
 
-                $result = $conn->query($sql);
+$result = $conn->query($sql);
 
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
-                        $agentName = $row['fname'] . ' ' . $row['lname'];
-            ?>
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $imagePath = $row['property_image'] ? "../../assets/property_images/" . $row['property_image'] : "../../assets/images/default-property.jpg";
+        $agentName = $row['fname'] . ' ' . $row['lname'];
+?>
+
 
             <div class="property-card">
                 <div class="property-image">

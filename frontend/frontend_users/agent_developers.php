@@ -148,6 +148,13 @@ elseif ($_SESSION['role_type'] !== 'agent') {
             background-color: #14b391;
             border-color: #14b391;
         }
+        .card{
+            cursor: pointer;
+        }
+
+        .card:hover{
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
     </style>
     <!-- Custom CSS footer-->
 </head>
@@ -193,118 +200,99 @@ elseif ($_SESSION['role_type'] !== 'agent') {
             </div>
             <!-- end time and date -->
 
-            <div class="row">
-                <!-- Card 2 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/ayala.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">AYALA LAND</h5>
-                        </div>
-                    </div>
+            <?php
+require '../../db.php'; // Make sure your database connection is included
+
+// Define the image path and default image
+$image_path = "../../assets/developers/";
+$default_image = "default.jpg";
+
+// Developer images mapping
+$developers = [
+    "AYALA LAND" => "ayala.jpg",
+    "SMDC" => "smdc.jpg",
+    "VISTALAND" => "vistaland.jpg",
+    "CAMELLA HOMES" => "camella.jpg",
+    "PRO-FRIENDS" => "profriends.jpg",
+    "DMCI" => "dm.jpg",
+    "FILINVEST LAND" => "filinvest.jpg",
+    "SM PRIME HOLDINGS" => "prime.jpg",
+    "ROBINSON LAND CORPORATION" => "robinson.jpg",
+    "FIDERAL LANDS" => "fideral.jpg",
+    "CENTURY PROPERTIES GROUP" => "century.jpg"
+];
+
+// Fetch properties grouped by developers (case-insensitive)
+$properties = [];
+$query = "SELECT developer, property_name FROM properties";
+$result = $conn->query($query);
+
+while ($row = $result->fetch_assoc()) {
+    $developer = strtoupper(trim($row['developer'])); // Normalize to uppercase
+    $properties[$developer][] = $row['property_name']; // Store property names under each developer
+}
+?>
+
+<div class="row">
+    <?php foreach ($developers as $name => $image): ?>
+        <div class="col-md-4">
+            <div class="card m-1 rounded" style="width: 100%;" data-toggle="modal" data-target="#modal-<?= md5($name) ?>">
+                <img src="<?= $image_path . $image ?>" class="card-img-top" style="height: 15vh; padding: 5px;" alt="<?= htmlspecialchars($name) ?>">
+                <div class="card-body">
+                    <h5 class="card-title text-center"><?= htmlspecialchars($name) ?></h5>
                 </div>
+            </div>
+        </div>
 
-                <!-- Card 3 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/smdc.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">SMDC</h5>
-                        </div>
+        <!-- Bootstrap Modal -->
+        <div class="modal fade" id="modal-<?= md5($name) ?>" tabindex="-1" role="dialog" aria-labelledby="modalLabel-<?= md5($name) ?>" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel-<?= md5($name) ?>"><?= htmlspecialchars($name) ?></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/vistaland.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">VISTALAND</h5>
+                    <div class="modal-body">
+                        <div class="text-center">
+                            <img src="<?= $image_path . $image ?>" class="img-fluid mb-3"  style="height: 15vh; padding: 5px;" alt="<?= htmlspecialchars($name) ?>">
                         </div>
+                        <h6 class="text-center">Properties List</h6>
+                        <table class="table table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Property Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $dev_key = strtoupper(trim($name)); // Normalize developer name to match DB
+                                if (!empty($properties[$dev_key])): 
+                                    $count = 1;
+                                    foreach ($properties[$dev_key] as $property): ?>
+                                        <tr>
+                                            <td><?= $count++ ?></td>
+                                            <td><?= htmlspecialchars($property) ?></td>
+                                        </tr>
+                                    <?php endforeach; 
+                                else: ?>
+                                    <tr>
+                                        <td colspan="2" class="text-center">No properties found</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-
-                <!-- Card 5 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/camella.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">CAMELLA HOMES</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 6 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/profriends.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">PRO-FRIENDS</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 7 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/dm.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">DMCI</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 8 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/filinvest.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">FILINVEST LAND</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 9 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/prime.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">SM PRIME HOLDINGS</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 10 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/robinson.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">ROBINSON LAND CORPORATION</h5>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Card 12 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/fideral.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">FIDERAL LANDS</h5>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 13 -->
-                <div class="col-md-4">
-                    <div class="card m-1 rounded" style="width: 100%;">
-                        <img src="../../assets/developers/century.jpg" class="card-img-top" style="height: 15vh; padding: 5px;" alt="Image Description">
-                        <div class="card-body">
-                            <h5 class="card-title text-center">CENTURY PROPERTIES GROUP</h5>
-                        </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
+        </div>
+    <?php endforeach; ?>
+</div>
 
 
 

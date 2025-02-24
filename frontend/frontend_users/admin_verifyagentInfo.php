@@ -189,139 +189,218 @@ elseif ($_SESSION['role_type'] !== 'admin') {
             <!-- Agent List -->
             <div class="rows mt-4">
                 <div class="col-12">
-                    <h4 class="text-center">Total Unverified Agents: <?php echo $total_verify; ?></h4>
+                    <h4 class="text-center">Total Agent Information: <?php echo $total_verify; ?></h4>
                 </div>
                 
-                <!-- Agent Verification -->
-                <div class="main-box clearfix" id="agent-verification">
-                    <h3>Agent Verification</h3>
-                    <div class="table-responsive">
-                        <table class="table table-striped agent-list">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Agent</th>
-                                    <th>Role</th>
-                                    <th class="text-center">Status</th>
-                                    <th>Email</th>
-                                    <th class="text-center">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                             $limit = 5; // Number of agents per page
-                             $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
-                             $offset = ($page - 1) * $limit;
-                             
-                             // Query to get total count of agents needing verification
-                             $total_query = "SELECT COUNT(*) AS total FROM users WHERE admin_verify = '0'";
-                             $total_result = $conn->query($total_query);
-                             $total_agents = $total_result->fetch_assoc()['total'];
-                             $total_pages = ceil($total_agents / $limit);
-                             
-                             // Fetch paginated agents
-                             $query = "SELECT * FROM users WHERE admin_verify = '0' LIMIT $limit OFFSET $offset";
-                             $result = $conn->query($query);
+                <div class="main-box clearfix" id="verify-info">
+                                        <h3>Verify Agent Information</h3>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead class="thead-light">
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>PRC File</th>
+                                                        <th>DSHP File</th>
+                                                        <th>PRC ID</th>
+                                                        <th>DSHP ID</th>
+                                                        <th class="text-center">Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php
+                                                        $limit = 5;
+                                                        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
+                                                        $offset = ($page - 1) * $limit;
+                                                    
+                                                        // Query to get total users count
+                                                        $total_query = "SELECT COUNT(*) AS total FROM users WHERE role_type = 'user'";
+                                                        $total_result = $conn->query($total_query);
+                                                        $total_users = $total_result->fetch_assoc()['total'];
+                                                        $total_pages = ceil($total_users / $limit);
+                                                 $query = "SELECT user_id, fname, lname, prc_file, dshp_file, prc_id, dshp_id, information_status 
+                                                 FROM users 
+                                                 WHERE information_status IN (2)
+                                                 AND prc_file IS NOT NULL 
+                                                 AND dshp_file IS NOT NULL 
+                                                 AND prc_id IS NOT NULL 
+                                                 AND dshp_id IS NOT NULL
+                                                LIMIT $limit OFFSET $offset";
+                                       
+                                       $result = $conn->query($query);
+                                       
 
-                                if ($result->num_rows > 0):
-                                    while ($agent = $result->fetch_assoc()): ?>
-                                        <tr>
-                                            <td>
-                                                <img src="../../assets/profile_images/<?= htmlspecialchars($agent['profile']) ?>" alt=""
-                                                    style="width: 50px; height: 50px; border-radius: 50%;" class="mr-2">
-                                                <a href="#" class="user-link text-dark"><?= htmlspecialchars($agent['fname'] . ' ' . $agent['lname']) ?></a>
-                                            </td>
-                                            <td><?= htmlspecialchars($agent['role_type']) ?></td>
-                                            <td class="text-center">
-                                                <span class="badge badge-<?= $agent['admin_verify'] == 1 ? 'success' : 'secondary' ?>">
-                                                    <?= $agent['admin_verify'] == 1 ? 'Verified' : 'Not Verified' ?>
-                                                </span>
-                                            </td>
-                                            <td><a href="mailto:<?= htmlspecialchars($agent['email']) ?>" class="text-dark"><?= htmlspecialchars($agent['email']) ?></a></td>
-                                            <td class="text-center">
-                                                <!-- View Button (Opens Modal) -->
-                                                <button class="btn btn-info btn-sm view-agent" data-toggle="modal" 
-                                                    data-target="#viewAgentModal" 
-                                                    data-agent='<?= json_encode($agent) ?>'>
-                                                    <i class="fas fa-eye"></i> View
-                                                </button>
-                                                <div class="modal fade" id="viewAgentModal" tabindex="-1" role="dialog" aria-labelledby="viewAgentModalLabel" aria-hidden="true">
-                                        <div class="modal-dialog" role="document">
+                                                    if ($result->num_rows > 0):
+                                                        while ($user = $result->fetch_assoc()): ?>
+                                                            <tr>
+                                                                <td><?= htmlspecialchars($user['fname'] . ' ' . $user['lname']) ?></td>
+                                                                <td>
+                                                                <?php if (!empty($user['prc_file'])): ?>
+                                                                    <img src="../../assets/agent_information/<?= htmlspecialchars($user['prc_file']) ?>" 
+                                                                        alt="PRC File" 
+                                                                        class="img-thumbnail zoomable-image" 
+                                                                        data-toggle="modal" 
+                                                                        data-target="#imageModal" 
+                                                                        data-image="../../assets/agent_information/<?= htmlspecialchars($user['prc_file']) ?>"
+                                                                        width="50" height="50">
+                                                                <?php else: ?>
+                                                                    <span class="text-muted">No file</span>
+                                                                <?php endif; ?>
+                                                            </td>
+
+                                                            <td>
+                                                                <?php if (!empty($user['dshp_file'])): ?>
+                                                                    <img src="../../assets/agent_information/<?= htmlspecialchars($user['dshp_file']) ?>" 
+                                                                        alt="DSHP File" 
+                                                                        class="img-thumbnail zoomable-image" 
+                                                                        data-toggle="modal" 
+                                                                        data-target="#imageModal" 
+                                                                        data-image="../../assets/agent_information/<?= htmlspecialchars($user['dshp_file']) ?>"
+                                                                        width="50" height="50">
+                                                                <?php else: ?>
+                                                                    <span class="text-muted">No file</span>
+                                                                <?php endif; ?>
+                                                            </td>
+
+                                                                <td><?= htmlspecialchars($user['prc_id']) ?></td>
+                                                                <td><?= htmlspecialchars($user['dshp_id']) ?></td>
+                                                                <td class="text-center">
+                                                                    <button class="btn btn-success btn-sm verify-user" data-user-id="<?= $user['user_id'] ?>" data-status="3">
+                                                                        ✅
+                                                                    </button>
+                                                                    <button class="btn btn-danger btn-sm verify-users" data-user-id="<?= $user['user_id'] ?>" data-status="1">
+                                                                        ❌
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endwhile;
+                                                    else: ?>
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">No pending verifications.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <nav aria-label="Page navigation">
+                    <ul class="pagination d-flex justify-content-end">
+                        <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?page=<?= max(1, $page - 1) ?>">Previous</a>
+                        </li>
+                        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                            <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                            </li>
+                        <?php endfor; ?>
+                        <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="?page=<?= min($total_pages, $page + 1) ?>">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+                                    <!-- Image Modal -->
+                                    <div class="modal fade" id="imageModal" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered" role="document">
                                             <div class="modal-content">
                                                 <div class="modal-header">
-                                                    <h5 class="modal-title" id="viewAgentModalLabel">Agent Details</h5>
+                                                    <h5 class="modal-title" id="imageModalLabel">View Image</h5>
                                                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                         <span aria-hidden="true">&times;</span>
                                                     </button>
                                                 </div>
-                                                <div class="modal-body">
-                                                    <div class="text-center">
-                                                        <img id="agentProfileImg" src="" alt="Agent Image" class="rounded-circle" style="width: 100px; height: 100px;">
-                                                    </div>
-                                                    <p><strong>Name:</strong> <span id="agentName"></span></p>
-                                                    <p><strong>Email:</strong> <span id="agentEmail"></span></p>
-                                                    <p><strong>Location:</strong> <span id="agentLocation"></span></p>
-                                                    <p><strong>Mobile:</strong> <span id="agentMobile"></span></p>
-                                                    <hr>
-                                                    <h6>Primary ID</h6>
-                                                    <p><strong>Type:</strong> <span id="agentPrimaryIDType"></span></p>
-                                                    <p><strong>Number:</strong> <span id="agentPrimaryIDNumber"></span></p>
-                                                    <div class="text-center">
-                                                        <img id="agentPrimaryIDImg" src="" alt="Primary ID Image" class="img-fluid" style="max-width: 200px;">
-                                                    </div>
-                                                    <hr>
-                                                    <h6>Secondary ID</h6>
-                                                    <p><strong>Type:</strong> <span id="agentSecondaryIDType"></span></p>
-                                                    <p><strong>Number:</strong> <span id="agentSecondaryIDNumber"></span></p>
-                                                    <div class="text-center">
-                                                        <img id="agentSecondaryIDImg" src="" alt="Secondary ID Image" class="img-fluid" style="max-width: 200px;">
-                                                    </div>
+                                                <div class="modal-body text-center">
+                                                    <img id="modalImage" src="" alt="Zoomed Image" class="img-fluid">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                    <script>
+                                        $(document).ready(function() {
+                                            $(".zoomable-image").click(function() {
+                                                let imageUrl = $(this).data("image");
+                                                $("#modalImage").attr("src", imageUrl);
+                                            });
+                                        });
 
-                                                <!-- Accept Button (Approve Agent) -->
-                                                <button class="btn btn-success btn-sm approve-agent" data-id="<?= $agent['user_id'] ?>">
-                                                    <i class="fas fa-check"></i> Accept
-                                                </button>
+                                    </script>
 
-                                                <!-- Decline Button (Reject Agent) -->
-                                                <button class="btn btn-danger btn-sm decline-agent" data-id="<?= $agent['user_id'] ?>">
-                                                    <i class="fas fa-times"></i> Decline
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endwhile;
-                                else: ?>
-                                    <tr>
-                                        <td colspan="5" class="text-center">No agents found.</td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="main-box" id="admin-registration-form" style="display:none; margin-bottom: 5px;">
-                <!-- Agent List -->
-                </div>
-            </div>
-            <!-- page navigation -->
-            <nav aria-label="Page navigation">
-                <ul class="pagination d-flex justify-content-end">
-                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?page=<?= max(1, $page - 1) ?>">Previous</a>
-                    </li>
-                    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-                        <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                            <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
-                        </li>
-                    <?php endfor; ?>
-                    <li class="page-item <?= ($page >= $total_pages) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="?page=<?= min($total_pages, $page + 1) ?>">Next</a>
-                    </li>
-                </ul>
-            </nav>
-            <!-- page navigation -->
+
+                                    <script>
+                                 $(document).ready(function() {
+                                $(".verify-user").click(function() {
+                                    let userId = $(this).data("user-id");
+                                    let status = $(this).data("status");
+
+                                    $.ajax({
+                                        url: "../../backend/update_verification_status.php",
+                                        type: "POST",
+                                        data: { user_id: userId, status: status },
+                                        success: function(response) {
+                                            try {
+                                                console.log("Raw Response:", response);
+
+                                                // Ensure response is an object before using
+                                                if (typeof response !== "object") {
+                                                    response = JSON.parse(response);
+                                                }
+
+                                                if (response.success) {
+                                                    location.reload();
+                                                } else {
+                                                    alert("Error: " + response.message);
+                                                }
+                                            } catch (e) {
+                                                console.error("JSON Parse Error:", e, response);
+                                                alert("Server response is invalid. Check console.");
+                                            }
+                                        },
+                                        error: function(xhr, status, error) {
+                                            console.error("AJAX Error:", status, error, xhr.responseText);
+                                            alert("AJAX request failed.");
+                                        }
+                                    });
+                                });
+                            });
+
+                                    </script>
+                                      <script>
+                                 $(document).ready(function() {
+                                $(".verify-users").click(function() {
+                                    let userId = $(this).data("user-id");
+                                    let status = $(this).data("status");
+
+                                    $.ajax({
+                                        url: "../../backend/update_verification_status.php",
+                                        type: "POST",
+                                        data: { user_id: userId, status: status },
+                                        success: function(response) {
+                                            try {
+                                                console.log("Raw Response:", response);
+
+                                                // Ensure response is an object before using
+                                                if (typeof response !== "object") {
+                                                    response = JSON.parse(response);
+                                                }
+
+                                                if (response.success) {
+                                                    location.reload();
+                                                } else {
+                                                    alert("Error: " + response.message);
+                                                }
+                                            } catch (e) {
+                                                console.error("JSON Parse Error:", e, response);
+                                                alert("Server response is invalid. Check console.");
+                                            }
+                                        },
+                                        error: function(xhr, status, error) {
+                                            console.error("AJAX Error:", status, error, xhr.responseText);
+                                            alert("AJAX request failed.");
+                                        }
+                                    });
+                                });
+                            });
+
+                                    </script>
+           
                 
 <div class="az-footer ht-40">
         <div class="container ht-100p pd-t-0-f">
@@ -424,38 +503,27 @@ elseif ($_SESSION['role_type'] !== 'admin') {
 
     // Handle Decline Agent
     document.querySelectorAll(".decline-agent").forEach(button => {
-    button.addEventListener("click", function () {
-        let agentId = this.getAttribute("data-id");
+        button.addEventListener("click", function () {
+            let agentId = this.getAttribute("data-id");
 
-        if (confirm("Are you sure you want to decline this agent?")) {
-            fetch("../../backend/decline_agent.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "user_id=" + encodeURIComponent(agentId)
-            })
-            .then(response => response.text()) // Get response as text first
-            .then(text => {
-                try {
-                    let data = JSON.parse(text); // Try to parse JSON
+            if (confirm("Are you sure you want to decline this agent?")) {
+                fetch("../../backend/decline_agent.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "user_id=" + agentId
+                })
+                .then(response => response.json())
+                .then(data => {
                     if (data.success) {
                         alert("Agent declined successfully!");
                         location.reload();
                     } else {
-                        alert("Error: " + data.error);
+                        alert("Error declining agent.");
                     }
-                } catch (error) {
-                    console.error("Invalid JSON response:", text);
-                    alert("Unexpected error occurred. Check console for details.");
-                }
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-                alert("Failed to process request.");
-            });
-        }
+                });
+            }
+        });
     });
-});
-
 });
 
 
