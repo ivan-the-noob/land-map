@@ -251,7 +251,7 @@ elseif ($_SESSION['role_type'] !== 'user') {
                     LEFT JOIN users u ON p.user_id = u.user_id
                     LEFT JOIN user_img ui ON u.user_id = ui.user_id
                     WHERE a.add_list = 1 AND a.user_id = $user_id
-                    ORDER BY p.created_at DESC;";
+                    ORDER BY p. DESC;";
 
                 $result = $conn->query($sql);
 
