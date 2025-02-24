@@ -21,6 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'])) {
         $stmt2->bind_param("i", $property_id);
         $stmt2->execute();
 
+        // Delete messages related to the property_id
+        $sql3 = "DELETE FROM messages WHERE property_id = ?";
+        $stmt3 = $conn->prepare($sql3);
+        $stmt3->bind_param("i", $property_id);
+        $stmt3->execute();
+
         // Commit transaction
         $conn->commit();
         echo "success";
