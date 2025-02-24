@@ -1,6 +1,6 @@
 <?php
 require '../db.php';
-date_default_timezone_set('Asia/Manila');
+
 session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST['agent_id'])) {
@@ -21,12 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
         'fck', 'pakyu', 'g@go', 'mamatay\s*kana', 'hindut', 'puta', 'deputa'
     ];
 
-    $sql = "SELECT m.*, u.profile, CONVERT_TZ(m.created_at, '+00:00', '+08:00') AS local_created_at 
-    FROM messages m 
-    LEFT JOIN users u ON m.user_id = u.user_id 
-    WHERE m.property_id = ? AND (m.user_id = ? OR m.agent_id = ?) 
-    ORDER BY m.created_at ASC";
-
+    $sql = "SELECT m.*, u.profile 
+            FROM messages m 
+            LEFT JOIN users u ON m.user_id = u.user_id 
+            WHERE m.property_id = ? AND (m.user_id = ? OR m.agent_id = ?) 
+            ORDER BY m.created_at ASC";
 
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iii", $property_id, $user_id, $agent_id);
@@ -56,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['property_id'], $_POST
             ? '<img src="' . $profileImage . '" alt="Profile" class="profile-img" style="width: 40px; height: 40px; border-radius: 50%; margin: 0;">' 
             : '<div style="width: 40px;"></div>'; 
 
-        $messageTime = date('h:i A', strtotime($row['local_created_at']));
+        $messageTime = date('h:i A', strtotime($row['created_at']));
 
         echo '<div class="chat-message d-flex ' . $isUser . '" style="gap: 5px; align-items: flex-start;">' . 
                 $showProfile . 
